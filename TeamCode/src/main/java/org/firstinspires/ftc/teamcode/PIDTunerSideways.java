@@ -1,51 +1,69 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.graphics.Color;
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
+import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
-//@Autonomous(name="Trinity", group="MecanumDrive")
-public class VirtualRobot extends LinearOpMode {
+//@TeleOp(name = "PIDTuner", group = "Linear Opmode")
+public class PIDTunerSideways extends LinearOpMode {
 
     static DcMotor BackLeft;
     static DcMotor BackRight;
     static DcMotor FrontLeft;
     static DcMotor FrontRight;
-    static DistanceSensor DistancesensorForward;
-    static DistanceSensor DistancesensorRight;
-    static ColorSensor Colorsensor;
     static MoveDirection Direction;
-    static MoveDirection DiagDirection;
-    static Servo BackServo;
+    static Servo servojerry;
+    NormalizedColorSensor colorsensor;
+    DistanceSensor distancesensor;
     BNO055IMU IMU;
     BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-    BNO055IMU ACCIMU;
     Orientation orientation;
     double globalangle;
     double current_value;
     double prev_value = 0;
     double final_value;
+    double Lpower;
+    double Rpower;
+    double SteeringOutput;
+    String num_of_rings;
+    double speed;
+    double checkInterval = 0.04;
     double FRpower;
     double FLpower;
     double BRpower;
     double BLpower;
-    double SteeringOutput;
     byte AXIS_MAP_SIGN_BYTE = 0x01;
 
-    public void runOpMode () {
+    double kp = 0.0003;
+    double ki = 0;
+    double kd = 0;
+    double driving_speed = 0.5;
+
+    private static final String TFOD_MODEL_ASSET = "UltimateGoal.tflite";
+    private static final String LABEL_FIRST_ELEMENT = "Quad";
+    private static final String LABEL_SECOND_ELEMENT = "Single";
+    private static final String VUFORIA_KEY = "AXhILmj/////AAABmZ2G36Eg5k0ThibzOCYNI3414QDSzs2D8IZaPDmv7GTK1DM+1q2KTcH4uAQmWbMIExGi0CtO5JWf2U0nO2HyBuco2BWCXxRi+y3AKuELmddFEb2JYUOIpvTZ7MolJvUdRxhmjIo5Y4N5Vl9uk2tXXZ/5NO7D0vYg/fBgpUVyO/+OnO0UIX3qotxFuCDdN86IlfygQ0p6vLtEnmUIIclVfunY4j3zDlXSbblNTMYPR96a1DjxjrNfldPEHJA+E7u8W0PvdGrtbuEqdwjgbjZjlIT30Vh/sWtaCVaY6WoqNICatk9IyHaw+Cl575F5P6tCXjR4Ib5Cr31YN3RUgLXODgKzyZM5JhRyeNjCPdHqMUqI";
+    private VuforiaLocalizer vuforia;
+    private TFObjectDetector tfod;
+
+    public void runOpMode() {
 
         MotorInitialize(
                 hardwareMap.dcMotor.get("BackLeft"),
@@ -54,18 +72,14 @@ public class VirtualRobot extends LinearOpMode {
                 hardwareMap.dcMotor.get("FrontRight")
         );
 
-        //Don't have sensors on robot as of right now, comment out for now
-        //SensorInitialize(
-                //hardwareMap.colorSensor.get("color_sensor"),
-                //hardwareMap.servo.get("back_servo")
-        //);
-
         SetDirection(MoveDirection.FORWARD);
 
-        //Don't have sensors on robot as of right now, comment out for now
-        //BackServo.setDirection(Servo.Direction.FORWARD);
-        //DistancesensorForward = hardwareMap.get(DistanceSensor.class, "front_distance");
-        //DistancesensorRight = hardwareMap.get(DistanceSensor.class, "right_distance");
+        //Not on current robot, taken out for the time being
+        //colorsensor = hardwareMap.get(NormalizedColorSensor.class, "ColorJerry1");
+        //distancesensor = hardwareMap.get(DistanceSensor.class, "DistanceJerry1");
+        //servojerry = hardwareMap.get(Servo.class, "ServoJerry1");
+
+        //Calibrate gyro
 
         IMU.write8(BNO055IMU.Register.OPR_MODE,BNO055IMU.SensorMode.CONFIG.bVal & 0x0F);
         sleep(100);
@@ -73,46 +87,168 @@ public class VirtualRobot extends LinearOpMode {
         IMU.write8(BNO055IMU.Register.OPR_MODE,BNO055IMU.SensorMode.IMU.bVal & 0x0F);
         sleep(100);
 
-        IMU = hardwareMap.get(BNO055IMU.class, "imu");
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-
+        IMU = hardwareMap.get(BNO055IMU.class, "imu1");
         IMU.initialize(parameters);
 
+        while (!isStopRequested() && !IMU.isGyroCalibrated()) {
+            sleep(50);
+            idle();
+        }
+
+        telemetry.addData("Mode", "waiting for start");
+        telemetry.addData("imu calib status", IMU.getCalibrationStatus().toString());
+        telemetry.update();
+
+        //Configure IMU
         orientation = IMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         globalangle = 0;
 
-        waitForStart();
-
+        //Create elapsed timers for use during shooting
         ElapsedTime ET = new ElapsedTime();
+        ElapsedTime timer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
+
+        boolean button_a_already_pressed = false;
+        boolean button_b_already_pressed = false;
+        boolean button_x_already_pressed = false;
+        boolean button_y_already_pressed = false;
+        boolean button_dpad_left_already_pressed = false;
+        boolean button_dpad_right_already_pressed = false;
+        boolean button_dpad_down_already_pressed = false;
+        boolean button_dpad_up_already_pressed = false;
+        boolean button_bumper_left_already_pressed = false;
+        boolean button_bumper_right_already_pressed = false;
+
+        waitForStart();
 
         while (opModeIsActive()) {
 
-            SetMotorPower(0.7);
-            sleep(5000);
-            //ServoPosition(1);
-            //DirectionFollower2(-2900, 0.7, 0,0.000000003,0.000000000000001,0.000000000005);
-            //DiagonalMovement(MoveDirection.SIDEWAYSRIGHT, 0.7, 0.73, 2650);
-            //GyroTurn(0, 0.2);
-            //ServoPosition(0);
-            return;
+            /****************************************
+             * Kp - a (inc); b (dec)
+             ***************************************/
+            if (button_a_already_pressed == false) {
+                if (gamepad1.a) {
+                    kp = kp + 0.0001;
+                    button_a_already_pressed = true;
+                }
+            } else {
+                if (!gamepad1.a) {
+                    button_a_already_pressed = false;
+                }
+            }
+
+            if (button_b_already_pressed == false) {
+                if (gamepad1.b) {
+                    kp = kp - 0.0001;
+                    button_b_already_pressed = true;
+                }
+
+            } else {
+                if (!gamepad1.b) {
+                    button_b_already_pressed = false;
+                }
+            }
+
+            /***************************************
+             * Ki - dpad right (inc); dpad left (dec)
+             ***************************************/
+            if (button_dpad_right_already_pressed == false) {
+                if (gamepad1.dpad_right) {
+                    ki = ki + 0.000001;
+                    button_dpad_right_already_pressed = true;
+                }
+            } else {
+                if (!gamepad1.dpad_right) {
+                    button_dpad_right_already_pressed = false;
+                }
+            }
+
+            if (button_dpad_left_already_pressed == false) {
+                if (gamepad1.dpad_left) {
+                    ki = ki - 0.000001;
+                    button_dpad_left_already_pressed = true;
+                }
+            } else {
+                if (!gamepad1.dpad_left) {
+                    button_dpad_left_already_pressed = false;
+                }
+            }
+
+            /***************************************
+             * Kd - x (inc); y (dec)
+             ***************************************/
+            if (button_x_already_pressed == false) {
+                if (gamepad1.x) {
+                    kd = kd + 0.01;
+                    button_x_already_pressed = true;
+                }
+            } else {
+                if (!gamepad1.x) {
+                    button_x_already_pressed = false;
+                }
+            }
+
+            if (button_y_already_pressed == false) {
+                if (gamepad1.y) {
+                    kd = kd - 0.01;
+                    button_y_already_pressed = true;
+                }
+            } else {
+                if (!gamepad1.y) {
+                    button_y_already_pressed = false;
+                }
+            }
+
+            /*****************************************
+             * Driving Speed - right (inc); left (dec)
+             ****************************************/
+            if (button_bumper_right_already_pressed == false) {
+                if (gamepad1.right_bumper) {
+                    driving_speed = driving_speed + 0.01;
+                    button_bumper_right_already_pressed = true;
+                }
+            } else {
+                if (!gamepad1.right_bumper) {
+                    button_bumper_right_already_pressed = false;
+                }
+            }
+
+            if (button_bumper_left_already_pressed == false) {
+                if (gamepad1.left_bumper) {
+                    driving_speed = driving_speed - 0.01;
+                    button_bumper_left_already_pressed = true;
+                }
+            } else {
+                if (!gamepad1.left_bumper) {
+                    button_bumper_left_already_pressed = false;
+                }
+            }
+
+            /***************************************
+             * Move Forward
+             ***************************************/
+            if (gamepad1.dpad_up) {
+                SidewaysFollower(3500, driving_speed, 0, kp, ki, kd);
+            }
+
+            /***************************************
+             * Move Backward
+             ***************************************/
+            if (gamepad1.dpad_down) {
+                SidewaysFollower(-3500, driving_speed, 0, kp, ki, kd);
+            }
+
+            /***************************************
+             * Update Telemetry
+             ***************************************/
+            telemetry.addData("kp", kp);
+            telemetry.addData("ki", ki);
+            telemetry.addData("kd", kd);
+            telemetry.addData("Drive Speed", driving_speed);
+            telemetry.update();
 
         }
     }
-
-    //DirectionFollower2(20000, 0.6, 45, 0.0000000000000003, 0.00000000000000001, 0.00000000000005);
-    //GyroTurn(0, 0.6);
-    //DirectionFollower2(20000, 0.6, 1, 0.000000003, 0.000000000000001, 0.000000000005);
-    //DirectionFollower2(20000, 0.5, 3, 0.0000003, 0.00000000000000001, 0.00000000001);
-    //DirectionFollower2(20000, 0.5, 0, 0,0,0);
-    //DiagonalMovement(MoveDirection.TOPDIAGLEFT, 0.8, 0.8, 2000);
-    //DiagonalMovement(MoveDirection.TOPDIAGRIGHT, 1, 1, 5000);
-    //DiagonalMovement(MoveDirection.SIDEWAYSRIGHT, 0.8, 0.8, 2000);
-    //DiagonalMovement(MoveDirection.BOTTOMDIAGRIGHT, 0.8, 0.8, 1000);
-    //DiagonalMovement(MoveDirection.BOTTOMDIAGLEFT, 0.8, 0.8, 2000);
-    //DiagonalMovement(MoveDirection.SIDEWAYSLEFT, 0.8, 0.8, 4000);
-    //WhiteDetector();
-    //RedDetector();
-    //return;
 
     private void MotorInitialize (DcMotor backLeft,
                                   DcMotor backright,
@@ -126,22 +262,6 @@ public class VirtualRobot extends LinearOpMode {
 
     }
 
-    //private void SensorInitialize (ColorSensor color_sensor, Servo back_servo) {
-
-        //Colorsensor = color_sensor;
-        //BackServo = back_servo;
-
-    //}
-
-    private void MotorTurn(double FR, double FL, double BR, double BL) {
-
-        FrontRight.setPower(FR);
-        FrontLeft.setPower(FL);
-        BackRight.setPower(BR);
-        BackLeft.setPower(BL);
-
-    }
-
     private void SetMotorPower(double x) {
 
         FrontLeft.setPower(x);
@@ -151,83 +271,12 @@ public class VirtualRobot extends LinearOpMode {
 
     }
 
-    private int WhiteDetector () {
+    private void MotorTurn(double FR, double FL, double BR, double BL) {
 
-        Colorsensor.red();
-        Colorsensor.green();
-        Colorsensor.blue();
-
-        int White = 255;
-        int Unknown = 1;
-
-        telemetry.addData("Red", Colorsensor.red());
-        telemetry.addData("Green", Colorsensor.green());
-        telemetry.addData("Blue", Colorsensor.blue());
-
-        if (Colorsensor.red() >= 190 && Colorsensor.green() >= 190 && Colorsensor.blue() >= 190) {
-
-            telemetry.addData("Color:", "White");
-            telemetry.update();
-            FrontLeft.setPower(0);
-            FrontRight.setPower(0);
-            BackLeft.setPower(0);
-            BackRight.setPower(0);
-            return White;
-
-        } else {
-
-            telemetry.addData("Color:", "Unknown");
-            telemetry.update();
-            FrontLeft.setPower(0.8);
-            FrontRight.setPower(0.8);
-            BackLeft.setPower(0.8);
-            BackRight.setPower(0.8);
-            return Unknown;
-
-        }
-    }
-
-    private int RedDetector () {
-
-        Colorsensor.red();
-        Colorsensor.green();
-        Colorsensor.blue();
-
-        int Red = 255;
-        int Unknown = 1;
-
-        telemetry.addData("Red", Colorsensor.red());
-        telemetry.addData("Green", Colorsensor.green());
-        telemetry.addData("Blue", Colorsensor.blue());
-
-        if (Colorsensor.red() >= 190 && Colorsensor.green() <= 40 && Colorsensor.blue() <= 40) {
-
-            telemetry.addData("Color:", "Red");
-            telemetry.update();
-            FrontLeft.setPower(0);
-            FrontRight.setPower(0);
-            BackLeft.setPower(0);
-            BackRight.setPower(0);
-            return Red;
-
-        } else {
-
-            telemetry.addData("Color:", "Unknown");
-            telemetry.update();
-            FrontLeft.setPower(1);
-            FrontRight.setPower(-1);
-            BackLeft.setPower(-1);
-            BackRight.setPower(1);
-            return Unknown;
-
-        }
-    }
-
-    private void ServoPosition (double position) {
-
-        BackServo.scaleRange(0, 1);
-        BackServo.setPosition(position);
-        telemetry.addData("Position", BackServo.getPosition());
+        FrontRight.setPower(FR);
+        FrontLeft.setPower(FL);
+        BackRight.setPower(BR);
+        BackLeft.setPower(BL);
 
     }
 
@@ -245,61 +294,6 @@ public class VirtualRobot extends LinearOpMode {
             FrontRight.setDirection(DcMotor.Direction.REVERSE);
             BackLeft.setDirection(DcMotor.Direction.REVERSE);
             BackRight.setDirection(DcMotor.Direction.FORWARD);
-        }
-    }
-
-    private void DiagonalMovement (MoveDirection diagdirection, double Fpower, double Bpower, long sleep) {
-
-        DiagDirection = diagdirection;
-        FrontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        FrontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        BackRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        BackLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        if (DiagDirection == MoveDirection.TOPDIAGRIGHT) {
-            FrontLeft.setPower(Fpower);
-            BackRight.setPower(Bpower);
-            sleep(sleep);
-            FrontLeft.setPower(0);
-            BackRight.setPower(0);
-        } else if (DiagDirection == MoveDirection.TOPDIAGLEFT) {
-            FrontRight.setPower(Fpower);
-            BackLeft.setPower(Bpower);
-            sleep(sleep);
-            FrontRight.setPower(0);
-            BackLeft.setPower(0);
-        } else if (DiagDirection == MoveDirection.BOTTOMDIAGRIGHT) {
-            FrontRight.setPower(-Fpower);
-            BackLeft.setPower(-Bpower);
-            sleep(sleep);
-            FrontRight.setPower(0);
-            BackLeft.setPower(0);
-        } else if (DiagDirection == MoveDirection.BOTTOMDIAGLEFT) {
-            FrontLeft.setPower(-Fpower);
-            BackRight.setPower(-Bpower);
-            sleep(sleep);
-            FrontLeft.setPower(0);
-            BackRight.setPower(0);
-        } else if (DiagDirection == MoveDirection.SIDEWAYSRIGHT) {
-            FrontLeft.setPower(Fpower);
-            FrontRight.setPower(-Fpower);
-            BackLeft.setPower(-Bpower);
-            BackRight.setPower(Bpower);
-            sleep(sleep);
-            FrontLeft.setPower(0);
-            BackRight.setPower(0);
-            FrontRight.setPower(0);
-            BackLeft.setPower(0);
-        } else if (DiagDirection == MoveDirection.SIDEWAYSLEFT) {
-            FrontLeft.setPower(-Fpower);
-            FrontRight.setPower(Fpower);
-            BackLeft.setPower(Bpower);
-            BackRight.setPower(-Bpower);
-            sleep(sleep);
-            FrontLeft.setPower(0);
-            BackRight.setPower(0);
-            FrontRight.setPower(0);
-            BackLeft.setPower(0);
         }
     }
 
@@ -382,10 +376,10 @@ public class VirtualRobot extends LinearOpMode {
                                     double kp_in, double ki_in, double kd_in) {
 
         PID PID = new PID();
-        FRpower = power;
+        FRpower = -power;
         FLpower = power;
         BRpower = power;
-        BLpower = power;
+        BLpower = -power;
 
         FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //frontright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -466,13 +460,13 @@ public class VirtualRobot extends LinearOpMode {
     }
 
     private void SidewaysFollower(double targetdistance, double power, double TargetDirection,
-                                    double kp_in, double ki_in, double kd_in) {
+                                  double kp_in, double ki_in, double kd_in) {
 
         PID PID = new PID();
-        FRpower = power;
+        FRpower = -power;
         FLpower = power;
         BRpower = power;
-        BLpower = power;
+        BLpower = -power;
 
         FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //frontright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -493,8 +487,8 @@ public class VirtualRobot extends LinearOpMode {
             //SteeringOutput = PID.PID_Control(TargetDirection, 0.003, 0.00001, 0.0003, GyroContinuity());
             SteeringOutput = PID.PID_Control(TargetDirection, kp_in, ki_in, kd_in, GyroContinuity());
             FLpower = FLpower + SteeringOutput * FLpower;
-            FRpower = -FRpower - SteeringOutput * FRpower;
-            BLpower = -BLpower + SteeringOutput * BLpower;
+            FRpower = FRpower - SteeringOutput * FRpower;
+            BLpower = BLpower + SteeringOutput * BLpower;
             BRpower = BRpower - SteeringOutput * BRpower;
 
             FrontLeft.setPower(FLpower);
@@ -522,10 +516,10 @@ public class VirtualRobot extends LinearOpMode {
             SetDirection(MoveDirection.REVERSE);
 
             SteeringOutput = PID.PID_Control(TargetDirection, kp_in, ki_in, kd_in, GyroContinuity());
-            FLpower = -FLpower - SteeringOutput * FLpower;
+            FLpower = FLpower - SteeringOutput * FLpower;
             FRpower = FRpower + SteeringOutput * FRpower;
             BLpower = BLpower - SteeringOutput * BLpower;
-            BRpower = -BRpower + SteeringOutput * BRpower;
+            BRpower = BRpower + SteeringOutput * BRpower;
 
             FrontLeft.setPower(FLpower);
             FrontRight.setPower(FRpower);
@@ -552,65 +546,55 @@ public class VirtualRobot extends LinearOpMode {
 
     }
 
-    private void WallDetectorForwards (int Distance) {
+    private int WhiteDetector() {
 
-        while (DistancesensorForward.getDistance(DistanceUnit.INCH) > Distance) {
+        float[] HSV = new float[3];
+        NormalizedRGBA RGBA = colorsensor.getNormalizedColors();
+        colorsensor.setGain(70);
 
-            if (DistancesensorForward.getDistance(DistanceUnit.INCH) > Distance) {
+        Color.colorToHSV(RGBA.toColor(), HSV);
+        telemetry.addData("H:", HSV[0]);
+        telemetry.addData("S:", HSV[1]);
+        telemetry.addData("V:", HSV[2]);
 
-                SetMotorPower(0.5);
-                telemetry.addData("Distance", DistancesensorForward.getDistance(DistanceUnit.INCH));
+        int White = 1;
+        int Unkwown = 0;
+
+        if (HSV[1] <= 0.25) {
+            if (HSV[2] >= 0.93) {
+                telemetry.addData("Color:", "White");
                 telemetry.update();
-
+                return White;
             } else {
-
-                SetMotorPower(0);
-
-            }
-        }
-    }
-
-    private void WallDetectorCoordinateY (int y) {
-
-        while (DistancesensorForward.getDistance(DistanceUnit.INCH) > y) {
-
-            if (DistancesensorForward.getDistance(DistanceUnit.INCH) > y) {
-
-                SetMotorPower(0.5);
-                telemetry.addData("Distance", DistancesensorForward.getDistance(DistanceUnit.INCH));
+                telemetry.addData("Color:", "Unknown");
                 telemetry.update();
-
-            } else {
-
-                SetMotorPower(0);
-
+                return Unkwown;
             }
-        }
-    }
-
-
-
-    private void WallDetectorCoordinateX (int x) {
-
-        if (DistancesensorRight.getDistance(DistanceUnit.INCH) > x) {
-
-            MotorTurn(-0.5, 0.5, 0.5, -0.5);
-            telemetry.addData("Distance", DistancesensorRight.getDistance(DistanceUnit.INCH));
-            telemetry.update();
-
         } else {
-
-            SetMotorPower(0);
-
+            telemetry.addData("Color:", "Unknown");
+            telemetry.update();
+            return Unkwown;
         }
     }
 
-    private void AutoGridpoint (int x, int y) {
+    private void initVuforia() {
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
-        WallDetectorCoordinateX(x);
-        WallDetectorCoordinateY(y);
+        parameters.vuforiaLicenseKey = VUFORIA_KEY;
+        parameters.cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
+
+        vuforia = ClassFactory.getInstance().createVuforia(parameters);
 
     }
 
-}
+    private void initTfod() {
 
+        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        tfodParameters.minResultConfidence = 0.8f;
+        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
+
+    }
+}
