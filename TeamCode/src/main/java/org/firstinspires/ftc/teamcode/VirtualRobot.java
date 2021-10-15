@@ -3,10 +3,8 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -17,7 +15,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-//@Autonomous(name="Trinity", group="MecanumDrive")
+//@Autonomous(name="VirtualRobot", group="MecanumDrive")
 public class VirtualRobot extends LinearOpMode {
 
     static DcMotor BackLeft;
@@ -43,36 +41,25 @@ public class VirtualRobot extends LinearOpMode {
     double BRpower;
     double BLpower;
     double SteeringOutput;
-    byte AXIS_MAP_SIGN_BYTE = 0x01;
 
     public void runOpMode () {
 
         MotorInitialize(
-                hardwareMap.dcMotor.get("BackLeft"),
-                hardwareMap.dcMotor.get("BackRight"),
-                hardwareMap.dcMotor.get("FrontLeft"),
-                hardwareMap.dcMotor.get("FrontRight")
+                hardwareMap.dcMotor.get("back_left_motor"),
+                hardwareMap.dcMotor.get("back_right_motor"),
+                hardwareMap.dcMotor.get("front_left_motor"),
+                hardwareMap.dcMotor.get("front_right_motor")
         );
 
-        //Don't have sensors on robot as of right now, comment out for now
-        //SensorInitialize(
-                //hardwareMap.colorSensor.get("color_sensor"),
-                //hardwareMap.servo.get("back_servo")
-        //);
+        SensorInitialize(
+                hardwareMap.colorSensor.get("color_sensor"),
+                hardwareMap.servo.get("back_servo")
+        );
 
         SetDirection(MoveDirection.FORWARD);
-
-        //Don't have sensors on robot as of right now, comment out for now
-        //BackServo.setDirection(Servo.Direction.FORWARD);
-        //DistancesensorForward = hardwareMap.get(DistanceSensor.class, "front_distance");
-        //DistancesensorRight = hardwareMap.get(DistanceSensor.class, "right_distance");
-
-        IMU.write8(BNO055IMU.Register.OPR_MODE,BNO055IMU.SensorMode.CONFIG.bVal & 0x0F);
-        sleep(100);
-        IMU.write8(BNO055IMU.Register.AXIS_MAP_SIGN,AXIS_MAP_SIGN_BYTE & 0x0F);
-        IMU.write8(BNO055IMU.Register.OPR_MODE,BNO055IMU.SensorMode.IMU.bVal & 0x0F);
-        sleep(100);
-
+        BackServo.setDirection(Servo.Direction.FORWARD);
+        DistancesensorForward = hardwareMap.get(DistanceSensor.class, "front_distance");
+        DistancesensorRight = hardwareMap.get(DistanceSensor.class, "right_distance");
         IMU = hardwareMap.get(BNO055IMU.class, "imu");
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
 
@@ -114,24 +101,24 @@ public class VirtualRobot extends LinearOpMode {
     //RedDetector();
     //return;
 
-    private void MotorInitialize (DcMotor backLeft,
-                                  DcMotor backright,
-                                  DcMotor frontleft,
-                                  DcMotor frontright) {
+    private void MotorInitialize (DcMotor back_left_motor,
+                                  DcMotor back_right_motor,
+                                  DcMotor front_left_motor,
+                                  DcMotor front_right_motor) {
 
-        BackLeft = backLeft;
-        BackRight = backright;
-        FrontLeft = frontleft;
-        FrontRight = frontright;
+        BackLeft = back_left_motor;
+        BackRight = back_right_motor;
+        FrontLeft = front_left_motor;
+        FrontRight = front_right_motor;
 
     }
 
-    //private void SensorInitialize (ColorSensor color_sensor, Servo back_servo) {
+    private void SensorInitialize (ColorSensor color_sensor, Servo back_servo) {
 
-        //Colorsensor = color_sensor;
-        //BackServo = back_servo;
+        Colorsensor = color_sensor;
+        BackServo = back_servo;
 
-    //}
+    }
 
     private void MotorTurn(double FR, double FL, double BR, double BL) {
 
@@ -238,13 +225,13 @@ public class VirtualRobot extends LinearOpMode {
         if (Direction == MoveDirection.FORWARD) {
             FrontLeft.setDirection(DcMotor.Direction.REVERSE);
             FrontRight.setDirection(DcMotor.Direction.FORWARD);
-            BackLeft.setDirection(DcMotor.Direction.FORWARD);
-            BackRight.setDirection(DcMotor.Direction.REVERSE);
+            BackLeft.setDirection(DcMotor.Direction.REVERSE);
+            BackRight.setDirection(DcMotor.Direction.FORWARD);
         } else if (Direction == MoveDirection.REVERSE) {
             FrontLeft.setDirection(DcMotor.Direction.FORWARD);
             FrontRight.setDirection(DcMotor.Direction.REVERSE);
-            BackLeft.setDirection(DcMotor.Direction.REVERSE);
-            BackRight.setDirection(DcMotor.Direction.FORWARD);
+            BackLeft.setDirection(DcMotor.Direction.FORWARD);
+            BackRight.setDirection(DcMotor.Direction.REVERSE);
         }
     }
 
@@ -439,93 +426,6 @@ public class VirtualRobot extends LinearOpMode {
             FRpower = FRpower + SteeringOutput * FRpower;
             BLpower = BLpower - SteeringOutput * BLpower;
             BRpower = BRpower + SteeringOutput * BRpower;
-
-            FrontLeft.setPower(FLpower);
-            FrontRight.setPower(FRpower);
-            BackLeft.setPower(BLpower);
-            BackRight.setPower(BRpower);
-
-            telemetry.addData("Encoder", -FrontRight.getCurrentPosition());
-            telemetry.addData("Front_Left_Motor_Power", FLpower);
-            telemetry.addData("Front_Right_Motor_Power", FRpower);
-            telemetry.addData("Back_Left_Motor_Power", BLpower);
-            telemetry.addData("Back_Right_Motor_Power", BRpower);
-            telemetry.addData("Steering", SteeringOutput);
-            telemetry.addData("DirectionZ", GyroContinuity());
-            telemetry.addData("DirectionX", orientation.thirdAngle);
-            telemetry.addData("DirectionY", orientation.secondAngle);
-            telemetry.update();
-
-        }
-
-        FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        SetMotorPower(0);
-        //sleep(100);
-        GyroTurn(TargetDirection, 0.3);
-
-    }
-
-    private void SidewaysFollower(double targetdistance, double power, double TargetDirection,
-                                    double kp_in, double ki_in, double kd_in) {
-
-        PID PID = new PID();
-        FRpower = power;
-        FLpower = power;
-        BRpower = power;
-        BLpower = power;
-
-        FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        //frontright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //FrontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //FrontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //BackRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //BackLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        FrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        FrontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        BackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        BackLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        while (FrontRight.getCurrentPosition() < targetdistance) {
-
-            SetDirection(MoveDirection.FORWARD);
-
-            //SteeringOutput = PID.PID_Control(TargetDirection, 0.0001, 0.0000000000001, 0.00000003, GyroContinuity());
-            //SteeringOutput = PID.PID_Control(TargetDirection, 0.003, 0.00001, 0.0003, GyroContinuity());
-            SteeringOutput = PID.PID_Control(TargetDirection, kp_in, ki_in, kd_in, GyroContinuity());
-            FLpower = FLpower + SteeringOutput * FLpower;
-            FRpower = -FRpower - SteeringOutput * FRpower;
-            BLpower = -BLpower + SteeringOutput * BLpower;
-            BRpower = BRpower - SteeringOutput * BRpower;
-
-            FrontLeft.setPower(FLpower);
-            FrontRight.setPower(FRpower);
-            BackLeft.setPower(BLpower);
-            BackRight.setPower(BRpower);
-
-            telemetry.addData("Error", PID.error);
-            telemetry.addData("TargetDirection", TargetDirection);
-            telemetry.addData("Encoder", FrontRight.getCurrentPosition());
-            telemetry.addData("Front_Left_Motor_Power", FLpower);
-            telemetry.addData("Front_Right_Motor_Power", FRpower);
-            telemetry.addData("Back_Left_Motor_Power", BLpower);
-            telemetry.addData("Back_Right_Motor_Power", BRpower);
-            telemetry.addData("Steering", SteeringOutput);
-            telemetry.addData("DirectionZ", GyroContinuity());
-            telemetry.addData("DirectionX", orientation.thirdAngle);
-            telemetry.addData("DirectionY", orientation.secondAngle);
-            telemetry.update();
-
-        }
-
-        while (-FrontRight.getCurrentPosition() > targetdistance) {
-
-            SetDirection(MoveDirection.REVERSE);
-
-            SteeringOutput = PID.PID_Control(TargetDirection, kp_in, ki_in, kd_in, GyroContinuity());
-            FLpower = -FLpower - SteeringOutput * FLpower;
-            FRpower = FRpower + SteeringOutput * FRpower;
-            BLpower = BLpower - SteeringOutput * BLpower;
-            BRpower = -BRpower + SteeringOutput * BRpower;
 
             FrontLeft.setPower(FLpower);
             FrontRight.setPower(FRpower);
