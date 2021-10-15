@@ -27,7 +27,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 import java.util.List;
 
-@Autonomous(name="UGRobot", group="MecanumDrive")
+//@Autonomous(name="UGRobot", group="MecanumDrive")
 public class UltimateGoalRobot extends LinearOpMode {
 
     static DcMotor frontleft;
