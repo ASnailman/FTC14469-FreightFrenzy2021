@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -14,7 +15,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-//@Autonomous(name="VirtualRobot", group="MecanumDrive")
+@Autonomous(name="MechDrive", group="MecanumDrive")
 public class OfficialAutonomous extends LinearOpMode {
 
     static DcMotor BackLeft;
@@ -57,17 +58,26 @@ public class OfficialAutonomous extends LinearOpMode {
                 //hardwareMap.servo.get("back_servo")
         //);
 
-        SetDirection(MoveDirection.FORWARD);
+        SetDirection(MoveDirection.REVERSE);
         //BackServo.setDirection(Servo.Direction.FORWARD);
         //DistancesensorForward = hardwareMap.get(DistanceSensor.class, "front_distance");
         //DistancesensorRight = hardwareMap.get(DistanceSensor.class, "right_distance");
         IMU = hardwareMap.get(BNO055IMU.class, "imu");
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-
         IMU.initialize(parameters);
 
         orientation = IMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         globalangle = 0;
+
+        FrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        BackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        BackLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        FrontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        FrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        BackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        BackLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         waitForStart();
 
@@ -75,8 +85,15 @@ public class OfficialAutonomous extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            MechDrive(90, 0.5, 4000);
-            return;
+            //SetMotorPower(0.5);
+            //sleep(3000);
+            MechDrive(135, 0.7, 2000);
+            //MechDrive(0, 0.7, 2000);
+            //MechDrive(90, 0.7, 2000);
+            //MechDrive(180, 0.7, 2000);
+            //MechDrive(270, 0.7, 2000);
+            //MechDrive(225, 0.7, 1000);
+            break;
 
         }
     }
@@ -437,17 +454,18 @@ public class OfficialAutonomous extends LinearOpMode {
         double power_y_new;
         double power_x_new;
         double encoder;
+        double radians = Math.toRadians(strafingangle);
 
         power_y_old = 0;
         power_x_old = power;
 
-        power_y_new = power_x_old * Math.cos(strafingangle) - power_y_old * Math.sin(strafingangle);
-        power_x_new = power_x_old * Math.sin(strafingangle) + power_y_old * Math.cos(strafingangle);
+        power_y_new = power_x_old * Math.cos(radians) - power_y_old * Math.sin(radians);
+        power_x_new = power_x_old * Math.sin(radians) + power_y_old * Math.cos(radians);
 
-        if ((strafingangle <= 90 && strafingangle >= 0) && (strafingangle >= 180 && strafingangle <= 270)) {
+        if ((radians <= Math.toRadians(90) && radians >= 0) || (radians >= Math.toRadians(180) && radians <= Math.toRadians(270))) {
             encoder = FrontLeft.getCurrentPosition();
         } else {
-            encoder = FrontRight.getCurrentPosition();
+            encoder = BackLeft.getCurrentPosition();
         }
 
         while (encoder < targetdistance) {
@@ -463,11 +481,19 @@ public class OfficialAutonomous extends LinearOpMode {
             BackLeft.setPower(blpower);
             BackRight.setPower(brpower);
 
+            telemetry.addData("Frontleft", FrontLeft.getCurrentPosition());
+            telemetry.addData("Backleft", -BackLeft.getCurrentPosition());
+            telemetry.addData("ActualDistance", encoder);
+            telemetry.update();
+
         }
 
         FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         FrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        BackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        BackLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         SetMotorPower(0);
+        sleep(100);
 
     }
 

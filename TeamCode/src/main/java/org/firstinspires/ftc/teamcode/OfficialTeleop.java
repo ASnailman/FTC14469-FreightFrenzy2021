@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-//@TeleOp(name="MecanumDriveTeleop", group="MecanumDrive")
+@TeleOp(name="MecanumDriveTeleop", group="MecanumDrive")
 public class OfficialTeleop extends LinearOpMode {
 
     static DcMotor FrontLeft;
