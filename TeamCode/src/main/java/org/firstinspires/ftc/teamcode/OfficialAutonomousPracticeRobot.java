@@ -15,8 +15,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-@Autonomous(name="MechDrive", group="MecanumDrive")
-public class OfficialAutonomous extends LinearOpMode {
+@Autonomous(name="MechDrivePracticeRobot", group="MecanumDrive")
+public class OfficialAutonomousPracticeRobot extends LinearOpMode {
 
     static DcMotor BackLeft;
     static DcMotor BackRight;
@@ -58,13 +58,22 @@ public class OfficialAutonomous extends LinearOpMode {
                 //hardwareMap.servo.get("back_servo")
         //);
 
-        SetDirection(MoveDirection.REVERSE);
+        SetDirection(MoveDirection.FORWARD);
         //BackServo.setDirection(Servo.Direction.FORWARD);
         //DistancesensorForward = hardwareMap.get(DistanceSensor.class, "front_distance");
         //DistancesensorRight = hardwareMap.get(DistanceSensor.class, "right_distance");
         IMU = hardwareMap.get(BNO055IMU.class, "imu");
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
         IMU.initialize(parameters);
+
+        while (!isStopRequested() && !IMU.isGyroCalibrated()) {
+            sleep(50);
+            idle();
+        }
+
+        telemetry.addData("Mode", "waiting for start");
+        telemetry.addData("imu calib status", IMU.getCalibrationStatus().toString());
+        telemetry.update();
 
         orientation = IMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         globalangle = 0;
@@ -85,14 +94,9 @@ public class OfficialAutonomous extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            //SetMotorPower(0.5);
-            //sleep(3000);
-            MechDrive(135, 0.7, 2000);
-            //MechDrive(0, 0.7, 2000);
-            //MechDrive(90, 0.7, 2000);
-            //MechDrive(180, 0.7, 2000);
-            //MechDrive(270, 0.7, 2000);
-            //MechDrive(225, 0.7, 1000);
+            GyroTurn(45, 0.5);
+            GyroTurn(-135, 0.5);
+
             break;
 
         }
@@ -454,13 +458,13 @@ public class OfficialAutonomous extends LinearOpMode {
         double power_y_new;
         double power_x_new;
         double encoder;
-        double radians = Math.toRadians(-strafingangle); // negate strafing angle for left hand rule
+        double radians = Math.toRadians(strafingangle);
 
-        power_y_old = power; // make x_old 0 to make the degrees start at the front of the robot
-        power_x_old = 0;
+        power_y_old = 0;
+        power_x_old = power;
 
-        power_x_new = power_x_old * Math.cos(radians) - power_y_old * Math.sin(radians); // equation for right hand rule
-        power_y_new = power_x_old * Math.sin(radians) + power_y_old * Math.cos(radians);
+        power_y_new = power_x_old * Math.cos(radians) - power_y_old * Math.sin(radians);
+        power_x_new = power_x_old * Math.sin(radians) + power_y_old * Math.cos(radians);
 
         if ((radians <= Math.toRadians(90) && radians >= 0) || (radians >= Math.toRadians(180) && radians <= Math.toRadians(270))) {
             encoder = FrontLeft.getCurrentPosition();
@@ -469,12 +473,6 @@ public class OfficialAutonomous extends LinearOpMode {
         }
 
         while (encoder < targetdistance) {
-
-            if ((radians <= Math.toRadians(90) && radians >= 0) || (radians >= Math.toRadians(180) && radians <= Math.toRadians(270))) {
-                encoder = FrontLeft.getCurrentPosition();
-            } else {
-                encoder = BackLeft.getCurrentPosition();
-            }
 
             double denominator = Math.max(Math.abs(power_y_new) + Math.abs(power_x_new), 1);
             double flpower = (power_y_new + 1.1*power_x_new) / denominator;
