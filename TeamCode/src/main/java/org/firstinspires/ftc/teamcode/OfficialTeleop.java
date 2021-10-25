@@ -2,7 +2,9 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @TeleOp(name="MecanumDriveTeleop", group="MecanumDrive")
 public class OfficialTeleop extends LinearOpMode {
@@ -12,6 +14,7 @@ public class OfficialTeleop extends LinearOpMode {
     static DcMotor FrontRight;
     static DcMotor BackRight;
     static MoveDirection Direction;
+    static CRServo CarouselServo;
 
     @Override
     public void runOpMode() {
@@ -20,8 +23,10 @@ public class OfficialTeleop extends LinearOpMode {
         BackRight = hardwareMap.get(DcMotor.class, "BackRight");
         FrontLeft = hardwareMap.get(DcMotor.class, "FrontLeft");
         FrontRight = hardwareMap.get(DcMotor.class, "FrontRight");
+        CarouselServo = hardwareMap.get(CRServo.class, "carouselservo");
 
         SetDirection(MoveDirection.REVERSE);
+        CarouselServo.setDirection(DcMotorSimple.Direction.FORWARD);
 
         waitForStart();
 
@@ -30,6 +35,13 @@ public class OfficialTeleop extends LinearOpMode {
             double y = -gamepad1.left_stick_y;
             double x = gamepad1.left_stick_x * 1.1;
             double rx = gamepad1.right_stick_x;
+
+            if (gamepad1.dpad_up) {
+                CarouselServo.setPower(0.5);
+            }
+            if (gamepad1.dpad_down) {
+                CarouselServo.setPower(-0.5);
+            }
 
             double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
             double FLPower = (y + x + rx) / denominator;

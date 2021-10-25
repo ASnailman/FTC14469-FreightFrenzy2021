@@ -3,12 +3,14 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.checkerframework.checker.units.qual.C;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
@@ -27,7 +29,7 @@ public class OfficialAutonomousPracticeRobot extends LinearOpMode {
     static ColorSensor Colorsensor;
     static MoveDirection Direction;
     static MoveDirection DiagDirection;
-    static Servo BackServo;
+    static Servo CarouselServo;
     BNO055IMU IMU;
     BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
     BNO055IMU ACCIMU;
@@ -53,13 +55,15 @@ public class OfficialAutonomousPracticeRobot extends LinearOpMode {
                 hardwareMap.dcMotor.get("FrontRight")
         );
 
-        //SensorInitialize(
+        SensorInitialize(
                 //hardwareMap.colorSensor.get("color_sensor"),
-                //hardwareMap.servo.get("back_servo")
-        //);
+                hardwareMap.servo.get("carouselservo")
+        );
 
         SetDirection(MoveDirection.FORWARD);
-        //BackServo.setDirection(Servo.Direction.FORWARD);
+        CarouselServo.setDirection(Servo.Direction.FORWARD);
+        CarouselServo.resetDeviceConfigurationForOpMode();
+        CarouselServo.setPosition(0);
         //DistancesensorForward = hardwareMap.get(DistanceSensor.class, "front_distance");
         //DistancesensorRight = hardwareMap.get(DistanceSensor.class, "right_distance");
         IMU = hardwareMap.get(BNO055IMU.class, "imu");
@@ -94,8 +98,11 @@ public class OfficialAutonomousPracticeRobot extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            GyroTurn(45, 0.5);
-            GyroTurn(-135, 0.5);
+                CarouselServo.scaleRange(0, 1);
+                CarouselServo.setPosition(1);
+                sleep(5000);
+                CarouselServo.setPosition(0);
+                sleep(5000);
 
             break;
 
@@ -114,10 +121,9 @@ public class OfficialAutonomousPracticeRobot extends LinearOpMode {
 
     }
 
-    private void SensorInitialize (ColorSensor color_sensor, Servo back_servo) {
+    private void SensorInitialize (Servo carouselservo) {
 
-        Colorsensor = color_sensor;
-        BackServo = back_servo;
+        CarouselServo = carouselservo;
 
     }
 
@@ -211,13 +217,13 @@ public class OfficialAutonomousPracticeRobot extends LinearOpMode {
         }
     }
 
-    private void ServoPosition (double position) {
+    //private void ServoPosition (double position) {
 
-        BackServo.scaleRange(0, 1);
-        BackServo.setPosition(position);
-        telemetry.addData("Position", BackServo.getPosition());
+        //CarouselServo.scaleRange(0, 1);
+        //CarouselServo.setPosition(position);
+        //telemetry.addData("Position", CarouselServo.getPosition());
 
-    }
+    //}
 
     private void SetDirection (MoveDirection direction) {
 
