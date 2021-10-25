@@ -21,7 +21,7 @@ public class OfficialTeleop extends LinearOpMode {
         FrontLeft = hardwareMap.get(DcMotor.class, "FrontLeft");
         FrontRight = hardwareMap.get(DcMotor.class, "FrontRight");
 
-        SetDirection(MoveDirection.FORWARD);
+        SetDirection(MoveDirection.REVERSE);
 
         waitForStart();
 

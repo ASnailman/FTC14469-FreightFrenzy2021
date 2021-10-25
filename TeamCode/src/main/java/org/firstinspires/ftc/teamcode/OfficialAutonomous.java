@@ -43,6 +43,7 @@ public class OfficialAutonomous extends LinearOpMode {
     double SteeringOutput;
     double power_x_old;
     double power_y_old;
+    ElapsedTime ET = new ElapsedTime();
 
     public void runOpMode () {
 
@@ -81,18 +82,10 @@ public class OfficialAutonomous extends LinearOpMode {
 
         waitForStart();
 
-        ElapsedTime ET = new ElapsedTime();
-
         while (opModeIsActive()) {
 
-            //SetMotorPower(0.5);
-            //sleep(3000);
-            MechDrive(135, 0.7, 2000);
-            //MechDrive(0, 0.7, 2000);
-            //MechDrive(90, 0.7, 2000);
-            //MechDrive(180, 0.7, 2000);
-            //MechDrive(270, 0.7, 2000);
-            //MechDrive(225, 0.7, 1000);
+            ET.reset();
+            MechDriveElapsedTime(180, 0.61, 4000, 0.00002, 0, 0);
             break;
 
         }
@@ -449,8 +442,9 @@ public class OfficialAutonomous extends LinearOpMode {
 
     }
 
-    private void MechDrive (double strafingangle, double power, double targetdistance) {
+    private void MechDrive (double strafingangle, double power, double targetdistance, double kp_in, double ki_in, double kd_in) {
 
+        PID pid = new PID();
         double power_y_new;
         double power_x_new;
         double encoder;
@@ -461,6 +455,7 @@ public class OfficialAutonomous extends LinearOpMode {
 
         power_x_new = power_x_old * Math.cos(radians) - power_y_old * Math.sin(radians); // equation for right hand rule
         power_y_new = power_x_old * Math.sin(radians) + power_y_old * Math.cos(radians);
+        //SteeringOutput = pid.PID_Control(strafingangle, kp_in, ki_in, kd_in, GyroContinuity());
 
         if ((radians <= Math.toRadians(90) && radians >= 0) || (radians >= Math.toRadians(180) && radians <= Math.toRadians(270))) {
             encoder = FrontLeft.getCurrentPosition();
@@ -490,6 +485,10 @@ public class OfficialAutonomous extends LinearOpMode {
             telemetry.addData("Frontleft", FrontLeft.getCurrentPosition());
             telemetry.addData("Backleft", -BackLeft.getCurrentPosition());
             telemetry.addData("ActualDistance", encoder);
+            //telemetry.addData("Steering", SteeringOutput);
+            //telemetry.addData("DirectionZ", GyroContinuity());
+            //telemetry.addData("DirectionX", orientation.thirdAngle);
+            //telemetry.addData("DirectionY", orientation.secondAngle);
             telemetry.update();
 
         }
@@ -500,6 +499,68 @@ public class OfficialAutonomous extends LinearOpMode {
         BackLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         SetMotorPower(0);
         sleep(100);
+
+    }
+
+    private void MechDriveElapsedTime (double strafingangle, double power, double target_time, double kp_in, double ki_in, double kd_in) {
+
+        PID pid = new PID();
+        double power_y_new;
+        double power_x_new;
+        double encoder;
+        double radians = Math.toRadians(-strafingangle); // negate strafing angle for left hand rule
+        ET.reset();
+
+        power_y_old = power; // make x_old 0 to make the degrees start at the front of the robot
+        power_x_old = 0;
+
+        power_x_new = power_x_old * Math.cos(radians) - power_y_old * Math.sin(radians); // equation for right hand rule
+        power_y_new = power_x_old * Math.sin(radians) + power_y_old * Math.cos(radians);
+        SteeringOutput = pid.PID_Control(strafingangle, kp_in, ki_in, kd_in, GyroContinuity());
+
+        if ((radians <= Math.toRadians(90) && radians >= 0) || (radians >= Math.toRadians(180) && radians <= Math.toRadians(270))) {
+            encoder = FrontLeft.getCurrentPosition();
+        } else {
+            encoder = BackLeft.getCurrentPosition();
+        }
+
+        while (ET.milliseconds() < target_time) {
+
+            if ((radians <= Math.toRadians(90) && radians >= Math.toRadians(0)) || (radians >= Math.toRadians(180) && radians <= Math.toRadians(270))) {
+                encoder = FrontLeft.getCurrentPosition();
+            } else {
+                encoder = BackLeft.getCurrentPosition();
+            }
+
+            double denominator = Math.max(Math.abs(power_y_new) + Math.abs(power_x_new), 1);
+            double flpower = (power_y_new + 1.1*power_x_new + SteeringOutput) / denominator;
+            double blpower = (power_y_new - 1.1*power_x_new + SteeringOutput) / denominator;
+            double frpower = (power_y_new - 1.1*power_x_new - SteeringOutput) / denominator;
+            double brpower = (power_y_new + 1.1*power_x_new - SteeringOutput) / denominator;
+
+            FrontLeft.setPower(flpower);
+            FrontRight.setPower(frpower);
+            BackLeft.setPower(blpower);
+            BackRight.setPower(brpower);
+
+            telemetry.addData("Frontleft", FrontLeft.getCurrentPosition());
+            telemetry.addData("Backleft", -BackLeft.getCurrentPosition());
+            telemetry.addData("ActualDistance", encoder);
+            telemetry.addData("Steering", SteeringOutput);
+            telemetry.addData("DirectionZ", GyroContinuity());
+            telemetry.addData("DirectionX", orientation.thirdAngle);
+            telemetry.addData("DirectionY", orientation.secondAngle);
+            telemetry.update();
+
+        }
+
+        FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        FrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        BackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        BackLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        SetMotorPower(0);
+        sleep(100);
+        ET.reset();
 
     }
 
