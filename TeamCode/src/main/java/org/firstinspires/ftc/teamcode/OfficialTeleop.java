@@ -37,11 +37,11 @@ public class OfficialTeleop extends LinearOpMode {
             double rx = gamepad1.right_stick_x;
 
             if (gamepad1.dpad_up) {
-                CarouselServo.setPower(0.5);
-            }
-            if (gamepad1.dpad_down) {
-                CarouselServo.setPower(-0.5);
-            }
+                CarouselServo.setPower(1);
+            } //sets power 1, forwards
+            if (gamepad1.dpad_right) {
+                CarouselServo.setPower(0);
+            } //sets power 0, still
 
             double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
             double FLPower = (y + x + rx) / denominator;
