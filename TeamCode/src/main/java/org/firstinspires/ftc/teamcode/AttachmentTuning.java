@@ -17,6 +17,11 @@ public class AttachmentTuning extends LinearOpMode {
     static DcMotor Intake;
     double intake_speed = 0.5;
 
+    boolean button_a_already_pressed = false;
+    boolean button_b_already_pressed = false;
+    boolean button_bumper_left_already_pressed = false;
+    boolean button_bumper_right_already_pressed = false;
+
     @Override
     public void runOpMode() {
 
@@ -32,11 +37,6 @@ public class AttachmentTuning extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            boolean button_a_already_pressed = false;
-            boolean button_b_already_pressed = false;
-            boolean button_bumper_left_already_pressed = false;
-            boolean button_bumper_right_already_pressed = false;
-
             if (button_bumper_right_already_pressed == false) {
                 if (gamepad1.right_bumper) {
                     intake_speed = intake_speed + 0.01;
@@ -49,13 +49,13 @@ public class AttachmentTuning extends LinearOpMode {
             }
 
             if (button_bumper_left_already_pressed == false) {
-                if (gamepad1.right_bumper) {
+                if (gamepad1.left_bumper) {
                     intake_speed = intake_speed - 0.01;
-                    button_bumper_right_already_pressed = true;
+                    button_bumper_left_already_pressed = true;
                 }
             } else {
-                if (!gamepad1.right_bumper) {
-                    button_bumper_right_already_pressed = false;
+                if (!gamepad1.left_bumper) {
+                    button_bumper_left_already_pressed = false;
                 }
             }
 
