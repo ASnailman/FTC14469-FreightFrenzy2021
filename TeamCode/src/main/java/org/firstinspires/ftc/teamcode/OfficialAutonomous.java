@@ -59,7 +59,7 @@ public class OfficialAutonomous extends LinearOpMode {
                 //hardwareMap.servo.get("back_servo")
         //);
 
-        SetDirection(MoveDirection.REVERSE);
+        SetDirection(MoveDirection.FORWARD);
         //BackServo.setDirection(Servo.Direction.FORWARD);
         //DistancesensorForward = hardwareMap.get(DistanceSensor.class, "front_distance");
         //DistancesensorRight = hardwareMap.get(DistanceSensor.class, "right_distance");
@@ -84,8 +84,17 @@ public class OfficialAutonomous extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            ET.reset();
-            MechDriveElapsedTime(180, 0.61, 4000, 0.00002, 0, 0);
+            MechDrive(0, 0.4, 500, 0.00002, 0, 0);
+            sleep(1000);
+            MechDrive(180, 0.4, 500, 0.00002, 0, 0);
+            sleep(1000);
+            MechDrive(-90, 0.4, 500, 0.00002, 0, 0);
+            sleep(1000);
+            MechDrive(90, 0.4, 500, 0.00002, 0, 0);
+            sleep(1000);
+            MechDrive(-45, 0.4, 500, 0.00002, 0, 0);
+            sleep(1000);
+            MechDrive(45, 0.4, 500, 0.00002, 0, 0);
             break;
 
         }
@@ -455,40 +464,53 @@ public class OfficialAutonomous extends LinearOpMode {
 
         power_x_new = power_x_old * Math.cos(radians) - power_y_old * Math.sin(radians); // equation for right hand rule
         power_y_new = power_x_old * Math.sin(radians) + power_y_old * Math.cos(radians);
-        //SteeringOutput = pid.PID_Control(strafingangle, kp_in, ki_in, kd_in, GyroContinuity());
+        SteeringOutput = pid.PID_Control(strafingangle, kp_in, ki_in, kd_in, GyroContinuity());
 
-        if ((radians <= Math.toRadians(90) && radians >= 0) || (radians >= Math.toRadians(180) && radians <= Math.toRadians(270))) {
-            encoder = FrontLeft.getCurrentPosition();
-        } else {
-            encoder = BackLeft.getCurrentPosition();
+        FrontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        FrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        BackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        BackLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        //if ((radians <= Math.toRadians(90) && radians >= Math.toRadians(0)) || (radians >= Math.toRadians(180) && radians <= Math.toRadians(270))) {
+            //encoder = FrontLeft.getCurrentPosition();
+        //} else {
+            //encoder = BackLeft.getCurrentPosition();
+        //}
+        encoder = FrontRight.getCurrentPosition();
+        if (encoder < 0) {
+            encoder = -encoder;
         }
 
         while (encoder < targetdistance) {
 
-            if ((radians <= Math.toRadians(90) && radians >= 0) || (radians >= Math.toRadians(180) && radians <= Math.toRadians(270))) {
-                encoder = FrontLeft.getCurrentPosition();
-            } else {
-                encoder = BackLeft.getCurrentPosition();
+            //if ((radians <= Math.toRadians(90) && radians >= Math.toRadians(0)) || (radians >= Math.toRadians(180) && radians <= Math.toRadians(270))) {
+                //encoder = FrontLeft.getCurrentPosition();
+            //} else {
+                //encoder = BackLeft.getCurrentPosition();
+            //}
+            encoder = FrontRight.getCurrentPosition();
+            if (encoder < 0) {
+                encoder = -encoder;
             }
 
             double denominator = Math.max(Math.abs(power_y_new) + Math.abs(power_x_new), 1);
-            double flpower = (power_y_new + 1.1*power_x_new) / denominator;
-            double blpower = (power_y_new - 1.1*power_x_new) / denominator;
-            double frpower = (power_y_new - 1.1*power_x_new) / denominator;
-            double brpower = (power_y_new + 1.1*power_x_new) / denominator;
+            double flpower = (power_y_new + 1.1*power_x_new + SteeringOutput) / denominator;
+            double blpower = (power_y_new - 1.1*power_x_new + SteeringOutput) / denominator;
+            double frpower = (power_y_new - 1.1*power_x_new - SteeringOutput) / denominator;
+            double brpower = (power_y_new + 1.1*power_x_new - SteeringOutput) / denominator;
 
             FrontLeft.setPower(flpower);
             FrontRight.setPower(frpower);
             BackLeft.setPower(blpower);
             BackRight.setPower(brpower);
 
-            telemetry.addData("Frontleft", FrontLeft.getCurrentPosition());
-            telemetry.addData("Backleft", -BackLeft.getCurrentPosition());
+            //telemetry.addData("Frontleft", FrontLeft.getCurrentPosition());
+            //telemetry.addData("Backleft", BackLeft.getCurrentPosition());
             telemetry.addData("ActualDistance", encoder);
-            //telemetry.addData("Steering", SteeringOutput);
-            //telemetry.addData("DirectionZ", GyroContinuity());
-            //telemetry.addData("DirectionX", orientation.thirdAngle);
-            //telemetry.addData("DirectionY", orientation.secondAngle);
+            telemetry.addData("Steering", SteeringOutput);
+            telemetry.addData("DirectionZ", GyroContinuity());
+            telemetry.addData("DirectionX", orientation.thirdAngle);
+            telemetry.addData("DirectionY", orientation.secondAngle);
             telemetry.update();
 
         }

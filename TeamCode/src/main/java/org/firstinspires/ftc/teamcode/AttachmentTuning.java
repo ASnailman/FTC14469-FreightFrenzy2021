@@ -34,7 +34,7 @@ public class AttachmentTuning extends LinearOpMode {
         CarouselServo = hardwareMap.get(CRServo.class, "carouselservo");
 
         CarouselServo.setDirection(DcMotorSimple.Direction.FORWARD);
-        SetDirection(MoveDirection.REVERSE);
+        SetDirection(MoveDirection.FORWARD);
 
         waitForStart();
 

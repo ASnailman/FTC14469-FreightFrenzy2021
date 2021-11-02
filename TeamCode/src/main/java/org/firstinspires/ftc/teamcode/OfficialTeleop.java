@@ -25,7 +25,7 @@ public class OfficialTeleop extends LinearOpMode {
         FrontRight = hardwareMap.get(DcMotor.class, "FrontRight");
         CarouselServo = hardwareMap.get(CRServo.class, "carouselservo");
 
-        SetDirection(MoveDirection.REVERSE);
+        SetDirection(MoveDirection.FORWARD);
         CarouselServo.setDirection(DcMotorSimple.Direction.FORWARD);
 
         waitForStart();
