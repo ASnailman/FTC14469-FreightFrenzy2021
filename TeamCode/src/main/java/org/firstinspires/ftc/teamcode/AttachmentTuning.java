@@ -15,6 +15,7 @@ public class AttachmentTuning extends LinearOpMode {
     static DcMotor BackRight;
     static MoveDirection Direction;
     static DcMotor Intake;
+    static CRServo CarouselServo;
     double intake_speed = 0.5;
 
     boolean button_a_already_pressed = false;
@@ -30,7 +31,9 @@ public class AttachmentTuning extends LinearOpMode {
         FrontLeft = hardwareMap.get(DcMotor.class, "FrontLeft");
         FrontRight = hardwareMap.get(DcMotor.class, "FrontRight");
         Intake = hardwareMap.get(DcMotor.class, "Intake");
+        CarouselServo = hardwareMap.get(CRServo.class, "carouselservo");
 
+        CarouselServo.setDirection(DcMotorSimple.Direction.FORWARD);
         SetDirection(MoveDirection.REVERSE);
 
         waitForStart();
@@ -61,11 +64,18 @@ public class AttachmentTuning extends LinearOpMode {
 
             if (gamepad1.dpad_up) {
                 IntakeRunner(intake_speed);
-            }
+            } //runs intake with speed based on adjustments from pressing bumpers
 
-            if (gamepad1.dpad_up) {
+            if (gamepad1.dpad_down) {
                 IntakeRunner(0);
-            }
+            } //sets the intake power to 0, stops motor
+
+            if (gamepad1.dpad_right) {
+                CarouselServo.setPower(1);
+            } //sets power 1, forwards
+            if (gamepad1.dpad_left) {
+                CarouselServo.setPower(0);
+            } //sets power 0, still
 
             telemetry.addData("Drive Speed", intake_speed);
             telemetry.update();
