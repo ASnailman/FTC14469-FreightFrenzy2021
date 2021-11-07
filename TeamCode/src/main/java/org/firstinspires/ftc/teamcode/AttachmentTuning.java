@@ -43,13 +43,13 @@ public class AttachmentTuning extends LinearOpMode {
         FrontLeft = hardwareMap.get(DcMotor.class, "FrontLeft");
         FrontRight = hardwareMap.get(DcMotor.class, "FrontRight");
         Intake = hardwareMap.get(DcMotor.class, "Intake");
-        Arm = hardwareMap.get(DcMotor.class, "Arm");
-        Rail = hardwareMap.get(DcMotor.class, "Rail");
-        CarouselServo = hardwareMap.get(CRServo.class, "carouselservo");
+        Arm = hardwareMap.get(DcMotor.class, "arm");
+        Rail = hardwareMap.get(DcMotor.class, "rail");
+        //CarouselServo = hardwareMap.get(CRServo.class, "carouselservo");
         BucketServo = hardwareMap.get(Servo.class, "BucketServo");
 
         AttachmentSetDirection();
-        SetDirection(MoveDirection.FORWARD);
+        SetDirection(MoveDirection.REVERSE);
 
         waitForStart();
 
@@ -204,9 +204,9 @@ public class AttachmentTuning extends LinearOpMode {
 
     private void AttachmentSetDirection () {
 
-        CarouselServo.setDirection(DcMotor.Direction.FORWARD);
+        //CarouselServo.setDirection(DcMotor.Direction.FORWARD);
         BucketServo.setDirection(Servo.Direction.FORWARD);
-        Intake.setDirection(DcMotor.Direction.FORWARD);
+        Intake.setDirection(DcMotor.Direction.REVERSE);
         Arm.setDirection(DcMotor.Direction.FORWARD);
         Rail.setDirection(DcMotor.Direction.FORWARD);
 
