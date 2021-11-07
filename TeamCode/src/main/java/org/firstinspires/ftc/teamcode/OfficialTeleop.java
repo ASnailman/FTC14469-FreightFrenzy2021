@@ -28,6 +28,11 @@ public class OfficialTeleop extends LinearOpMode {
         SetDirection(MoveDirection.REVERSE);
         //CarouselServo.setDirection(DcMotorSimple.Direction.FORWARD);
 
+        BackLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        BackRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        FrontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        FrontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         waitForStart();
 
         while (opModeIsActive()) {

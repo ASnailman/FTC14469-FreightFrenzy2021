@@ -21,8 +21,8 @@ public class AttachmentTuning extends LinearOpMode {
     static CRServo CarouselServo;
     static Servo BucketServo;
     double intake_power = 0.5;
-    double arm_power = 0.5;
-    double rail_power = 0.5;
+    int arm_position = 0;
+    int rail_position = 0;
 
     boolean button_a_already_pressed = false;
     boolean button_b_already_pressed = false;
@@ -50,6 +50,11 @@ public class AttachmentTuning extends LinearOpMode {
 
         AttachmentSetDirection();
         SetDirection(MoveDirection.REVERSE);
+
+        Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        Arm.setTargetPosition(0);
+        Rail.setTargetPosition(0);
 
         waitForStart();
 
@@ -103,13 +108,46 @@ public class AttachmentTuning extends LinearOpMode {
                 CarouselServo.setPower(0);
             }
 
+            ///****************************************
+            // Run CarouselMotor (G1): dpad_right = power 100%, dpad_down = power 0%
+            // ***************************************/
+
+            //if (gamepad1.dpad_right) {
+            //    CarouselServo.setPower(1);
+            //}
+            //if (gamepad1.dpad_left) {
+            //    CarouselServo.setPower(0);
+            //}
+
+            ///****************************************
+            // Run BucketServo (G2): dpad_right = 180 degrees, dpad_down = 0 degrees
+            // ***************************************/
+
+            //if (gamepad2.dpad_right) {
+            //    BucketServo.setPosition(180);
+            //}
+            //if (gamepad2.dpad_left) {
+            //    BucketServo.setPower(0);
+            //}
+
+            ///****************************************
+            // Run BucketServo (G2): dpad_right = power 100%, dpad_down = power 0%
+            // ***************************************/
+
+            //if (gamepad2.dpad_right) {
+            //    CarouselServo.setPower(1);
+            //}
+            //if (gamepad2.dpad_left) {
+            //    CarouselServo.setPower(0);
+            //}
+
             /****************************************
-             Increase Arm Power (G2): right bumper = power + 0.01, left bumper = power - 0.01
+             Increase Arm Position (G2): right bumper = power + 10, left bumper = power - 10
              ***************************************/
 
             if (button_bumper_right_already_pressed2 == false) {
                 if (gamepad2.right_bumper) {
-                    arm_power = arm_power + 0.01;
+                    arm_position = arm_position + 10;
                     button_bumper_right_already_pressed2 = true;
                 }
             } else {
@@ -120,7 +158,7 @@ public class AttachmentTuning extends LinearOpMode {
 
             if (button_bumper_left_already_pressed2 == false) {
                 if (gamepad2.left_bumper) {
-                    arm_power = arm_power - 0.01;
+                    arm_position = arm_position - 10;
                     button_bumper_left_already_pressed2 = true;
                 }
             } else {
@@ -130,23 +168,23 @@ public class AttachmentTuning extends LinearOpMode {
             }
 
             /****************************************
-             Run Arm (G2): dpad_up = power, dpad_down = 0
+             Run Arm (G2): dpad_up = position, dpad_down = 0
              ***************************************/
 
             if (gamepad2.dpad_up) {
-                Arm.setPower(arm_power);
+                Arm.setTargetPosition(arm_position);
             }
             if (gamepad2.dpad_down) {
-                Arm.setPower(0);
+                Arm.setTargetPosition(0);
             }
 
             /****************************************
-             Increase Rail Power (G2): Button X = power + 0.01, Button Y = power - 0.01
+             Increase Rail Position (G2): Button X = power + 10, Button Y = power - 10
              ***************************************/
 
             if (button_x_already_pressed2 == false) {
                 if (gamepad2.x) {
-                    rail_power = rail_power + 0.01;
+                    rail_position = rail_position + 10;
                     button_x_already_pressed2 = true;
                 }
             } else {
@@ -157,7 +195,7 @@ public class AttachmentTuning extends LinearOpMode {
 
             if (button_y_already_pressed2 == false) {
                 if (gamepad2.y) {
-                    rail_power = rail_power - 0.01;
+                    rail_position = rail_position - 10;
                     button_y_already_pressed2 = true;
                 }
             } else {
@@ -167,19 +205,19 @@ public class AttachmentTuning extends LinearOpMode {
             }
 
             /****************************************
-             Run Rail (G2): Button A = power, Button B = 0
+             Run Rail (G2): Button A = Position, Button B = 0
              ***************************************/
 
             if (gamepad2.a) {
-                Rail.setPower(rail_power);
+                Rail.setTargetPosition(rail_position);
             }
             if (gamepad2.b) {
-                Rail.setPower(0);
+                Rail.setTargetPosition(0);
             }
 
             telemetry.addData("Intake Power", intake_power);
-            telemetry.addData("Arm Power", arm_power);
-            telemetry.addData("Rail Power", rail_power);
+            telemetry.addData("Arm Power", arm_position);
+            telemetry.addData("Rail Power", rail_position);
             telemetry.update();
 
         }
@@ -204,6 +242,7 @@ public class AttachmentTuning extends LinearOpMode {
 
     private void AttachmentSetDirection () {
 
+        //BucketServo.setDirection(DcMotor.Direction.FORWARD);
         //CarouselServo.setDirection(DcMotor.Direction.FORWARD);
         BucketServo.setDirection(Servo.Direction.FORWARD);
         Intake.setDirection(DcMotor.Direction.REVERSE);
