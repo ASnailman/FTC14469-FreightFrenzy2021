@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -15,6 +16,7 @@ public class OfficialTeleop extends LinearOpMode {
     static DcMotor BackRight;
     static MoveDirection Direction;
     static CRServo CarouselServo;
+    BNO055IMU IMU;
 
     @Override
     public void runOpMode() {
@@ -24,6 +26,7 @@ public class OfficialTeleop extends LinearOpMode {
         FrontLeft = hardwareMap.get(DcMotor.class, "FrontLeft");
         FrontRight = hardwareMap.get(DcMotor.class, "FrontRight");
         //CarouselServo = hardwareMap.get(CRServo.class, "carouselservo");
+        IMU = hardwareMap.get(BNO055IMU.class, "imu");
 
         SetDirection(MoveDirection.REVERSE);
         //CarouselServo.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -54,16 +57,16 @@ public class OfficialTeleop extends LinearOpMode {
             double FRPower = (y - x - rx) / denominator;
             double BRPower = (y + x - rx) / denominator;
 
-            //double FLPower = (y + x + rx);
-            //double BLPower = (y - x + rx);
-            //double FRPower = (y - x - rx);
-            //double BRPower = (y + x - rx);
+            FrontLeft.setPower(0.8 * FLPower);
+            BackLeft.setPower(0.8 * BLPower);
+            FrontRight.setPower(0.8 * FRPower);
+            BackRight.setPower(0.8 * BRPower);
 
-            FrontLeft.setPower(FLPower);
-            BackLeft.setPower(BLPower);
-            FrontRight.setPower(FRPower);
-            BackRight.setPower(BRPower);
-
+            telemetry.addData("FLPower", FLPower);
+            telemetry.addData("BLPower", BLPower);
+            telemetry.addData("FRPower", FRPower);
+            telemetry.addData("BRPower", BRPower);
+            telemetry.update();
         }
     }
 
