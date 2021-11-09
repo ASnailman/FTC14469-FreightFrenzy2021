@@ -21,10 +21,12 @@ public class AttachmentTuning extends LinearOpMode {
     static DcMotor Intake;
     static DcMotor CarouselMotor;
     BNO055IMU IMU;
-    static CRServo BucketServo;
+    static Servo BucketServo;
     double intake_power = 0.5;
     int arm_position = 0;
     int rail_position = 0;
+    //int time = 0;
+    double bucketservo_position = 0;
 
     boolean button_a_already_pressed = false;
     boolean button_b_already_pressed = false;
@@ -53,7 +55,7 @@ public class AttachmentTuning extends LinearOpMode {
         Arm = hardwareMap.get(DcMotor.class, "arm");
         Rail = hardwareMap.get(DcMotor.class, "rail");
         CarouselMotor = hardwareMap.get(DcMotor.class, "carouselmotor");
-        BucketServo = hardwareMap.get(CRServo.class, "BucketServo");
+        BucketServo = hardwareMap.get(Servo.class, "BucketServo");
         IMU = hardwareMap.get(BNO055IMU.class, "imu");
 
         AttachmentSetDirection();
@@ -61,10 +63,10 @@ public class AttachmentTuning extends LinearOpMode {
 
         Arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         Rail.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        BackLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        BackRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        FrontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        FrontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //BackLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //BackRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //FrontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //FrontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         Arm.setTargetPosition(0);
         Rail.setTargetPosition(0);
@@ -80,9 +82,9 @@ public class AttachmentTuning extends LinearOpMode {
              Movement
              ***************************************/
 
-            double y = -gamepad1.left_stick_y;
-            double x = gamepad1.left_stick_x * 1.1;
-            double rx = gamepad1.right_stick_x;
+            double y = -gamepad1.left_stick_y * 0.5;
+            double x = gamepad1.left_stick_x * 0.55;
+            double rx = gamepad1.right_stick_x * 0.5;
 
             double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
             double FLPower = (y + x + rx) / denominator;
@@ -90,10 +92,10 @@ public class AttachmentTuning extends LinearOpMode {
             double FRPower = (y - x - rx) / denominator;
             double BRPower = (y + x - rx) / denominator;
 
-            FrontLeft.setPower(0.8 * FLPower);
-            BackLeft.setPower(0.8 * BLPower);
-            FrontRight.setPower(0.8 * FRPower);
-            BackRight.setPower(0.8 * BRPower);
+            FrontLeft.setPower(FLPower);
+            BackLeft.setPower(BLPower);
+            FrontRight.setPower(FRPower);
+            BackRight.setPower(BRPower);
 
             /****************************************
              Increase Intake Power (G1): right bumper = power + 0.01, left bumper = power - 0.01
@@ -144,18 +146,40 @@ public class AttachmentTuning extends LinearOpMode {
             }
 
             /****************************************
-             Run BucketServo (G2): dpad_right = power 100%, dpad_down = power 0%
+             Increase BucketServo Sleep Time (G1): x = increase sleep by 50, y = decrease sleep by 50
+             ***************************************/
+
+            if (button_x_already_pressed == false) {
+                if (gamepad1.x) {
+                    bucketservo_position = bucketservo_position + 0.1;
+                    button_x_already_pressed = true;
+                }
+            } else {
+                if (!gamepad1.x) {
+                    button_x_already_pressed = false;
+                }
+            }
+
+            if (button_y_already_pressed == false) {
+                if (gamepad1.y) {
+                    bucketservo_position = bucketservo_position - 0.1;
+                    button_y_already_pressed = true;
+                }
+            } else {
+                if (!gamepad1.y) {
+                    button_y_already_pressed = false;
+                }
+            }
+
+            /****************************************
+             Run BucketServo (G2): dpad_right = setposition, dpad_down = setposition 0
              ***************************************/
 
             if (gamepad2.dpad_right) {
-                BucketServo.setPower(0.5);
-                sleep(500);
-                BucketServo.setPower(0);
+                BucketServo.setPosition(bucketservo_position);
             }
             if (gamepad2.dpad_left) {
-                BucketServo.setPower(-0.5);
-                sleep(500);
-                BucketServo.setPower(0);
+                BucketServo.setPosition(0);
             }
 
             /****************************************
@@ -185,7 +209,7 @@ public class AttachmentTuning extends LinearOpMode {
             }
 
             /****************************************
-             Run Arm (G2): dpad_up = position, dpad_down = 0
+             Run Arm (G2): dpad_up = position, dpad_down = 0 Run Arm Default
              ***************************************/
 
             if (button_dpad_up_already_pressed2 == false) {
@@ -275,6 +299,8 @@ public class AttachmentTuning extends LinearOpMode {
             telemetry.addData("Rail Controller Position", rail_position);
             telemetry.addData("Arm Current Position", Arm.getCurrentPosition());
             telemetry.addData("Rail Current Position", Rail.getCurrentPosition());
+            //telemetry.addData("time", time);
+            telemetry.addData("BucketServo Position", bucketservo_position);
             telemetry.addData("FLPower", FLPower);
             telemetry.addData("BLPower", BLPower);
             telemetry.addData("FRPower", FRPower);
@@ -304,7 +330,7 @@ public class AttachmentTuning extends LinearOpMode {
     private void AttachmentSetDirection () {
 
         CarouselMotor.setDirection(DcMotor.Direction.REVERSE);
-        BucketServo.setDirection(CRServo.Direction.FORWARD);
+        BucketServo.setDirection(Servo.Direction.REVERSE);
         Intake.setDirection(DcMotor.Direction.REVERSE);
         Arm.setDirection(DcMotor.Direction.FORWARD);
         Rail.setDirection(DcMotor.Direction.FORWARD);
