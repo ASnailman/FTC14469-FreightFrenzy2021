@@ -181,6 +181,12 @@ public class AttachmentTuning extends LinearOpMode {
             if (gamepad2.dpad_left) {
                 BucketServo.setPosition(0);
             }
+            if (gamepad1.a) {
+                BucketServo.setDirection(Servo.Direction.REVERSE);
+            }
+            if (gamepad1.b) {
+                BucketServo.setDirection(Servo.Direction.FORWARD);
+            }
 
             /****************************************
              Increase Arm Position (G2): right bumper = power + 10, left bumper = power - 10
