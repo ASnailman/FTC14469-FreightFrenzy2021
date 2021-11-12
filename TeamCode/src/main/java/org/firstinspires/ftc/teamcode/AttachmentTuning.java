@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name="AttachmentTuning", group="MecanumDrive")
 public class AttachmentTuning extends LinearOpMode {
@@ -21,12 +22,12 @@ public class AttachmentTuning extends LinearOpMode {
     static DcMotor Intake;
     static DcMotor CarouselMotor;
     BNO055IMU IMU;
-    static Servo BucketServo;
+    static CRServo BucketServo;
     double intake_power = 0.5;
     int arm_position = 0;
     int rail_position = 0;
     //int time = 0;
-    double bucketservo_position = 0;
+    long bucketservo_position = 0;
 
     boolean button_a_already_pressed = false;
     boolean button_b_already_pressed = false;
@@ -55,8 +56,11 @@ public class AttachmentTuning extends LinearOpMode {
         Arm = hardwareMap.get(DcMotor.class, "arm");
         Rail = hardwareMap.get(DcMotor.class, "rail");
         CarouselMotor = hardwareMap.get(DcMotor.class, "carouselmotor");
-        BucketServo = hardwareMap.get(Servo.class, "BucketServo");
+        BucketServo = hardwareMap.get(CRServo.class, "BucketServo");
         IMU = hardwareMap.get(BNO055IMU.class, "imu");
+
+        BucketCRServoCtrl_Thread cr_thread = new BucketCRServoCtrl_Thread();
+        cr_thread.start();
 
         AttachmentSetDirection();
         SetDirection(MoveDirection.REVERSE);
@@ -67,6 +71,10 @@ public class AttachmentTuning extends LinearOpMode {
         //BackRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //FrontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //FrontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        BackLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        BackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        FrontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        FrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         Arm.setTargetPosition(0);
         Rail.setTargetPosition(0);
@@ -82,8 +90,9 @@ public class AttachmentTuning extends LinearOpMode {
              Movement
              ***************************************/
 
-            double y = -gamepad1.left_stick_y * 0.5;
-            double x = gamepad1.left_stick_x * 0.55;
+            double y = -gamepad1.left_stick_y * 0.6;
+            //double x = gamepad1.left_stick_x * 0.55;
+            double x = gamepad1.left_stick_x * 0.61;
             double rx = gamepad1.right_stick_x * 0.5;
 
             double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
@@ -146,201 +155,284 @@ public class AttachmentTuning extends LinearOpMode {
             }
 
             /****************************************
-             Increase BucketServo Sleep Time (G1): x = increase sleep by 50, y = decrease sleep by 50
+             Increase BucketServo Sleep Time (G1): a = increase sleep by 50, b = decrease sleep by 50
+             ***************************************/
+
+            if (button_a_already_pressed == false) {
+                if (gamepad1.a) {
+                    bucketservo_position = bucketservo_position + 50;
+                    button_a_already_pressed = true;
+                }
+            } else {
+                if (!gamepad1.a) {
+                    button_a_already_pressed = false;
+                }
+            }
+
+            if (button_b_already_pressed == false) {
+                if (gamepad1.b) {
+                    bucketservo_position = bucketservo_position - 50;
+                    button_b_already_pressed = true;
+                }
+            } else {
+                if (!gamepad1.b) {
+                    button_b_already_pressed = false;
+                }
+            }
+
+            /****************************************
+             Run BucketServo (G1): x = set position y = set position 0
              ***************************************/
 
             if (button_x_already_pressed == false) {
                 if (gamepad1.x) {
-                    bucketservo_position = bucketservo_position + 0.1;
-                    button_x_already_pressed = true;
+                    if (cr_thread.GetRunState() == Boolean.FALSE) {
+                        //BucketServo.setPosition(bucketservo_position);
+                        cr_thread.SetRunDirection(DcMotorSimple.Direction.FORWARD);
+                        cr_thread.SetRunSpeed(0.2);
+                        cr_thread.SetDuration(bucketservo_position);
+                        cr_thread.SetRunState(Boolean.TRUE);
+                    }
+                        button_x_already_pressed = true;
+                    }
+                } else {
+                    if (!gamepad1.x) {
+                        button_x_already_pressed = false;
+                    }
                 }
-            } else {
-                if (!gamepad1.x) {
-                    button_x_already_pressed = false;
+
+                if (button_y_already_pressed == false) {
+                    if (gamepad1.y) {
+                        if (cr_thread.GetRunState() == Boolean.FALSE) {
+                            //BucketServo.setPosition(0);
+                            cr_thread.SetRunDirection(DcMotorSimple.Direction.REVERSE);
+                            cr_thread.SetRunSpeed(0.2);
+                            cr_thread.SetDuration(bucketservo_position);
+                            cr_thread.SetRunState(Boolean.TRUE);
+                        }
+                        button_y_already_pressed = true;
+                    }
+                } else {
+                    if (!gamepad1.y) {
+                        button_y_already_pressed = false;
+                    }
                 }
+
+                /****************************************
+                 Increase Arm Position (G2): right bumper = power + 10, left bumper = power - 10
+                 ***************************************/
+
+                if (button_bumper_right_already_pressed2 == false) {
+                    if (gamepad2.right_bumper) {
+                        arm_position = arm_position + 50;
+                        button_bumper_right_already_pressed2 = true;
+                    }
+                } else {
+                    if (!gamepad2.right_bumper) {
+                        button_bumper_right_already_pressed2 = false;
+                    }
+                }
+
+                if (button_bumper_left_already_pressed2 == false) {
+                    if (gamepad2.left_bumper) {
+                        arm_position = arm_position - 50;
+                        button_bumper_left_already_pressed2 = true;
+                    }
+                } else {
+                    if (!gamepad2.left_bumper) {
+                        button_bumper_left_already_pressed2 = false;
+                    }
+                }
+
+                /****************************************
+                 Run Arm (G2): dpad_up = position, dpad_down = 0 Run Arm Default
+                 ***************************************/
+
+                if (button_dpad_up_already_pressed2 == false) {
+                    if (gamepad2.dpad_up) {
+                        Arm.setTargetPosition(arm_position);
+                        Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        Arm.setPower(0.1);
+                        button_dpad_up_already_pressed2 = true;
+                    }
+                } else {
+                    if (!gamepad2.dpad_up) {
+                        button_dpad_up_already_pressed2 = false;
+                    }
+                }
+
+                if (button_dpad_down_already_pressed2 == false) {
+                    if (gamepad2.dpad_down) {
+                        Arm.setTargetPosition(0);
+                        Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        Arm.setPower(0.1);
+                        button_dpad_down_already_pressed2 = true;
+                    }
+                } else {
+                    if (!gamepad2.dpad_down) {
+                        button_dpad_down_already_pressed2 = false;
+                    }
+                }
+
+                /****************************************
+                 Increase Rail Position (G2): Button X = power + 10, Button Y = power - 10
+                 ***************************************/
+
+                if (button_x_already_pressed2 == false) {
+                    if (gamepad2.x) {
+                        rail_position = rail_position + 50;
+                        button_x_already_pressed2 = true;
+                    }
+                } else {
+                    if (!gamepad2.x) {
+                        button_x_already_pressed2 = false;
+                    }
+                }
+
+                if (button_y_already_pressed2 == false) {
+                    if (gamepad2.y) {
+                        rail_position = rail_position - 50;
+                        button_y_already_pressed2 = true;
+                    }
+                } else {
+                    if (!gamepad2.y) {
+                        button_y_already_pressed2 = false;
+                    }
+                }
+
+                /****************************************
+                 Run Rail (G2): Button A = Position, Button B = 0
+                 ***************************************/
+
+                if (button_a_already_pressed2 == false) {
+                    if (gamepad2.a) {
+                        Rail.setTargetPosition(rail_position);
+                        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        Rail.setPower(0.1);
+                        button_a_already_pressed2 = true;
+                    }
+                } else {
+                    if (!gamepad2.a) {
+                        button_a_already_pressed2 = false;
+                    }
+                }
+
+                if (button_b_already_pressed2 == false) {
+                    if (gamepad2.b) {
+                        Rail.setTargetPosition(0);
+                        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        Rail.setPower(0.1);
+                        button_b_already_pressed2 = true;
+                    }
+                } else {
+                    if (!gamepad2.b) {
+                        button_b_already_pressed2 = false;
+                    }
+                }
+
+                telemetry.addData("Intake Power", intake_power);
+                telemetry.addData("Arm Controller Position", arm_position);
+                telemetry.addData("Rail Controller Position", rail_position);
+                telemetry.addData("Arm Current Position", Arm.getCurrentPosition());
+                telemetry.addData("Rail Current Position", Rail.getCurrentPosition());
+                //telemetry.addData("time", time);
+                telemetry.addData("BucketServo Position", bucketservo_position);
+                telemetry.addData("FLPower", FLPower);
+                telemetry.addData("BLPower", BLPower);
+                telemetry.addData("FRPower", FRPower);
+                telemetry.addData("BRPower", BRPower);
+                telemetry.update();
+
             }
+        }
 
-            if (button_y_already_pressed == false) {
-                if (gamepad1.y) {
-                    bucketservo_position = bucketservo_position - 0.1;
-                    button_y_already_pressed = true;
-                }
-            } else {
-                if (!gamepad1.y) {
-                    button_y_already_pressed = false;
-                }
+        private void SetDirection (MoveDirection direction){
+
+            Direction = direction;
+
+            if (Direction == MoveDirection.FORWARD) {
+                FrontLeft.setDirection(DcMotor.Direction.REVERSE);
+                FrontRight.setDirection(DcMotor.Direction.FORWARD);
+                BackLeft.setDirection(DcMotor.Direction.REVERSE);
+                BackRight.setDirection(DcMotor.Direction.FORWARD);
+            } else if (Direction == MoveDirection.REVERSE) {
+                FrontLeft.setDirection(DcMotor.Direction.FORWARD);
+                FrontRight.setDirection(DcMotor.Direction.REVERSE);
+                BackLeft.setDirection(DcMotor.Direction.FORWARD);
+                BackRight.setDirection(DcMotor.Direction.REVERSE);
             }
+        }
 
-            /****************************************
-             Run BucketServo (G2): dpad_right = setposition, dpad_down = setposition 0
-             ***************************************/
+        private void AttachmentSetDirection () {
 
-            if (gamepad2.dpad_right) {
-                BucketServo.setPosition(bucketservo_position);
-            }
-            if (gamepad2.dpad_left) {
-                BucketServo.setPosition(0);
-            }
-            if (gamepad1.a) {
-                BucketServo.setDirection(Servo.Direction.REVERSE);
-            }
-            if (gamepad1.b) {
-                BucketServo.setDirection(Servo.Direction.FORWARD);
-            }
-
-            /****************************************
-             Increase Arm Position (G2): right bumper = power + 10, left bumper = power - 10
-             ***************************************/
-
-            if (button_bumper_right_already_pressed2 == false) {
-                if (gamepad2.right_bumper) {
-                    arm_position = arm_position + 50;
-                    button_bumper_right_already_pressed2 = true;
-                }
-            } else {
-                if (!gamepad2.right_bumper) {
-                    button_bumper_right_already_pressed2 = false;
-                }
-            }
-
-            if (button_bumper_left_already_pressed2 == false) {
-                if (gamepad2.left_bumper) {
-                    arm_position = arm_position - 50;
-                    button_bumper_left_already_pressed2 = true;
-                }
-            } else {
-                if (!gamepad2.left_bumper) {
-                    button_bumper_left_already_pressed2 = false;
-                }
-            }
-
-            /****************************************
-             Run Arm (G2): dpad_up = position, dpad_down = 0 Run Arm Default
-             ***************************************/
-
-            if (button_dpad_up_already_pressed2 == false) {
-                if (gamepad2.dpad_up) {
-                    Arm.setTargetPosition(arm_position);
-                    Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    Arm.setPower(0.1);
-                    button_dpad_up_already_pressed2 = true;
-                }
-            } else {
-                if (!gamepad2.dpad_up) {
-                    button_dpad_up_already_pressed2 = false;
-                }
-            }
-
-            if (button_dpad_down_already_pressed2 == false) {
-                if (gamepad2.dpad_down) {
-                    Arm.setTargetPosition(0);
-                    Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    Arm.setPower(0.1);
-                    button_dpad_down_already_pressed2 = true;
-                }
-            } else {
-                if (!gamepad2.dpad_down) {
-                    button_dpad_down_already_pressed2 = false;
-                }
-            }
-
-            /****************************************
-             Increase Rail Position (G2): Button X = power + 10, Button Y = power - 10
-             ***************************************/
-
-            if (button_x_already_pressed2 == false) {
-                if (gamepad2.x) {
-                    rail_position = rail_position + 50;
-                    button_x_already_pressed2 = true;
-                }
-            } else {
-                if (!gamepad2.x) {
-                    button_x_already_pressed2 = false;
-                }
-            }
-
-            if (button_y_already_pressed2 == false) {
-                if (gamepad2.y) {
-                    rail_position = rail_position - 50;
-                    button_y_already_pressed2 = true;
-                }
-            } else {
-                if (!gamepad2.y) {
-                    button_y_already_pressed2 = false;
-                }
-            }
-
-            /****************************************
-             Run Rail (G2): Button A = Position, Button B = 0
-             ***************************************/
-
-            if (button_a_already_pressed2 == false) {
-                if (gamepad2.a) {
-                    Rail.setTargetPosition(rail_position);
-                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    Rail.setPower(0.1);
-                    button_a_already_pressed2 = true;
-                }
-            } else {
-                if (!gamepad2.a) {
-                    button_a_already_pressed2 = false;
-                }
-            }
-
-            if (button_b_already_pressed2 == false) {
-                if (gamepad2.b) {
-                    Rail.setTargetPosition(0);
-                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    Rail.setPower(0.1);
-                    button_b_already_pressed2 = true;
-                }
-            } else {
-                if (!gamepad2.b) {
-                    button_b_already_pressed2 = false;
-                }
-            }
-
-            telemetry.addData("Intake Power", intake_power);
-            telemetry.addData("Arm Controller Position", arm_position);
-            telemetry.addData("Rail Controller Position", rail_position);
-            telemetry.addData("Arm Current Position", Arm.getCurrentPosition());
-            telemetry.addData("Rail Current Position", Rail.getCurrentPosition());
-            //telemetry.addData("time", time);
-            telemetry.addData("BucketServo Position", bucketservo_position);
-            telemetry.addData("FLPower", FLPower);
-            telemetry.addData("BLPower", BLPower);
-            telemetry.addData("FRPower", FRPower);
-            telemetry.addData("BRPower", BRPower);
-            telemetry.update();
+            CarouselMotor.setDirection(DcMotor.Direction.REVERSE);
+            BucketServo.setDirection(CRServo.Direction.FORWARD);
+            Intake.setDirection(DcMotor.Direction.REVERSE);
+            Arm.setDirection(DcMotor.Direction.FORWARD);
+            Rail.setDirection(DcMotor.Direction.FORWARD);
 
         }
-    }
 
-    private void SetDirection (MoveDirection direction) {
+        private class BucketCRServoCtrl_Thread extends Thread {
 
-        Direction = direction;
+            ElapsedTime ET;
+            boolean run_state = Boolean.FALSE;
+            double run_duration;
+            DcMotorSimple.Direction run_direction;
+            double run_speed;
 
-        if (Direction == MoveDirection.FORWARD) {
-            FrontLeft.setDirection(DcMotor.Direction.REVERSE);
-            FrontRight.setDirection(DcMotor.Direction.FORWARD);
-            BackLeft.setDirection(DcMotor.Direction.REVERSE);
-            BackRight.setDirection(DcMotor.Direction.FORWARD);
-        } else if (Direction == MoveDirection.REVERSE) {
-            FrontLeft.setDirection(DcMotor.Direction.FORWARD);
-            FrontRight.setDirection(DcMotor.Direction.REVERSE);
-            BackLeft.setDirection(DcMotor.Direction.FORWARD);
-            BackRight.setDirection(DcMotor.Direction.REVERSE);
+            public void run() {
+
+                ET = new ElapsedTime();
+                ET.reset();
+
+                try {
+                    while (!isInterrupted()) {
+
+                        if (run_state == Boolean.TRUE) {
+
+                            BucketServo.setDirection(run_direction);
+                            BucketServo.setPower(run_speed);
+
+                            if (ET.milliseconds() >= run_duration) {
+                                BucketServo.setPower(0);
+                                run_state = Boolean.FALSE;
+                                ET.reset();
+                            }
+                        }
+                        else {
+                            ET.reset();
+                        }
+                    }
+                } catch (Exception e) {
+                    telemetry.addLine("CR Servo Control thread crashed");
+                    telemetry.update();
+                }
+            }
+
+            void SetRunState(boolean state) {
+
+                run_state = state;
+            }
+
+            void SetDuration(double duration) {
+
+                run_duration = duration;
+            }
+
+            void SetRunDirection(DcMotorSimple.Direction direction) {
+
+                run_direction = direction;
+            }
+
+            void SetRunSpeed(double speed) {
+
+                run_speed = speed;
+            }
+
+            boolean GetRunState() {
+                return run_state;
+            }
         }
-    }
-
-    private void AttachmentSetDirection () {
-
-        CarouselMotor.setDirection(DcMotor.Direction.REVERSE);
-        BucketServo.setDirection(Servo.Direction.REVERSE);
-        Intake.setDirection(DcMotor.Direction.REVERSE);
-        Arm.setDirection(DcMotor.Direction.FORWARD);
-        Rail.setDirection(DcMotor.Direction.FORWARD);
 
     }
-
-}
