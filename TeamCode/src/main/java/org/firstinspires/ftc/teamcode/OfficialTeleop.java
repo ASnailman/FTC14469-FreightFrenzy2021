@@ -4,8 +4,10 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -26,10 +28,11 @@ public class OfficialTeleop extends LinearOpMode {
     boolean top_level_event;
     boolean middle_level_event;
     boolean low_level_event;
-    boolean reset_low_level_event;
+    //boolean reset_low_level_event;
     boolean barrier_event;
     boolean servo_left_event;
     boolean servo_default_event;
+    boolean servo_power;
     ElapsedTime ET = new ElapsedTime();
 
     boolean button_a_already_pressed = false;
@@ -50,6 +53,7 @@ public class OfficialTeleop extends LinearOpMode {
     boolean button_dpad_down_already_pressed2 = false;
     boolean button_dpad_left_already_pressed2 = false;
     boolean button_dpad_right_already_pressed2 = false;
+    boolean button_dpad_down_already_pressed3 = false;
 
 
     @Override
@@ -66,8 +70,8 @@ public class OfficialTeleop extends LinearOpMode {
         BucketServo = hardwareMap.get(CRServo.class, "BucketServo");
         IMU = hardwareMap.get(BNO055IMU.class, "imu");
 
-        BucketCRServoCtrl_Thread cr_thread = new BucketCRServoCtrl_Thread();
-        cr_thread.start();
+        //BucketCRServoCtrl_Thread cr_thread = new BucketCRServoCtrl_Thread();
+        //cr_thread.start();
 
         AttachmentSetDirection();
         SetDirection(MoveDirection.REVERSE);
@@ -99,10 +103,10 @@ public class OfficialTeleop extends LinearOpMode {
              Movement
              ***************************************/
 
-            double y = -gamepad1.left_stick_y * 0.6;
+            double y = -gamepad1.left_stick_y * 0.63;
             //double x = gamepad1.left_stick_x * 0.55;
-            double x = gamepad1.left_stick_x * 0.61;
-            double rx = gamepad1.right_stick_x * 0.5;
+            double x = gamepad1.left_stick_x * 0.64;
+            double rx = gamepad1.right_stick_x * 0.52;
 
             double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
             double FLPower = (y + x + rx) / denominator;
@@ -116,11 +120,11 @@ public class OfficialTeleop extends LinearOpMode {
             BackRight.setPower(BRPower);
 
             /****************************************
-             Run Intake (G1): dpad_up = 0.6, dpad_down = 0
+             Run Intake
              ***************************************/
 
             if (gamepad1.dpad_up) {
-                Intake.setPower(0.6);
+                Intake.setPower(1);
                 Rail.setTargetPosition(0);
                 Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 Rail.setPower(0.5);
@@ -130,47 +134,56 @@ public class OfficialTeleop extends LinearOpMode {
             }
 
             /****************************************
-             Run CarouselMotor: dpad_right = 0.6, dpad_left = 0
+             Run CarouselMotor
              ***************************************/
 
             if (gamepad1.dpad_right) {
                 CarouselMotor.setPower(0.6);
             }
             if (gamepad1.dpad_left) {
+                CarouselMotor.setPower(-0.6);
+            }
+            if (gamepad1.x) {
                 CarouselMotor.setPower(0);
             }
 
             /****************************************
-             Top Level
+             Top Level (For Opposite, press dpad_down first)
              ***************************************/
 
-            if (button_a_already_pressed == false) {
-                if (gamepad2.a) {
+            if (button_y_already_pressed == false) {
+                if (gamepad2.y) {
                     Rail.setTargetPosition(1000);
                     Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     Rail.setPower(0.5);
                     ET.reset();
-                    button_a_already_pressed = true;
+                    button_y_already_pressed = true;
                     top_level_event = true;
-                }
-                else {
+                } else {
                     if (top_level_event == true) {
                         if (ET.milliseconds() > 1000) {
-                            Arm.setTargetPosition(-350);
-                            Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                            Arm.setPower(0.2);
-                            top_level_event = false;
+                            if (gamepad2.dpad_down) {
+                                Arm.setTargetPosition(350);
+                                Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                                Arm.setPower(0.2);
+                                top_level_event = false;
+                            } else {
+                                Arm.setTargetPosition(-350);
+                                Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                                Arm.setPower(0.2);
+                                top_level_event = false;
+                            }
                         }
                     }
                 }
             } else {
-                if (!gamepad2.a) {
-                    button_a_already_pressed = false;
+                if (!gamepad2.y) {
+                    button_y_already_pressed = false;
                 }
             }
 
             /****************************************
-             Middle Level
+             Middle Level (For Opposite, press dpad_down first)
              ***************************************/
 
             if (button_b_already_pressed == false) {
@@ -181,14 +194,20 @@ public class OfficialTeleop extends LinearOpMode {
                     ET.reset();
                     button_b_already_pressed = true;
                     middle_level_event = true;
-                }
-                else {
+                } else {
                     if (middle_level_event == true) {
                         if (ET.milliseconds() > 1000) {
-                            Arm.setTargetPosition(-250);
-                            Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                            Arm.setPower(0.2);
-                            middle_level_event = false;
+                            if (gamepad2.dpad_down) {
+                                Arm.setTargetPosition(250);
+                                Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                                Arm.setPower(0.2);
+                                middle_level_event = false;
+                            } else {
+                                Arm.setTargetPosition(-250);
+                                Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                                Arm.setPower(0.2);
+                                middle_level_event = false;
+                            }
                         }
                     }
                 }
@@ -199,11 +218,59 @@ public class OfficialTeleop extends LinearOpMode {
             }
 
             /****************************************
+             Low Level (For Opposite, press dpad_down first)
+             ***************************************/
+
+            if (button_a_already_pressed == false) {
+                if (gamepad2.a) {
+                    Rail.setTargetPosition(650);
+                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    Rail.setPower(0.5);
+                    ET.reset();
+                    button_a_already_pressed = true;
+                    low_level_event = true;
+                } else {
+                    if (low_level_event == true) {
+                        if (ET.milliseconds() > 1000) {
+                            if (gamepad2.dpad_down) {
+                                Arm.setTargetPosition(150);
+                                Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                                Arm.setPower(0.2);
+                                low_level_event = false;
+                            } else {
+                                Arm.setTargetPosition(-150);
+                                Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                                Arm.setPower(0.2);
+                                low_level_event = false;
+                            }
+                        }
+                    }
+                }
+            } else {
+                if (!gamepad2.a) {
+                    button_a_already_pressed = false;
+                }
+            }
+
+            /****************************************
              Reset Position For Barrier Passing
              ***************************************/
 
             if (button_x_already_pressed == false) {
                 if (gamepad2.x) {
+                    if (servo_power == true) {
+                        ET.reset();
+                        while (ET.milliseconds() < 855) {
+                            BucketServo.setPower(-0.5);
+                        }
+                        BucketServo.setPower(0);
+                    } else if (servo_power == false) {
+                        ET.reset();
+                        while (ET.milliseconds() < 855) {
+                            BucketServo.setPower(0.5);
+                        }
+                        BucketServo.setPower(0);
+                    }
                     Arm.setTargetPosition(0);
                     Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     Arm.setPower(0.2);
@@ -231,45 +298,12 @@ public class OfficialTeleop extends LinearOpMode {
              Default Position For Barrier Passing (Start of Program)
              ***************************************/
 
-            if (button_y_already_pressed == false) {
-                if (gamepad2.y) {
+            if (button_dpad_up_already_pressed == false) {
+                if (gamepad2.dpad_up) {
                     Rail.setTargetPosition(300);
                     Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     Rail.setPower(0.5);
-                    button_y_already_pressed = true;
-                }
-            } else {
-                if (!gamepad2.y) {
-                    button_y_already_pressed = false;
-                }
-            }
-
-            /****************************************
-             Low Level
-             ***************************************/
-
-            if (button_dpad_up_already_pressed == false) {
-                if (gamepad2.dpad_up) {
-                    Rail.setTargetPosition(650);
-                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    Rail.setPower(0.5);
-                    ET.reset();
                     button_dpad_up_already_pressed = true;
-                    low_level_event = true;
-                }
-                else {
-                    if (low_level_event == true) {
-                        if (ET.milliseconds() > 1000) {
-                            Arm.setTargetPosition(-150);
-                            Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                            Arm.setPower(0.2);
-                        } else if (ET.milliseconds() > 2000) {
-                            Rail.setTargetPosition(350);
-                            Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                            Rail.setPower(0.5);
-                            low_level_event = false;
-                        }
-                    }
                 }
             } else {
                 if (!gamepad2.dpad_up) {
@@ -278,54 +312,22 @@ public class OfficialTeleop extends LinearOpMode {
             }
 
             /****************************************
-             Reset From Low Level
-             ***************************************/
-
-            if (button_dpad_down_already_pressed == false) {
-                if (gamepad2.dpad_down) {
-                    Rail.setTargetPosition(650);
-                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    Rail.setPower(0.5);
-                    ET.reset();
-                    button_dpad_down_already_pressed = true;
-                    reset_low_level_event = true;
-                }
-                else {
-                    if (reset_low_level_event == true) {
-                        if (ET.milliseconds() > 1000) {
-                            Arm.setTargetPosition(0);
-                            Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                            Arm.setPower(0.2);
-                        } else if (ET.milliseconds() > 2000) {
-                            Rail.setTargetPosition(300);
-                            Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                            Rail.setPower(0.5);
-                            reset_low_level_event = false;
-                        }
-                    }
-                }
-            } else {
-                if (!gamepad2.dpad_down) {
-                    button_dpad_down_already_pressed = false;
-                }
-            }
-
-            /****************************************
-             Move Servo Left and Default
+             Move Servo Left and Right
              ***************************************/
 
             if (button_dpad_left_already_pressed2 == false) {
                 if (gamepad2.dpad_left) {
                     BucketServo.setPower(0.5);
-                    ET.reset();
                     button_dpad_left_already_pressed2 = true;
                     servo_left_event = true;
+                    ET.reset();
                 }
                 else {
                     if (servo_left_event == true) {
-                        if (ET.milliseconds() > 1500) {
+                        if (ET.milliseconds() > 850) {
                             BucketServo.setPower(0);
                             servo_left_event = false;
+                            servo_power = true;
                         }
                     }
                 }
@@ -338,21 +340,65 @@ public class OfficialTeleop extends LinearOpMode {
             if (button_dpad_right_already_pressed2 == false) {
                 if (gamepad2.dpad_right) {
                     BucketServo.setPower(-0.5);
-                    ET.reset();
                     button_dpad_right_already_pressed2 = true;
                     servo_default_event = true;
+                    ET.reset();
                 }
                 else {
                     if (servo_default_event == true) {
-                        if (ET.milliseconds() > 1500) {
+                        if (ET.milliseconds() > 850) {
                             BucketServo.setPower(0);
                             servo_default_event = false;
+                            servo_power = false;
                         }
                     }
                 }
             } else {
                 if (!gamepad2.dpad_right) {
                     button_dpad_right_already_pressed2 = false;
+                }
+            }
+
+            /****************************
+             * Bucket micro adjustments
+             ****************************/
+            if (button_bumper_right_already_pressed == false) {
+                if (gamepad1.right_bumper) {
+                    Rail.setTargetPosition(800);
+                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    Rail.setPower(0.5);
+                    BucketServo.setPower(-0.5);
+                    ET.reset();
+                    while (ET.milliseconds() < 20) {
+
+                    }
+                    BucketServo.setPower(0);
+                    button_bumper_right_already_pressed = true;
+                }
+            }
+            else {
+                if (!gamepad1.right_bumper) {
+                    button_bumper_right_already_pressed = false;
+                }
+            }
+
+            if (button_bumper_left_already_pressed == false) {
+                if (gamepad1.left_bumper) {
+                    Rail.setTargetPosition(800);
+                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    Rail.setPower(0.5);
+                    BucketServo.setPower(0.5);
+                    ET.reset();
+                    while (ET.milliseconds() < 20) {
+
+                    }
+                    BucketServo.setPower(0);
+                    button_bumper_left_already_pressed = true;
+                }
+            }
+            else {
+                if (!gamepad1.left_bumper) {
+                    button_bumper_left_already_pressed = false;
                 }
             }
 

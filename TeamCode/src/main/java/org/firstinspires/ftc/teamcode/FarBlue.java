@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
@@ -15,13 +16,18 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-@Autonomous(name="MechDrive", group="MecanumDrive")
-public class OfficialAutonomous extends LinearOpMode {
+@Autonomous(name="FarBlue", group="MecanumDrive")
+public class FarBlue extends LinearOpMode {
 
     static DcMotor BackLeft;
     static DcMotor BackRight;
     static DcMotor FrontLeft;
     static DcMotor FrontRight;
+    static DcMotor Arm;
+    static DcMotor Rail;
+    static DcMotor Intake;
+    static DcMotor CarouselMotor;
+    static CRServo BucketServo;
     static DistanceSensor DistancesensorForward;
     static DistanceSensor DistancesensorRight;
     static ColorSensor Colorsensor;
@@ -44,31 +50,30 @@ public class OfficialAutonomous extends LinearOpMode {
     double power_x_old;
     double power_y_old;
     ElapsedTime ET = new ElapsedTime();
+    boolean servo_power;
 
     public void runOpMode () {
 
-        MotorInitialize(
-                hardwareMap.dcMotor.get("BackLeft"),
-                hardwareMap.dcMotor.get("BackRight"),
-                hardwareMap.dcMotor.get("FrontLeft"),
-                hardwareMap.dcMotor.get("FrontRight")
-        );
-
-        //SensorInitialize(
-                //hardwareMap.colorSensor.get("color_sensor"),
-                //hardwareMap.servo.get("back_servo")
-        //);
-
-        SetDirection(MoveDirection.FORWARD);
-        //BackServo.setDirection(Servo.Direction.FORWARD);
-        //DistancesensorForward = hardwareMap.get(DistanceSensor.class, "front_distance");
-        //DistancesensorRight = hardwareMap.get(DistanceSensor.class, "right_distance");
+        BackLeft = hardwareMap.get(DcMotor.class, "BackLeft");
+        BackRight = hardwareMap.get(DcMotor.class, "BackRight");
+        FrontLeft = hardwareMap.get(DcMotor.class, "FrontLeft");
+        FrontRight = hardwareMap.get(DcMotor.class, "FrontRight");
+        Intake = hardwareMap.get(DcMotor.class, "Intake");
+        Arm = hardwareMap.get(DcMotor.class, "arm");
+        Rail = hardwareMap.get(DcMotor.class, "rail");
+        CarouselMotor = hardwareMap.get(DcMotor.class, "carouselmotor");
+        BucketServo = hardwareMap.get(CRServo.class, "BucketServo");
         IMU = hardwareMap.get(BNO055IMU.class, "imu");
+
+        AttachmentSetDirection();
+        SetDirection(MoveDirection.REVERSE);
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
         IMU.initialize(parameters);
 
         orientation = IMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         globalangle = 0;
+        Arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Rail.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         FrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -80,35 +85,46 @@ public class OfficialAutonomous extends LinearOpMode {
         BackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         BackLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+        Arm.setTargetPosition(0);
+        Rail.setTargetPosition(0);
+
+        Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
         waitForStart();
 
         while (opModeIsActive()) {
 
-            MechDrive(0, 0.4, 500, 0.00002, 0, 0);
-            sleep(1000);
-            MechDrive(180, 0.4, 500, 0.00002, 0, 0);
-            sleep(1000);
-            MechDrive(-90, 0.4, 500, 0.00002, 0, 0);
-            sleep(1000);
-            MechDrive(90, 0.4, 500, 0.00002, 0, 0);
-            sleep(1000);
-            MechDrive(-45, 0.4, 500, 0.00002, 0, 0);
-            sleep(1000);
-            MechDrive(45, 0.4, 500, 0.00002, 0, 0);
+            MechDrive(90, 0.4, 1000, 0.00002, 0, 0);
+            MechDrive(180, 0.4, 800, 0.00002, 0, 0);
+            //put pre load
+            TopBucketPosition(350);
+            BucketServoRight();
+            ResetBucketPosition();
+            //run intake (not meet one)
+            MechDrive(0, 0.4, 2600, 0.00002, 0, 0);
+            Rail.setTargetPosition(0);
+            Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            Rail.setPower(0.5);
+            //MechDrive(180, 0.4, 2172.3, 0.00002, 0, 0);
+            //MechDrive(90, 0.4, 543.1, 0.00002, 0, 0);
+            //place freight top level (not meet one)
+            //MechDrive(-90, 0.4, 543.1, 0.00002, 0, 0);
+            //MechDrive(0, 0.4, 2172.3, 0.00002, 0, 0);
+            //MechDrive(90, 0.4, 1355, 0.00002, 0, 0);
+            //MechDrive(0, 0.4, 1086.2, 0.00002, 0, 0);
             break;
 
         }
     }
 
-    private void MotorInitialize (DcMotor backleft,
-                                  DcMotor backright,
-                                  DcMotor frontleft,
-                                  DcMotor frontright) {
+    private void AttachmentSetDirection () {
 
-        BackLeft = backleft;
-        BackRight = backright;
-        FrontLeft = frontleft;
-        FrontRight = frontright;
+        CarouselMotor.setDirection(DcMotor.Direction.REVERSE);
+        BucketServo.setDirection(CRServo.Direction.FORWARD);
+        Intake.setDirection(DcMotor.Direction.REVERSE);
+        Arm.setDirection(DcMotor.Direction.FORWARD);
+        Rail.setDirection(DcMotor.Direction.FORWARD);
 
     }
 
@@ -642,6 +658,105 @@ public class OfficialAutonomous extends LinearOpMode {
         WallDetectorCoordinateX(x);
         WallDetectorCoordinateY(y);
 
+    }
+
+    private void TopBucketPosition (int arm_position) {
+
+        Rail.setTargetPosition(1000);
+        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        Rail.setPower(0.5);
+        ET.reset();
+        while (ET.milliseconds() < 2000) {
+        }
+        Arm.setTargetPosition(arm_position);
+        //350 encoder
+        Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        Arm.setPower(0.2);
+        ET.reset();
+        while (ET.milliseconds() < 1000) {
+        }
+    }
+
+    private void MiddleBucketPosition (int arm_position) {
+
+        Rail.setTargetPosition(650);
+        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        Rail.setPower(0.5);
+        ET.reset();
+        while (ET.milliseconds() < 2000) {
+        }
+        Arm.setTargetPosition(arm_position);
+        //250 encoder
+        Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        Arm.setPower(0.2);
+        ET.reset();
+        while (ET.milliseconds() < 1000) {
+        }
+    }
+
+    private void LowBucketPosition (int arm_position) {
+
+        Rail.setTargetPosition(650);
+        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        Rail.setPower(0.5);
+        ET.reset();
+        while (ET.milliseconds() < 2000) {
+        }
+        Arm.setTargetPosition(arm_position);
+        //150 encoder
+        Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        Arm.setPower(0.2);
+        ET.reset();
+        while (ET.milliseconds() < 1000) {
+        }
+    }
+
+    private void BucketServoRight () {
+        ET.reset();
+        while (ET.milliseconds() < 850) {
+            BucketServo.setPower(-0.5);
+        }
+        BucketServo.setPower(0);
+        servo_power = false;
+        ET.reset();
+        while (ET.milliseconds() < 1000) {
+        }
+    }
+
+    private void BucketServoLeft () {
+        ET.reset();
+        while (ET.milliseconds() < 850) {
+            BucketServo.setPower(0.5);
+        }
+        BucketServo.setPower(0);
+        servo_power = true;
+        ET.reset();
+        while (ET.milliseconds() < 1000) {
+        }
+    }
+
+    private void ResetBucketPosition () {
+        if (servo_power == true) {
+            BucketServo.setPower(-0.5);
+            sleep(855);
+            BucketServo.setPower(0);
+        } else if (servo_power == false) {
+            BucketServo.setPower(0.5);
+            sleep(855);
+            BucketServo.setPower(0);
+        }
+        Arm.setTargetPosition(0);
+        Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        Arm.setPower(0.2);
+        ET.reset();
+        while (ET.milliseconds() < 2000) {
+        }
+        Rail.setTargetPosition(400);
+        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        Rail.setPower(0.5);
+        ET.reset();
+        while (ET.milliseconds() < 1000) {
+        }
     }
 
 }
