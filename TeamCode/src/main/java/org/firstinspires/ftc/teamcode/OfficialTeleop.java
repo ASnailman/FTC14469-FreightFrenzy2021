@@ -47,6 +47,7 @@ public class OfficialTeleop extends LinearOpMode {
     boolean button_dpad_down_already_pressed = false;
     boolean button_bumper_left_already_pressed = false;
     boolean button_bumper_right_already_pressed = false;
+    boolean button_right_trigger_already_pressed = false;
     boolean button_bumper_left_already_pressed2 = false;
     boolean button_bumper_right_already_pressed2 = false;
     boolean button_dpad_up_already_pressed2 = false;
@@ -401,6 +402,32 @@ public class OfficialTeleop extends LinearOpMode {
                     button_bumper_left_already_pressed = false;
                 }
             }
+
+            /********************************
+             * Calibrate rail zero position
+             ********************************/
+            if (button_right_trigger_already_pressed == false) {
+                if (gamepad1.right_trigger > 0) {
+                    Rail.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    Rail.setPower(0);
+                    ET.reset();
+                    while (ET.milliseconds() < 1000) {
+
+                    }
+
+                    Rail.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    //Rail.setTargetPosition(0);
+                    //Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    //Rail.setPower(0.5);
+                    button_right_trigger_already_pressed = true;
+                }
+            }
+            else {
+                if (gamepad1.right_trigger == 0) {
+                    button_right_trigger_already_pressed = false;
+                }
+            }
+
 
             telemetry.addData("Arm Current Position", Arm.getCurrentPosition());
             telemetry.addData("Rail Current Position", Rail.getCurrentPosition());
