@@ -96,21 +96,32 @@ public class SpectatorBlue extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            MechDrive(-90, 0.4, 975, 0.00002, 0, 0);
-            MechDrive(180, 0.4, 800, 0.00002, 0, 0);
+            MechDrive(-90, 0.4, 1150, 0.00002, 0, 0);
+            MechDrive(180, 0.4, 775, 0.00002, 0, 0);
             //put pre load
             TopBucketPosition(-350);
             BucketServoLeft();
             ResetBucketPosition();
             MechDrive(90, 0.4, 1000, 0.00002, 0, 0);
             MechDrive(0, 0.4, 1850, 0.00002, 0, 0);
-            MotorTurn(-0.5, 0.5, -0.5, 0.5);
-            sleep(1000);
+
+            //GyroTurn(20, 0.4);
+
+            //CarouselMotor.setPower(0.7);
+
+            //FrontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            //FrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            //BackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            //BackLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+            SetMotorPower(0.1);
+            sleep(1550);
             SetMotorPower(0);
-            MechDrive(0, 0.1, 500, 0.00002, 0, 0);
+
+            //sleep(4000);
+            //CarouselMotor.setPower(0);
             //carousel
-            CarouselMotor.setPower(0.7);
-            sleep(4000);
+
             MechDrive(-90, 0.4, 1300, 0.00002, 0, 0);
             break;
 

@@ -96,8 +96,8 @@ public class SpectatorRed extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            MechDrive(90, 0.4, 1025, 0.00002, 0, 0);
-            MechDrive(180, 0.4, 800, 0.00002, 0, 0);
+            MechDrive(90, 0.4, 1075, 0.00002, 0, 0);
+            MechDrive(180, 0.4, 775, 0.00002, 0, 0);
             //put pre load
             TopBucketPosition(350);
             BucketServoRight();
@@ -117,7 +117,7 @@ public class SpectatorRed extends LinearOpMode {
 
             sleep(4000);
             CarouselMotor.setPower(0);
-            MechDrive(90, 0.4, 1100, 0.00002, 0, 0);
+            MechDrive(90, 0.4, 990, 0.00002, 0, 0);
             MechDrive(0, 0.4, 300, 0.00002, 0, 0);
             Rail.setTargetPosition(0);
             Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);

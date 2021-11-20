@@ -95,7 +95,7 @@ public class FarRed extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            MechDrive(-90, 0.4, 1000, 0.00002, 0, 0);
+            MechDrive(-90, 0.4, 1050, 0.00002, 0, 0);
             MechDrive(180, 0.4, 800, 0.00002, 0, 0);
             //put pre load
             TopBucketPosition(-350);

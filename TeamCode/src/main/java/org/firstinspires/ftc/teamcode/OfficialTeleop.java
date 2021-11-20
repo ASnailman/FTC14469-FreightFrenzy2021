@@ -125,7 +125,7 @@ public class OfficialTeleop extends LinearOpMode {
              ***************************************/
 
             if (gamepad1.dpad_up) {
-                Intake.setPower(1);
+                Intake.setPower(0.85);
                 Rail.setTargetPosition(0);
                 Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 Rail.setPower(0.5);
@@ -189,7 +189,7 @@ public class OfficialTeleop extends LinearOpMode {
 
             if (button_b_already_pressed == false) {
                 if (gamepad2.b) {
-                    Rail.setTargetPosition(650);
+                    Rail.setTargetPosition(750);
                     Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     Rail.setPower(0.5);
                     ET.reset();
@@ -224,7 +224,7 @@ public class OfficialTeleop extends LinearOpMode {
 
             if (button_a_already_pressed == false) {
                 if (gamepad2.a) {
-                    Rail.setTargetPosition(650);
+                    Rail.setTargetPosition(750);
                     Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     Rail.setPower(0.5);
                     ET.reset();
@@ -400,6 +400,47 @@ public class OfficialTeleop extends LinearOpMode {
             else {
                 if (!gamepad1.left_bumper) {
                     button_bumper_left_already_pressed = false;
+                }
+            }
+
+            /****************************
+             * Arm micro adjustments
+             ****************************/
+            if (button_bumper_right_already_pressed2 == false) {
+                if (gamepad2.right_bumper) {
+                    Arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    Arm.setPower(-0.5);
+                    ET.reset();
+                    while (ET.milliseconds() < 20) {
+
+                    }
+                    Arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    BucketServo.setPower(0);
+                    button_bumper_right_already_pressed2 = true;
+                }
+            }
+            else {
+                if (!gamepad2.right_bumper) {
+                    button_bumper_right_already_pressed2 = false;
+                }
+            }
+
+            if (button_bumper_left_already_pressed2 == false) {
+                if (gamepad2.left_bumper) {
+                    Arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    Arm.setPower(0.5);
+                    ET.reset();
+                    while (ET.milliseconds() < 20) {
+
+                    }
+                    Arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    BucketServo.setPower(0);
+                    button_bumper_left_already_pressed2 = true;
+                }
+            }
+            else {
+                if (!gamepad2.left_bumper) {
+                    button_bumper_left_already_pressed2 = false;
                 }
             }
 

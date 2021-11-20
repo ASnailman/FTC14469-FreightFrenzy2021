@@ -95,14 +95,19 @@ public class FarBlue extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            MechDrive(90, 0.4, 1000, 0.00002, 0, 0);
+            ET.reset();
+            while (ET.milliseconds() < 10000) {
+
+            }
+            MechDrive(90, 0.4, 1075, 0.00002, 0, 0);
             MechDrive(180, 0.4, 800, 0.00002, 0, 0);
             //put pre load
             TopBucketPosition(350);
             BucketServoRight();
             ResetBucketPosition();
             //run intake (not meet one)
-            MechDrive(0, 0.4, 2600, 0.00002, 0, 0);
+            MechDrive(-90, 0.5, 50, 0.00002, 0, 0);
+            MechDrive(0, 0.7, 2700, 0.00002, 0, 0);
             Rail.setTargetPosition(0);
             Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             Rail.setPower(0.5);
