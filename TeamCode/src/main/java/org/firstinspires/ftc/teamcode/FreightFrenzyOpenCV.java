@@ -21,6 +21,8 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import android.icu.text.RelativeDateTimeFormatter;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -43,16 +45,22 @@ import org.openftc.easyopencv.OpenCvWebcam;
  * 100% accurate) method of detecting the skystone when lined up with
  * the sample regions over the first 3 stones.
  */
-@TeleOp
-public class FreightFrenzyOpenCV extends LinearOpMode
-{
+@TeleOp(name="ShippingElementVision", group="MecanumDrive")
+public class FreightFrenzyOpenCV extends LinearOpMode {
+
     //OpenCvInternalCamera phoneCam;
     OpenCvWebcam webcam;
     SkystoneDeterminationPipeline pipeline;
+    static int DifferenceLeft;
+    static int DifferenceCenter;
+    static int DifferenceRight;
+    static boolean BarcodeLeft;
+    static boolean BarcodeCenter;
+    static boolean BarcodeRight;
 
     @Override
-    public void runOpMode()
-    {
+    public void runOpMode() {
+
         /**
          * NOTE: Many comments have been omitted from this sample for the
          * sake of conciseness. If you're just starting out with EasyOpenCv,
@@ -65,6 +73,7 @@ public class FreightFrenzyOpenCV extends LinearOpMode
         pipeline = new SkystoneDeterminationPipeline();
         webcam.setPipeline(pipeline);
 
+        webcam.setMillisecondsPermissionTimeout(2500);
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
             @Override
@@ -87,6 +96,9 @@ public class FreightFrenzyOpenCV extends LinearOpMode
         while (opModeIsActive())
         {
             telemetry.addData("Analysis", pipeline.getAnalysis());
+            telemetry.addData("Avg1", pipeline.Avg1());
+            telemetry.addData("Avg2", pipeline.Avg2());
+            telemetry.addData("Avg3", pipeline.Avg3());
             telemetry.update();
 
             // Don't burn CPU cycles busy-looping in this sample
@@ -111,17 +123,19 @@ public class FreightFrenzyOpenCV extends LinearOpMode
          */
         static final Scalar BLUE = new Scalar(0, 0, 255);
         static final Scalar GREEN = new Scalar(0, 255, 0);
+        static final Scalar RED = new Scalar(255, 0, 0);
+        static final Scalar YELLOW = new Scalar(255, 255, 0);
 
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(330,300);
-        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(660,300);
-        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(990,300);
-        static final int REGION_WIDTH = 80;
-        static final int REGION_HEIGHT = 80;
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(100,185);
+        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(600,185);
+        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1075,185);
+        static final int REGION_WIDTH = 100;
+        static final int REGION_HEIGHT = 100;
 
-        final int SHIPPING_ELEMENT = 16;
+        static final int SHIPPING_ELEMENT_THRESHOLD = 55;
 
         /*
          * Points which actually define the sample region rectangles, derived from above values
@@ -262,23 +276,25 @@ public class FreightFrenzyOpenCV extends LinearOpMode
              * Draw a rectangle showing sample region 1 on the screen.
              * Simply a visual aid. Serves no functional purpose.
              */
+
             Imgproc.rectangle(
                     input, // Buffer to draw on
                     region1_pointA, // First point which defines the rectangle
                     region1_pointB, // Second point which defines the rectangle
-                    BLUE, // The color the rectangle is drawn in
-                    2); // Thickness of the rectangle lines
+                    RED, // The color the rectangle is drawn in
+                    4); // Thickness of the rectangle lines
 
             /*
              * Draw a rectangle showing sample region 2 on the screen.
              * Simply a visual aid. Serves no functional purpose.
              */
+
             Imgproc.rectangle(
                     input, // Buffer to draw on
                     region2_pointA, // First point which defines the rectangle
                     region2_pointB, // Second point which defines the rectangle
-                    BLUE, // The color the rectangle is drawn in
-                    2); // Thickness of the rectangle lines
+                    RED, // The color the rectangle is drawn in
+                    4); // Thickness of the rectangle lines
 
             /*
              * Draw a rectangle showing sample region 3 on the screen.
@@ -288,24 +304,18 @@ public class FreightFrenzyOpenCV extends LinearOpMode
                     input, // Buffer to draw on
                     region3_pointA, // First point which defines the rectangle
                     region3_pointB, // Second point which defines the rectangle
-                    BLUE, // The color the rectangle is drawn in
-                    2); // Thickness of the rectangle lines
-
-
-            /*
-             * Find the max of the 3 averages
-             */
-            int maxOneTwo = Math.max(avg1, avg2);
-            int max = Math.max(maxOneTwo, avg3);
+                    RED, // The color the rectangle is drawn in
+                    4); // Thickness of the rectangle lines
 
             /*
              * Now that we found the max, we actually need to go and
              * figure out which sample region that value was from
              */
-            if(max == avg1) // Was it from region 1?
-            {
-                position = ShippingElementPosition.LEFT; // Record our analysis
 
+            DifferenceLeft = Avg1() - SHIPPING_ELEMENT_THRESHOLD;
+            if ((DifferenceLeft > -30) && (DifferenceLeft < 30)) { // Was it from region 1?
+                BarcodeLeft = true;
+                position = ShippingElementPosition.LEFT; // Record our analysis
                 /*
                  * Draw a solid rectangle on top of the chosen region.
                  * Simply a visual aid. Serves no functional purpose.
@@ -315,12 +325,16 @@ public class FreightFrenzyOpenCV extends LinearOpMode
                         region1_pointA, // First point which defines the rectangle
                         region1_pointB, // Second point which defines the rectangle
                         GREEN, // The color the rectangle is drawn in
-                        -1); // Negative thickness means solid fill
+                4); // Negative thickness means solid fill
+            } else {
+                BarcodeCenter = false;
+                BarcodeRight = false;
             }
-            else if(max == avg2) // Was it from region 2?
-            {
-                position = ShippingElementPosition.CENTER; // Record our analysis
 
+            DifferenceCenter = Avg2() - SHIPPING_ELEMENT_THRESHOLD;
+            if ((DifferenceCenter > -30) && (DifferenceCenter < 30)) { // Was it from region 2?
+                BarcodeCenter = true;
+                position = ShippingElementPosition.CENTER; // Record our analysis
                 /*
                  * Draw a solid rectangle on top of the chosen region.
                  * Simply a visual aid. Serves no functional purpose.
@@ -330,12 +344,16 @@ public class FreightFrenzyOpenCV extends LinearOpMode
                         region2_pointA, // First point which defines the rectangle
                         region2_pointB, // Second point which defines the rectangle
                         GREEN, // The color the rectangle is drawn in
-                        -1); // Negative thickness means solid fill
+                        4); // Negative thickness means solid fill
+            } else {
+                BarcodeLeft = false;
+                BarcodeRight = false;
             }
-            else if(max == avg3) // Was it from region 3?
-            {
-                position = ShippingElementPosition.RIGHT; // Record our analysis
 
+            DifferenceRight = Avg3() - SHIPPING_ELEMENT_THRESHOLD;
+            if ((DifferenceRight > -30) && (DifferenceRight < 30)) { // Was it from region 3?
+                BarcodeRight = true;
+                position = ShippingElementPosition.RIGHT; // Record our analysis
                 /*
                  * Draw a solid rectangle on top of the chosen region.
                  * Simply a visual aid. Serves no functional purpose.
@@ -345,7 +363,10 @@ public class FreightFrenzyOpenCV extends LinearOpMode
                         region3_pointA, // First point which defines the rectangle
                         region3_pointB, // Second point which defines the rectangle
                         GREEN, // The color the rectangle is drawn in
-                        -1); // Negative thickness means solid fill
+                        4); // Negative thickness means solid fill
+            } else {
+                BarcodeLeft = false;
+                BarcodeCenter = false;
             }
 
             /*
@@ -354,6 +375,18 @@ public class FreightFrenzyOpenCV extends LinearOpMode
              * to add some annotations to this buffer earlier up.
              */
             return input;
+        }
+
+        public int Avg1 () {
+            return avg1;
+        }
+
+        public int Avg2 () {
+            return avg2;
+        }
+
+        public int Avg3 () {
+            return avg3;
         }
 
         /*
