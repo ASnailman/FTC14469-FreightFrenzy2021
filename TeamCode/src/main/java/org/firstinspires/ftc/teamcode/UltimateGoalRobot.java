@@ -70,7 +70,7 @@ public class UltimateGoalRobot extends LinearOpMode {
 
         //colorsensor = hardwareMap.get(NormalizedColorSensor.class, "ColorJerry1")
         //distancesensor = hardwareMap.get(DistanceSensor.class, "DistanceJerry1");
-        //servojerry = hardwareMap.get(Servo.class, "ServoJerry1");
+        //servojerry = hardwareMap.get(Servo.class, "ServoJerry");
 
         //Calibrate gyro
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
