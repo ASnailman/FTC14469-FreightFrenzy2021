@@ -28,7 +28,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-@Autonomous(name="FarRed_V2", group="MecanumDrive")
+@Autonomous(name="FarBlue_V2", group="MecanumDrive")
 public class FarBlue_V2 extends LinearOpMode {
 
     static DcMotor BackLeft;

@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp(name="MecanumDriveTeleop", group="MecanumDrive")
+@TeleOp(name="MecanumDriveTeleopV2", group="MecanumDrive")
 public class OfficialTeleop_V2 extends LinearOpMode {
 
     static DcMotor FrontLeft;
