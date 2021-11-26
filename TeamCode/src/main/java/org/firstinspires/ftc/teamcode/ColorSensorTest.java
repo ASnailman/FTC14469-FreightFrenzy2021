@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import android.graphics.Color;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -12,13 +13,15 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoController;
+import com.qualcomm.robotcore.hardware.ServoControllerEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp(name="ColorTest", group="heehee")
+@TeleOp(name="ColorTest", group="MecanumDriveTest")
 public class ColorSensorTest extends LinearOpMode {
 
     static NormalizedColorSensor colorsensor;
-    static Servo ColorStrip;
+    static RevBlinkinLedDriver ColorStrip;
     BNO055IMU IMU;
     double strip_color;
 
@@ -29,7 +32,7 @@ public class ColorSensorTest extends LinearOpMode {
     public void runOpMode() {
 
         colorsensor = hardwareMap.get(NormalizedColorSensor.class, "colorsensor");
-        ColorStrip = hardwareMap.get(Servo.class, "colorstrip");
+        ColorStrip = hardwareMap.get(RevBlinkinLedDriver.class, "colorstrip");
         IMU = hardwareMap.get(BNO055IMU.class, "imu");
 
         waitForStart();
@@ -37,11 +40,11 @@ public class ColorSensorTest extends LinearOpMode {
         while (opModeIsActive()) {
 
             if (gamepad1.y) {
-                WhiteDetector();
+                //WhiteDetector();
             }
 
             if (gamepad1.right_bumper) {
-                YellowDetector();
+                //YellowDetector();
             }
 
             if (button_a_already_pressed == false) {
@@ -67,10 +70,14 @@ public class ColorSensorTest extends LinearOpMode {
             }
 
             if (gamepad1.x) {
-                ColorStrip.setPosition(strip_color);
+                ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
             }
 
-            telemetry.addData("Colorstrip", strip_color);
+            if (gamepad1.dpad_right) {
+                ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GOLD);
+            }
+
+            //telemetry.addData("Colorstrip", ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN));
             telemetry.update();
 
         }
