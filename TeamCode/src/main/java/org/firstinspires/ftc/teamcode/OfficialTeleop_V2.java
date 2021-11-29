@@ -1,11 +1,17 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.graphics.Color;
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -21,6 +27,8 @@ public class OfficialTeleop_V2 extends LinearOpMode {
     static MoveDirection Direction;
     static DcMotor Intake;
     static DcMotor CarouselMotor;
+    static NormalizedColorSensor colorsensor;
+    static RevBlinkinLedDriver ColorStrip;
     BNO055IMU IMU;
     static Servo BucketServo;
     static Servo IntakeServo;
@@ -61,6 +69,16 @@ public class OfficialTeleop_V2 extends LinearOpMode {
     boolean press3 = false;
     boolean press4 = false;
 
+    boolean white;
+    boolean yellow;
+    boolean unknown;
+
+    static  final double OriginalBucketPosition = 0.02;
+    static final double OpenGatePosition = 1;
+    static final double OpenIntakePosition = 0.7;
+    static final double ClosingGatePosition = 0.8;
+    static final double ClosingIntakePosition = 1;
+
     @Override
     public void runOpMode() {
 
@@ -72,6 +90,8 @@ public class OfficialTeleop_V2 extends LinearOpMode {
         Arm = hardwareMap.get(DcMotor.class, "arm");
         Rail = hardwareMap.get(DcMotor.class, "rail");
         CarouselMotor = hardwareMap.get(DcMotor.class, "carouselmotor");
+        colorsensor = hardwareMap.get(NormalizedColorSensor.class, "colorsensor");
+        ColorStrip = hardwareMap.get(RevBlinkinLedDriver.class, "colorstrip");
         BucketServo = hardwareMap.get(Servo.class, "BucketServo");
         IntakeServo = hardwareMap.get(Servo.class, "IntakeServo");
         GateServo = hardwareMap.get(Servo.class, "GateServo");
@@ -103,11 +123,37 @@ public class OfficialTeleop_V2 extends LinearOpMode {
         IntakeServo.scaleRange(0,1);
         GateServo.scaleRange(0,1);
 
+        BucketServo.setPosition(0.02);
+        IntakeServo.setPosition(0.7);
+        GateServo.setPosition(1);
+
         waitForStart();
 
         ET.reset();
 
         while (opModeIsActive()) {
+
+            /****************************************
+             Yellow & White Sensing
+             ***************************************/
+
+            WhiteYellowDetector();
+
+            if (white) {
+                Intake.setPower(0);
+                ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.SKY_BLUE);
+                IntakeServo.setPosition(ClosingIntakePosition);
+            }
+
+            if (yellow) {
+                Intake.setPower(0);
+                ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
+                IntakeServo.setPosition(ClosingIntakePosition);
+            }
+
+            if (unknown) {
+                ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+            }
 
             /****************************************
              Movement
@@ -134,8 +180,8 @@ public class OfficialTeleop_V2 extends LinearOpMode {
              ***************************************/
 
             if (gamepad1.dpad_up) {
-                IntakeServo.setPosition(1);
-                Intake.setPower(0.85);
+                IntakeServo.setPosition(OpenIntakePosition);
+                Intake.setPower(1);
                 Rail.setTargetPosition(0);
                 Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 Rail.setPower(0.5);
@@ -149,10 +195,10 @@ public class OfficialTeleop_V2 extends LinearOpMode {
              ***************************************/
 
             if (gamepad1.dpad_right) {
-                CarouselMotor.setPower(0.6);
+                CarouselMotor.setPower(0.8);
             }
             if (gamepad1.dpad_left) {
-                CarouselMotor.setPower(-0.6);
+                CarouselMotor.setPower(-0.8);
             }
             if (gamepad1.x) {
                 CarouselMotor.setPower(0);
@@ -164,7 +210,7 @@ public class OfficialTeleop_V2 extends LinearOpMode {
 
             if (button_y_already_pressed == false) {
                 if (gamepad2.y) {
-                    IntakeServo.setPosition(0);
+                    IntakeServo.setPosition(ClosingIntakePosition);
                     Rail.setTargetPosition(1000);
                     Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     Rail.setPower(0.5);
@@ -202,7 +248,7 @@ public class OfficialTeleop_V2 extends LinearOpMode {
 
             if (button_b_already_pressed == false) {
                 if (gamepad2.b) {
-                    IntakeServo.setPosition(0);
+                    IntakeServo.setPosition(ClosingIntakePosition);
                     Rail.setTargetPosition(750);
                     Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     Rail.setPower(0.5);
@@ -240,7 +286,7 @@ public class OfficialTeleop_V2 extends LinearOpMode {
 
             if (button_a_already_pressed == false) {
                 if (gamepad2.a) {
-                    IntakeServo.setPosition(0);
+                    IntakeServo.setPosition(ClosingIntakePosition);
                     Rail.setTargetPosition(750);
                     Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     Rail.setPower(0.5);
@@ -278,7 +324,7 @@ public class OfficialTeleop_V2 extends LinearOpMode {
 
             if (button_x_already_pressed == false) {
                 if (gamepad2.x) {
-                    GateServo.setPosition(0);
+                    GateServo.setPosition(ClosingGatePosition);
                     BucketServo.setPosition(0.5);
                     Arm.setTargetPosition(0);
                     Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -326,7 +372,7 @@ public class OfficialTeleop_V2 extends LinearOpMode {
 
             if (button_dpad_right_already_pressed2 == false) {
                 if (gamepad2.dpad_right) {
-                    GateServo.setPosition(1);
+                    GateServo.setPosition(OpenGatePosition);
                     button_dpad_right_already_pressed2 = true;
                 }
             } else {
@@ -576,6 +622,8 @@ public class OfficialTeleop_V2 extends LinearOpMode {
 
             telemetry.addData("Arm Current Position", Arm.getCurrentPosition());
             telemetry.addData("Rail Current Position", Rail.getCurrentPosition());
+            telemetry.addData("encoder", FrontRight.getCurrentPosition());
+            telemetry.addData("encoder", BackRight.getCurrentPosition());
             telemetry.addData("FLPower", FLPower);
             telemetry.addData("BLPower", BLPower);
             telemetry.addData("FRPower", FRPower);
@@ -608,7 +656,7 @@ public class OfficialTeleop_V2 extends LinearOpMode {
         BucketServo.setDirection(Servo.Direction.FORWARD);
         IntakeServo.setDirection(Servo.Direction.FORWARD);
         GateServo.setDirection(Servo.Direction.FORWARD);
-        Intake.setDirection(DcMotor.Direction.REVERSE);
+        Intake.setDirection(DcMotor.Direction.FORWARD);
         Arm.setDirection(DcMotor.Direction.FORWARD);
         Rail.setDirection(DcMotor.Direction.FORWARD);
 
@@ -673,6 +721,63 @@ public class OfficialTeleop_V2 extends LinearOpMode {
 
         boolean GetRunState() {
             return run_state;
+        }
+    }
+
+    private int WhiteYellowDetector() {
+
+        float[] HSV = new float[3];
+        NormalizedRGBA RGBA = colorsensor.getNormalizedColors();
+        colorsensor.setGain(30);
+
+        Color.colorToHSV(RGBA.toColor(), HSV);
+        telemetry.addData("H:", HSV[0]);
+        telemetry.addData("S:", HSV[1]);
+        telemetry.addData("V:", HSV[2]);
+
+        int Yellow = 2;
+        int White = 1;
+        int Unkwown = 0;
+
+        if (HSV[1] >= 0 && HSV[1] <= 0.45) {
+            if (HSV[2] >= 0.3 && HSV[2] <= 1) {
+                telemetry.addData("Color:", "White");
+                telemetry.update();
+                white = true;
+                yellow = false;
+                unknown = false;
+                return White;
+            } else {
+                telemetry.addData("Color:", "Unknown");
+                telemetry.update();
+                unknown = true;
+                yellow = false;
+                white = false;
+                return Unkwown;
+            }
+        } else if (HSV[1] >= 0.5 && HSV[1] <= 0.8) {
+            if (HSV[2] >= 0.6 && HSV[2] <= 1) {
+                telemetry.addData("Color:", "Yellow");
+                telemetry.update();
+                yellow = true;
+                white = false;
+                unknown = false;
+                return Yellow;
+            } else {
+                telemetry.addData("Color:", "Unknown");
+                telemetry.update();
+                unknown = true;
+                yellow = false;
+                white = false;
+                return Unkwown;
+            }
+        } else {
+            telemetry.addData("Color:", "Unknown");
+            telemetry.update();
+            unknown = true;
+            yellow = false;
+            white = false;
+            return Unkwown;
         }
     }
 

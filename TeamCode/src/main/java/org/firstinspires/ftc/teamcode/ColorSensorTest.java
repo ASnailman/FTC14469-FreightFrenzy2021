@@ -24,6 +24,9 @@ public class ColorSensorTest extends LinearOpMode {
     static RevBlinkinLedDriver ColorStrip;
     BNO055IMU IMU;
     double strip_color;
+    boolean white;
+    boolean yellow;
+    boolean unknown;
 
     boolean button_a_already_pressed = false;
     boolean button_b_already_pressed = false;
@@ -39,48 +42,82 @@ public class ColorSensorTest extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            if (gamepad1.y) {
-                //WhiteDetector();
+            WhiteYellowDetector();
+
+            if (white) {
+                ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.SKY_BLUE);
             }
 
-            if (gamepad1.right_bumper) {
-                //YellowDetector();
-            }
-
-            if (button_a_already_pressed == false) {
-                if (gamepad1.a) {
-                    strip_color = strip_color + 0.01;
-                    button_a_already_pressed = true;
-                }
-            } else {
-                if (!gamepad1.a) {
-                    button_a_already_pressed = false;
-                }
-            }
-
-            if (button_b_already_pressed == false) {
-                if (gamepad1.b) {
-                    strip_color = strip_color - 0.01;
-                    button_b_already_pressed = true;
-                }
-            } else {
-                if (!gamepad1.b) {
-                    button_b_already_pressed = false;
-                }
-            }
-
-            if (gamepad1.x) {
+            if (yellow) {
                 ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
             }
 
-            if (gamepad1.dpad_right) {
-                ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GOLD);
+            if (unknown) {
+                ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
             }
 
             //telemetry.addData("Colorstrip", ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN));
+            //telemetry.addData("color", );
             telemetry.update();
 
         }
+    }
+
+    private int WhiteYellowDetector() {
+
+        float[] HSV = new float[3];
+        NormalizedRGBA RGBA = colorsensor.getNormalizedColors();
+        colorsensor.setGain(70);
+
+        Color.colorToHSV(RGBA.toColor(), HSV);
+        telemetry.addData("H:", HSV[0]);
+        telemetry.addData("S:", HSV[1]);
+        telemetry.addData("V:", HSV[2]);
+
+        int Yellow = 2;
+        int White = 1;
+        int Unkwown = 0;
+
+        if (HSV[1] >= 0 && HSV[1] <= 0.25) {
+            if (HSV[2] >= 0.93 && HSV[2] <= 1) {
+                telemetry.addData("Color:", "White");
+                telemetry.update();
+                white = true;
+                yellow = false;
+                unknown = false;
+                return White;
+            } else {
+                telemetry.addData("Color:", "Unknown");
+                telemetry.update();
+                unknown = true;
+                yellow = false;
+                white = false;
+                return Unkwown;
+            }
+        } else if (HSV[1] >= 0.4 && HSV[1] <= 0.8) {
+            if (HSV[2] >= 0.6 && HSV[2] <= 1) {
+                telemetry.addData("Color:", "Yellow");
+                telemetry.update();
+                yellow = true;
+                white = false;
+                unknown = false;
+                return Yellow;
+            } else {
+                telemetry.addData("Color:", "Unknown");
+                telemetry.update();
+                unknown = true;
+                yellow = false;
+                white = false;
+                return Unkwown;
+            }
+        } else {
+                telemetry.addData("Color:", "Unknown");
+                telemetry.update();
+                unknown = true;
+                yellow = false;
+                white = false;
+                return Unkwown;
+            }
     }
 
     private int WhiteDetector() {
@@ -97,19 +134,22 @@ public class ColorSensorTest extends LinearOpMode {
         int White = 1;
         int Unkwown = 0;
 
-        if (HSV[1] <= 0.25) {
-            if (HSV[2] >= 0.93) {
+        if (HSV[1] >= 0 && HSV[1] <= 0.25) {
+            if (HSV[2] >= 0.93 && HSV[2] <= 1) {
                 telemetry.addData("Color:", "White");
                 telemetry.update();
+                white = true;
                 return White;
             } else {
                 telemetry.addData("Color:", "Unknown");
                 telemetry.update();
+                unknown = true;
                 return Unkwown;
             }
         } else {
             telemetry.addData("Color:", "Unknown");
             telemetry.update();
+            unknown = true;
             return Unkwown;
         }
     }
@@ -119,7 +159,6 @@ public class ColorSensorTest extends LinearOpMode {
         float[] HSV = new float[3];
         NormalizedRGBA RGBA = colorsensor.getNormalizedColors();
         colorsensor.setGain(70);
-
         Color.colorToHSV(RGBA.toColor(), HSV);
         telemetry.addData("H:", HSV[0]);
         telemetry.addData("S:", HSV[1]);
@@ -128,19 +167,22 @@ public class ColorSensorTest extends LinearOpMode {
         int Yellow = 1;
         int Unkwown = 0;
 
-        if (HSV[1] >= 0) {
-            if (HSV[2] >= 0.8) {
+        if (HSV[1] >= 0.4 && HSV[1] <= 0.8) {
+            if (HSV[2] >= 0.6 && HSV[2] <= 1) {
                 telemetry.addData("Color:", "Yellow");
                 telemetry.update();
+                yellow = true;
                 return Yellow;
             } else {
                 telemetry.addData("Color:", "Unknown");
                 telemetry.update();
+                unknown = true;
                 return Unkwown;
             }
         } else {
             telemetry.addData("Color:", "Unknown");
             telemetry.update();
+            unknown = true;
             return Unkwown;
         }
     }
