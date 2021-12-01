@@ -73,10 +73,22 @@ public class OfficialTeleop_V2 extends LinearOpMode {
     boolean yellow;
     boolean unknown;
 
-    static  final double OriginalBucketPosition = 0.02;
-    static final double OpenGatePosition = 1;
+    boolean BucketIsEmpty = true;
+
+    static final double OriginalBucketPosition = 0.49;
+
+    static final double TopBucketPosition = 0.1;
+    static final double MirrorTopBucketPosition = 0.9;
+
+    static final double MiddleBucketPosition = 0.1;
+    static final double MirrorMiddleBucketPosition = 0.9;
+
+    static final double LowBucketPosition = 0.1;
+    static final double MirrorLowBucketPosition = 0.9;
+
+    static final double OpenGatePosition = 0.5;
     static final double OpenIntakePosition = 0.7;
-    static final double ClosingGatePosition = 0.8;
+    static final double ClosingGatePosition = 0.3;
     static final double ClosingIntakePosition = 1;
 
     @Override
@@ -123,9 +135,9 @@ public class OfficialTeleop_V2 extends LinearOpMode {
         IntakeServo.scaleRange(0,1);
         GateServo.scaleRange(0,1);
 
-        BucketServo.setPosition(0.02);
-        IntakeServo.setPosition(0.7);
-        GateServo.setPosition(1);
+        BucketServo.setPosition(OriginalBucketPosition);
+        IntakeServo.setPosition(OpenIntakePosition);
+        GateServo.setPosition(OpenGatePosition);
 
         waitForStart();
 
@@ -139,20 +151,29 @@ public class OfficialTeleop_V2 extends LinearOpMode {
 
             WhiteYellowDetector();
 
-            if (white) {
-                Intake.setPower(0);
-                ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.SKY_BLUE);
-                IntakeServo.setPosition(ClosingIntakePosition);
-            }
+            if (BucketIsEmpty) {
 
-            if (yellow) {
-                Intake.setPower(0);
-                ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
-                IntakeServo.setPosition(ClosingIntakePosition);
+                if (yellow) {
+                    Intake.setPower(0);
+                    ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
+                    IntakeServo.setPosition(ClosingIntakePosition);
+                    BucketIsEmpty = false;
+                }
+                else if (white) {
+                    Intake.setPower(0);
+                    ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.SKY_BLUE);
+                    IntakeServo.setPosition(ClosingIntakePosition);
+                    BucketIsEmpty = false;
+                }
+                else if (unknown) {
+                    ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+                }
             }
-
-            if (unknown) {
-                ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+            else {
+                /* If intake is enabled, just assume bucket is empty */
+                if (Intake.getPower() >= 0.9) {
+                    BucketIsEmpty = true;
+                }
             }
 
             /****************************************
@@ -224,13 +245,13 @@ public class OfficialTeleop_V2 extends LinearOpMode {
                                 Arm.setTargetPosition(350);
                                 Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                                 Arm.setPower(0.2);
-                                BucketServo.setPosition(0);
+                                BucketServo.setPosition(MirrorTopBucketPosition);
                                 top_level_event = false;
                             } else {
                                 Arm.setTargetPosition(-350);
                                 Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                                 Arm.setPower(0.2);
-                                BucketServo.setPosition(1);
+                                BucketServo.setPosition(TopBucketPosition);
                                 top_level_event = false;
                             }
                         }
@@ -262,13 +283,13 @@ public class OfficialTeleop_V2 extends LinearOpMode {
                                 Arm.setTargetPosition(250);
                                 Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                                 Arm.setPower(0.2);
-                                BucketServo.setPosition(0);
+                                BucketServo.setPosition(MirrorMiddleBucketPosition);
                                 middle_level_event = false;
                             } else {
                                 Arm.setTargetPosition(-250);
                                 Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                                 Arm.setPower(0.2);
-                                BucketServo.setPosition(1);
+                                BucketServo.setPosition(MiddleBucketPosition);
                                 middle_level_event = false;
                             }
                         }
@@ -300,13 +321,13 @@ public class OfficialTeleop_V2 extends LinearOpMode {
                                 Arm.setTargetPosition(150);
                                 Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                                 Arm.setPower(0.2);
-                                BucketServo.setPosition(0);
+                                BucketServo.setPosition(MirrorLowBucketPosition);
                                 low_level_event = false;
                             } else {
                                 Arm.setTargetPosition(-150);
                                 Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                                 Arm.setPower(0.2);
-                                BucketServo.setPosition(1);
+                                BucketServo.setPosition(LowBucketPosition);
                                 low_level_event = false;
                             }
                         }
@@ -325,17 +346,18 @@ public class OfficialTeleop_V2 extends LinearOpMode {
             if (button_x_already_pressed == false) {
                 if (gamepad2.x) {
                     GateServo.setPosition(ClosingGatePosition);
-                    BucketServo.setPosition(0.5);
-                    Arm.setTargetPosition(0);
-                    Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    Arm.setPower(0.2);
-                    ET.reset();
+                    BucketServo.setPosition(OriginalBucketPosition);
                     button_x_already_pressed = true;
                     barrier_event = true;
                 }
                 else {
                     if (barrier_event == true) {
-                        if (ET.milliseconds() > 1000) {
+                        if (BucketServo.getPosition() <= OriginalBucketPosition) {
+                            Arm.setTargetPosition(10);
+                            Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                            Arm.setPower(0.2);
+                        }
+                        if (Arm.getCurrentPosition() <= 10) {
                             Rail.setTargetPosition(300);
                             Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                             Rail.setPower(0.5);

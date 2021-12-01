@@ -69,7 +69,7 @@ public class FreightFrenzyOpenCV extends LinearOpMode {
          */
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 2"), cameraMonitorViewId);
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
         pipeline = new SkystoneDeterminationPipeline();
         webcam.setPipeline(pipeline);
 
@@ -129,11 +129,11 @@ public class FreightFrenzyOpenCV extends LinearOpMode {
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(100,185);
-        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(600,185);
-        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1075,185);
-        static final int REGION_WIDTH = 100;
-        static final int REGION_HEIGHT = 100;
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(115,125);
+        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(625,105);
+        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1175,85);
+        static final int REGION_WIDTH = 75;
+        static final int REGION_HEIGHT = 75;
 
         static final int SHIPPING_ELEMENT_THRESHOLD = 55;
 

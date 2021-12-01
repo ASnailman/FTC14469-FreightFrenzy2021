@@ -89,7 +89,7 @@ public class SpectatorBlue_V2 extends LinearOpMode {
         IMU = hardwareMap.get(BNO055IMU.class, "imu");
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 2"), cameraMonitorViewId);
 
         //rotate 180 around z axis and 90 degrees vertically around y axis
         IMU.write8(BNO055IMU.Register.OPR_MODE, BNO055IMU.SensorMode.CONFIG.bVal & 0x0F);
@@ -843,11 +843,11 @@ public class SpectatorBlue_V2 extends LinearOpMode {
         static final Scalar RED = new Scalar(255, 0, 0);
         static final Scalar YELLOW = new Scalar(255, 255, 0);
 
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(100,185);
-        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(600,185);
-        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1075,185);
-        static final int REGION_WIDTH = 100;
-        static final int REGION_HEIGHT = 100;
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(115,125);
+        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(625,125);
+        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1125,125);
+        static final int REGION_WIDTH = 75;
+        static final int REGION_HEIGHT = 75;
 
         static final int SHIPPING_ELEMENT_THRESHOLD = 55;
 
