@@ -23,12 +23,12 @@ public class AttachmentTuning extends LinearOpMode {
     static DcMotor Intake;
     static DcMotor CarouselMotor;
     BNO055IMU IMU;
-    static CRServo BucketServo;
+    static Servo BucketServo;
     double intake_power = 0.5;
     int arm_position = 0;
     int rail_position = 0;
     //int time = 0;
-    long bucketservo_position = 0;
+    double bucketservo_position = 0;
 
     boolean button_a_already_pressed = false;
     boolean button_b_already_pressed = false;
@@ -57,11 +57,14 @@ public class AttachmentTuning extends LinearOpMode {
         Arm = hardwareMap.get(DcMotor.class, "arm");
         Rail = hardwareMap.get(DcMotor.class, "rail");
         CarouselMotor = hardwareMap.get(DcMotor.class, "carouselmotor");
-        BucketServo = hardwareMap.get(CRServo.class, "BucketServo");
+        BucketServo = hardwareMap.get(Servo.class, "BucketServo");
         IMU = hardwareMap.get(BNO055IMU.class, "imu");
 
-        BucketCRServoCtrl_Thread cr_thread = new BucketCRServoCtrl_Thread();
-        cr_thread.start();
+        //BucketCRServoCtrl_Thread cr_thread = new BucketCRServoCtrl_Thread();
+        //cr_thread.start();
+
+        BucketServo.scaleRange(0,1);
+        BucketServo.setPosition(0);
 
         AttachmentSetDirection();
         SetDirection(MoveDirection.REVERSE);
@@ -156,12 +159,12 @@ public class AttachmentTuning extends LinearOpMode {
             }
 
             /****************************************
-             Increase BucketServo Sleep Time (G1): a = increase sleep by 50, b = decrease sleep by 50
+             Increase BucketServo Position: a = increase position by 0.02, b = decrease sleep by 0.02
              ***************************************/
 
             if (button_a_already_pressed == false) {
                 if (gamepad1.a) {
-                    bucketservo_position = bucketservo_position + 50;
+                    bucketservo_position = bucketservo_position + 0.02;
                     button_a_already_pressed = true;
                 }
             } else {
@@ -172,7 +175,7 @@ public class AttachmentTuning extends LinearOpMode {
 
             if (button_b_already_pressed == false) {
                 if (gamepad1.b) {
-                    bucketservo_position = bucketservo_position - 50;
+                    bucketservo_position = bucketservo_position - 0.02;
                     button_b_already_pressed = true;
                 }
             } else {
@@ -187,13 +190,7 @@ public class AttachmentTuning extends LinearOpMode {
 
             if (button_x_already_pressed == false) {
                 if (gamepad1.x) {
-                    if (cr_thread.GetRunState() == Boolean.FALSE) {
-                        //BucketServo.setPosition(bucketservo_position);
-                        cr_thread.SetRunDirection(DcMotorSimple.Direction.FORWARD);
-                        cr_thread.SetRunSpeed(0.2);
-                        cr_thread.SetDuration(bucketservo_position);
-                        cr_thread.SetRunState(Boolean.TRUE);
-                    }
+                        BucketServo.setPosition(bucketservo_position);
                         button_x_already_pressed = true;
                     }
                 } else {
@@ -204,13 +201,7 @@ public class AttachmentTuning extends LinearOpMode {
 
                 if (button_y_already_pressed == false) {
                     if (gamepad1.y) {
-                        if (cr_thread.GetRunState() == Boolean.FALSE) {
-                            //BucketServo.setPosition(0);
-                            cr_thread.SetRunDirection(DcMotorSimple.Direction.REVERSE);
-                            cr_thread.SetRunSpeed(0.2);
-                            cr_thread.SetDuration(bucketservo_position);
-                            cr_thread.SetRunState(Boolean.TRUE);
-                        }
+                        BucketServo.setPosition(0);
                         button_y_already_pressed = true;
                     }
                 } else {
@@ -367,7 +358,6 @@ public class AttachmentTuning extends LinearOpMode {
         private void AttachmentSetDirection () {
 
             CarouselMotor.setDirection(DcMotor.Direction.REVERSE);
-            BucketServo.setDirection(CRServo.Direction.FORWARD);
             Intake.setDirection(DcMotor.Direction.REVERSE);
             Arm.setDirection(DcMotor.Direction.FORWARD);
             Rail.setDirection(DcMotor.Direction.FORWARD);
@@ -392,11 +382,11 @@ public class AttachmentTuning extends LinearOpMode {
 
                         if (run_state == Boolean.TRUE) {
 
-                            BucketServo.setDirection(run_direction);
-                            BucketServo.setPower(run_speed);
+                            //BucketServo.setDirection(run_direction);
+                            //BucketServo.setPower(run_speed);
 
                             if (ET.milliseconds() >= run_duration) {
-                                BucketServo.setPower(0);
+                                //BucketServo.setPower(0);
                                 run_state = Boolean.FALSE;
                                 ET.reset();
                             }
