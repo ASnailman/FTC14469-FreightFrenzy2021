@@ -25,10 +25,10 @@ public class AttachmentTuning extends LinearOpMode {
     BNO055IMU IMU;
     static Servo BucketServo;
     double intake_power = 0.5;
-    int arm_position = 0;
+    int arm_position = -20;
     int rail_position = 0;
     //int time = 0;
-    double bucketservo_position = 0;
+    double bucketservo_position = 0.42;
 
     boolean button_a_already_pressed = false;
     boolean button_b_already_pressed = false;
@@ -64,11 +64,10 @@ public class AttachmentTuning extends LinearOpMode {
         //cr_thread.start();
 
         BucketServo.scaleRange(0,1);
-        BucketServo.setPosition(0);
+        BucketServo.setPosition(0.4);
 
         AttachmentSetDirection();
         SetDirection(MoveDirection.REVERSE);
-
         Arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         Rail.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //BackLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -80,7 +79,7 @@ public class AttachmentTuning extends LinearOpMode {
         FrontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         FrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        Arm.setTargetPosition(0);
+        Arm.setTargetPosition(-20);
         Rail.setTargetPosition(0);
 
         Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -164,7 +163,7 @@ public class AttachmentTuning extends LinearOpMode {
 
             if (button_a_already_pressed == false) {
                 if (gamepad1.a) {
-                    bucketservo_position = bucketservo_position + 0.02;
+                    bucketservo_position = bucketservo_position + 0.01;
                     button_a_already_pressed = true;
                 }
             } else {
@@ -175,7 +174,7 @@ public class AttachmentTuning extends LinearOpMode {
 
             if (button_b_already_pressed == false) {
                 if (gamepad1.b) {
-                    bucketservo_position = bucketservo_position - 0.02;
+                    bucketservo_position = bucketservo_position - 0.01;
                     button_b_already_pressed = true;
                 }
             } else {

@@ -76,16 +76,16 @@ public class OfficialTeleop_V2 extends LinearOpMode {
 
     boolean BucketIsEmpty = true;
 
-    static final double OriginalBucketPosition = 0.49;
+    static final double OriginalBucketPosition = 0.4;
 
-    static final double TopBucketPosition = 0.1;
-    static final double MirrorTopBucketPosition = 0.9;
+    static final double TopBucketPosition = 0.06;
+    static final double MirrorTopBucketPosition = 0.76;
 
     static final double MiddleBucketPosition = 0.1;
-    static final double MirrorMiddleBucketPosition = 0.9;
+    static final double MirrorMiddleBucketPosition = 0.7;
 
-    static final double LowBucketPosition = 0.1;
-    static final double MirrorLowBucketPosition = 0.9;
+    static final double LowBucketPosition = 0.16;
+    static final double MirrorLowBucketPosition = 0.64;
 
     static final double OpenGatePosition = 0.5;
     static final double OpenIntakePosition = 0.7;
@@ -181,10 +181,10 @@ public class OfficialTeleop_V2 extends LinearOpMode {
              Movement
              ***************************************/
 
-            double y = -gamepad1.left_stick_y * 0.63;
+            double y = -gamepad1.left_stick_y * 0.75;
             //double x = gamepad1.left_stick_x * 0.55;
-            double x = gamepad1.left_stick_x * 0.64;
-            double rx = gamepad1.right_stick_x * 0.52;
+            double x = gamepad1.left_stick_x * 0.75;
+            double rx = gamepad1.right_stick_x * 0.7;
 
             double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
             double FLPower = (y + x + rx) / denominator;
@@ -217,10 +217,10 @@ public class OfficialTeleop_V2 extends LinearOpMode {
              ***************************************/
 
             if (gamepad1.dpad_right) {
-                CarouselMotor.setPower(0.8);
+                CarouselMotor.setPower(1.0);
             }
             if (gamepad1.dpad_left) {
-                CarouselMotor.setPower(-0.8);
+                CarouselMotor.setPower(-1.0);
             }
             if (gamepad1.x) {
                 CarouselMotor.setPower(0);
@@ -243,22 +243,22 @@ public class OfficialTeleop_V2 extends LinearOpMode {
                         mirror_event = true;
                     }
                     if (top_level_event == true) {
-                        if (Rail.getCurrentPosition() == 1000) {
+                        if (Rail.getCurrentPosition() >= 970 && Rail.getCurrentPosition() <= 1030) {
                             if (mirror_event) {
                                 Arm.setTargetPosition(350);
                                 Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                                Arm.setPower(0.2);
+                                Arm.setPower(0.3);
 
-                                if (Arm.getCurrentPosition() == 350) {
+                                if (Arm.getCurrentPosition() >= 320 && Arm.getCurrentPosition() <= 380) {
                                     BucketServo.setPosition(MirrorTopBucketPosition);
                                     top_level_event = false;
                                 }
                             } else {
                                 Arm.setTargetPosition(-350);
                                 Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                                Arm.setPower(0.2);
+                                Arm.setPower(0.3);
 
-                                if (Arm.getCurrentPosition() == -350) {
+                                if (Arm.getCurrentPosition() >= -380 && Arm.getCurrentPosition() <= -320) {
                                     BucketServo.setPosition(TopBucketPosition);
                                     top_level_event = false;
                                 }
@@ -275,31 +275,38 @@ public class OfficialTeleop_V2 extends LinearOpMode {
             /****************************************
              Middle Level (For Opposite, press dpad_down first)
              ***************************************/
-
             if (button_b_already_pressed == false) {
                 if (gamepad2.b) {
                     IntakeServo.setPosition(ClosingIntakePosition);
                     Rail.setTargetPosition(750);
                     Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     Rail.setPower(0.5);
-                    ET.reset();
                     button_b_already_pressed = true;
                     middle_level_event = true;
                 } else {
+                    if (gamepad2.dpad_down) {
+                        mirror_event = true;
+                    }
                     if (middle_level_event == true) {
-                        if (ET.milliseconds() > 1000) {
-                            if (gamepad2.dpad_down) {
+                        if (Rail.getCurrentPosition() >= 720 && Rail.getCurrentPosition() <= 780) {
+                            if (mirror_event) {
                                 Arm.setTargetPosition(250);
                                 Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                                Arm.setPower(0.2);
-                                BucketServo.setPosition(MirrorMiddleBucketPosition);
-                                middle_level_event = false;
+                                Arm.setPower(0.3);
+
+                                if (Arm.getCurrentPosition() >= 220 && Arm.getCurrentPosition() <= 280) {
+                                    BucketServo.setPosition(MirrorMiddleBucketPosition);
+                                    middle_level_event = false;
+                                }
                             } else {
                                 Arm.setTargetPosition(-250);
                                 Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                                Arm.setPower(0.2);
-                                BucketServo.setPosition(MiddleBucketPosition);
-                                middle_level_event = false;
+                                Arm.setPower(0.3);
+
+                                if (Arm.getCurrentPosition() >= -280 && Arm.getCurrentPosition() <= -220) {
+                                    BucketServo.setPosition(MiddleBucketPosition);
+                                    middle_level_event = false;
+                                }
                             }
                         }
                     }
@@ -313,31 +320,38 @@ public class OfficialTeleop_V2 extends LinearOpMode {
             /****************************************
              Low Level (For Opposite, press dpad_down first)
              ***************************************/
-
             if (button_a_already_pressed == false) {
                 if (gamepad2.a) {
                     IntakeServo.setPosition(ClosingIntakePosition);
                     Rail.setTargetPosition(750);
                     Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     Rail.setPower(0.5);
-                    ET.reset();
                     button_a_already_pressed = true;
                     low_level_event = true;
                 } else {
+                    if (gamepad2.dpad_down) {
+                        mirror_event = true;
+                    }
                     if (low_level_event == true) {
-                        if (ET.milliseconds() > 1000) {
-                            if (gamepad2.dpad_down) {
+                        if (Rail.getCurrentPosition() >= 720 && Rail.getCurrentPosition() <= 780) {
+                            if (mirror_event) {
                                 Arm.setTargetPosition(150);
                                 Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                                Arm.setPower(0.2);
-                                BucketServo.setPosition(MirrorLowBucketPosition);
-                                low_level_event = false;
+                                Arm.setPower(0.3);
+
+                                if (Arm.getCurrentPosition() >= 120 && Arm.getCurrentPosition() <= 180) {
+                                    BucketServo.setPosition(MirrorLowBucketPosition);
+                                    low_level_event = false;
+                                }
                             } else {
                                 Arm.setTargetPosition(-150);
                                 Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                                Arm.setPower(0.2);
-                                BucketServo.setPosition(LowBucketPosition);
-                                low_level_event = false;
+                                Arm.setPower(0.3);
+
+                                if (Arm.getCurrentPosition() >= -180 && Arm.getCurrentPosition() <= -120) {
+                                    BucketServo.setPosition(LowBucketPosition);
+                                    low_level_event = false;
+                                }
                             }
                         }
                     }
@@ -361,12 +375,28 @@ public class OfficialTeleop_V2 extends LinearOpMode {
                 }
                 else {
                     if (barrier_event == true) {
-                        if (BucketServo.getPosition() == OriginalBucketPosition) {
-                            Arm.setTargetPosition(10);
-                            Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                            Arm.setPower(0.2);
+                        if (mirror_event) {
+                            if (BucketServo.getPosition() == OriginalBucketPosition) {
+                                Arm.setTargetPosition(-8);
+                                Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                                Arm.setPower(0.2);
+                            }
+                            mirror_event = false;
+                        } else {
+                            if (BucketServo.getPosition() == OriginalBucketPosition) {
+                                Arm.setTargetPosition(8);
+                                Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                                Arm.setPower(0.2);
+                            }
+                            mirror_event = false;
                         }
-                        if (Arm.getCurrentPosition() == 10) {
+                        if (Arm.getCurrentPosition() == -8) {
+                            Rail.setTargetPosition(300);
+                            Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                            Rail.setPower(0.5);
+                            barrier_event = false;
+                        }
+                        if (Arm.getCurrentPosition() == 8) {
                             Rail.setTargetPosition(300);
                             Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                             Rail.setPower(0.5);
