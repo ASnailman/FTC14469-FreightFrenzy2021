@@ -25,10 +25,13 @@ public class AttachmentTuning extends LinearOpMode {
     BNO055IMU IMU;
     static Servo BucketServo;
     double intake_power = 0.5;
-    int arm_position = -20;
+    int arm_position = 0;
     int rail_position = 0;
     //int time = 0;
-    double bucketservo_position = 0.42;
+    double bucketservo_position = 0.49;
+
+    boolean middle_level_event;
+    boolean mirror_event;
 
     boolean button_a_already_pressed = false;
     boolean button_b_already_pressed = false;
@@ -44,6 +47,7 @@ public class AttachmentTuning extends LinearOpMode {
     boolean button_bumper_right_already_pressed2 = false;
     boolean button_dpad_up_already_pressed2 = false;
     boolean button_dpad_down_already_pressed2 = false;
+    boolean button_dpad_right_already_pressed2 = false;
 
 
     @Override
@@ -320,6 +324,50 @@ public class AttachmentTuning extends LinearOpMode {
                         button_b_already_pressed2 = false;
                     }
                 }
+
+            if (button_dpad_right_already_pressed2 == false) {
+                if (gamepad2.dpad_right) {
+                    //IntakeServo.setPosition(ClosingIntakePosition);
+                    Rail.setTargetPosition(750);
+                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    Rail.setPower(0.5);
+                    button_dpad_right_already_pressed2 = true;
+                    middle_level_event = true;
+                } else {
+                    if (gamepad2.dpad_down) {
+                        mirror_event = true;
+                    }
+                    if (middle_level_event == true) {
+                        if (Rail.getCurrentPosition() >= 720 && Rail.getCurrentPosition() <= 780) {
+                            if (mirror_event) {
+                                Arm.setTargetPosition(250);
+                                Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                                Arm.setPower(0.3);
+
+                                if (Arm.getCurrentPosition() >= 220 && Arm.getCurrentPosition() <= 280) {
+                                    sleep(2000);
+                                    BucketServo.setPosition(0.79);
+                                    middle_level_event = false;
+                                }
+                            } else {
+                                Arm.setTargetPosition(-250);
+                                Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                                Arm.setPower(0.3);
+
+                                if (Arm.getCurrentPosition() >= -280 && Arm.getCurrentPosition() <= -220) {
+                                    sleep(2000);
+                                    BucketServo.setPosition(0.19);
+                                    middle_level_event = false;
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                if (!gamepad2.dpad_right) {
+                    button_dpad_right_already_pressed2 = false;
+                }
+            }
 
                 telemetry.addData("Intake Power", intake_power);
                 telemetry.addData("Arm Controller Position", arm_position);

@@ -1,12 +1,17 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.graphics.Color;
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
+import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -39,7 +44,11 @@ public class FarRed_V2 extends LinearOpMode {
     static DcMotor Rail;
     static DcMotor Intake;
     static DcMotor CarouselMotor;
-    static CRServo BucketServo;
+    static NormalizedColorSensor colorsensor;
+    static RevBlinkinLedDriver ColorStrip;
+    static Servo BucketServo;
+    static Servo IntakeServo;
+    static Servo GateServo;
     static MoveDirection Direction;
     static MoveDirection DiagDirection;
     static DistanceSensor DistancesensorForward;
@@ -75,6 +84,41 @@ public class FarRed_V2 extends LinearOpMode {
     static boolean BarcodeCenter;
     static boolean BarcodeRight;
 
+    boolean top_level_event;
+    boolean middle_level_event;
+    boolean low_level_event;
+    boolean barrier_event;
+
+    static final int Top_Arm_Left = -350;
+    static final int Top_Arm_Right = 350;
+
+    static final int Middle_Arm_Left = -250;
+    static final int Middle_Arm_Right = 250;
+
+    static final int Low_Arm_Left = -150;
+    static final int Low_Arm_Right = 150;
+
+    static final double OriginalBucketPosition = 0.49;
+
+    static final double TopBucketPosition = 0.15;
+    static final double MirrorTopBucketPosition = 0.85;
+
+    static final double MiddleBucketPosition = 0.19;
+    static final double MirrorMiddleBucketPosition = 0.79;
+
+    static final double LowBucketPosition = 0.25;
+    static final double MirrorLowBucketPosition = 0.73;
+
+    static final double OpenGatePosition = 0.5;
+    static final double OpenIntakePosition = 0.6;
+    static final double ClosingGatePosition = 0.2;
+    static final double ClosingIntakePosition = 0.8;
+
+    boolean BucketIsEmpty = true;
+    boolean white;
+    boolean yellow;
+    boolean unknown;
+
     public void runOpMode () {
 
         BackLeft = hardwareMap.get(DcMotor.class, "BackLeft");
@@ -85,7 +129,11 @@ public class FarRed_V2 extends LinearOpMode {
         Arm = hardwareMap.get(DcMotor.class, "arm");
         Rail = hardwareMap.get(DcMotor.class, "rail");
         CarouselMotor = hardwareMap.get(DcMotor.class, "carouselmotor");
-        BucketServo = hardwareMap.get(CRServo.class, "BucketServo");
+        colorsensor = hardwareMap.get(NormalizedColorSensor.class, "colorsensor");
+        ColorStrip = hardwareMap.get(RevBlinkinLedDriver.class, "colorstrip");
+        BucketServo = hardwareMap.get(Servo.class, "BucketServo");
+        IntakeServo = hardwareMap.get(Servo.class, "IntakeServo");
+        GateServo = hardwareMap.get(Servo.class, "GateServo");
         IMU = hardwareMap.get(BNO055IMU.class, "imu");
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -125,6 +173,14 @@ public class FarRed_V2 extends LinearOpMode {
         Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
+        BucketServo.scaleRange(0,1);
+        IntakeServo.scaleRange(0,1);
+        GateServo.scaleRange(0,1);
+
+        BucketServo.setPosition(OriginalBucketPosition);
+        IntakeServo.setPosition(OpenIntakePosition);
+        GateServo.setPosition(ClosingGatePosition);
+
         pipeline = new SkystoneDeterminationPipeline();
         webcam.setPipeline(pipeline);
 
@@ -147,12 +203,47 @@ public class FarRed_V2 extends LinearOpMode {
 
         while (opModeIsActive()) {
 
+            /****************************************
+             Yellow & White Sensing
+             ***************************************/
+
+            WhiteYellowDetector();
+
+            if (BucketIsEmpty) {
+
+                if (yellow) {
+                    Intake.setPower(0);
+                    ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
+                    IntakeServo.setPosition(ClosingIntakePosition);
+                    BucketIsEmpty = false;
+                }
+                else if (white) {
+                    Intake.setPower(0);
+                    ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.SKY_BLUE);
+                    IntakeServo.setPosition(ClosingIntakePosition);
+                    BucketIsEmpty = false;
+                }
+                else if (unknown) {
+                    ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+                }
+            }
+            else {
+                /* If intake is enabled, just assume bucket is empty */
+                if (Intake.getPower() >= 0.9) {
+                    BucketIsEmpty = true;
+                }
+            }
+
+            /****************************************
+             Autonomous
+             ***************************************/
+
             if (BarcodeLeft && !BarcodeCenter && !BarcodeRight) {
                 MechDrive(-90, 0.4, 1050, 0.00002, 0, 0);
                 MechDrive(180, 0.4, 800, 0.00002, 0, 0);
                 //put pre load
-                LowBucketPosition(-350);
-                BucketServoLeft();
+                LowBucketPosition();
+                //BucketServoLeft();
                 ResetBucketPosition();
                 //run intake (not meet one)
                 MechDrive(0, 0.6, 2600, 0.00002, 0, 0);
@@ -163,8 +254,8 @@ public class FarRed_V2 extends LinearOpMode {
                 MechDrive(-90, 0.4, 1050, 0.00002, 0, 0);
                 MechDrive(180, 0.4, 800, 0.00002, 0, 0);
                 //put pre load
-                MiddleBucketPosition(-350);
-                BucketServoLeft();
+                MiddleBucketPosition();
+                //BucketServoLeft();
                 ResetBucketPosition();
                 //run intake (not meet one)
                 MechDrive(0, 0.6, 2600, 0.00002, 0, 0);
@@ -175,8 +266,8 @@ public class FarRed_V2 extends LinearOpMode {
                 MechDrive(-90, 0.4, 1050, 0.00002, 0, 0);
                 MechDrive(180, 0.4, 800, 0.00002, 0, 0);
                 //put pre load
-                TopBucketPosition(-350);
-                BucketServoLeft();
+                //TopBucketPosition(-350);
+                //BucketServoLeft();
                 ResetBucketPosition();
                 //run intake (not meet one)
                 MechDrive(0, 0.6, 2600, 0.00002, 0, 0);
@@ -192,8 +283,10 @@ public class FarRed_V2 extends LinearOpMode {
     private void AttachmentSetDirection () {
 
         CarouselMotor.setDirection(DcMotor.Direction.REVERSE);
-        BucketServo.setDirection(CRServo.Direction.FORWARD);
-        Intake.setDirection(DcMotor.Direction.REVERSE);
+        BucketServo.setDirection(Servo.Direction.FORWARD);
+        IntakeServo.setDirection(Servo.Direction.FORWARD);
+        GateServo.setDirection(Servo.Direction.FORWARD);
+        Intake.setDirection(DcMotor.Direction.FORWARD);
         Arm.setDirection(DcMotor.Direction.FORWARD);
         Rail.setDirection(DcMotor.Direction.FORWARD);
 
@@ -731,102 +824,79 @@ public class FarRed_V2 extends LinearOpMode {
 
     }
 
-    private void TopBucketPosition (int arm_position) {
+    private void TopBucketPosition () {
 
         Rail.setTargetPosition(1000);
         Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         Rail.setPower(0.5);
-        ET.reset();
-        while (ET.milliseconds() < 2000) {
-        }
-        Arm.setTargetPosition(arm_position);
-        //350 encoder
-        Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        Arm.setPower(0.2);
-        ET.reset();
-        while (ET.milliseconds() < 1000) {
+        top_level_event = true;
+        if (top_level_event == true) {
+            if (Rail.getCurrentPosition() >= 970 && Rail.getCurrentPosition() <= 1030) {
+                Arm.setTargetPosition(Top_Arm_Left);
+                Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                Arm.setPower(0.3);
+                if (Arm.getCurrentPosition() >= 320 && Arm.getCurrentPosition() <= 380) {
+                    BucketServo.setPosition(TopBucketPosition);
+                    top_level_event = false;
+                }
+            }
         }
     }
 
-    private void MiddleBucketPosition (int arm_position) {
+    private void MiddleBucketPosition () {
 
-        Rail.setTargetPosition(650);
+        Rail.setTargetPosition(750);
         Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         Rail.setPower(0.5);
-        ET.reset();
-        while (ET.milliseconds() < 2000) {
-        }
-        Arm.setTargetPosition(arm_position);
-        //250 encoder
-        Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        Arm.setPower(0.2);
-        ET.reset();
-        while (ET.milliseconds() < 1000) {
+        middle_level_event = true;
+        if (middle_level_event == true) {
+            if (Rail.getCurrentPosition() >= 720 && Rail.getCurrentPosition() <= 780) {
+                Arm.setTargetPosition(Middle_Arm_Left);
+                Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                Arm.setPower(0.3);
+                if (Arm.getCurrentPosition() >= -280 && Arm.getCurrentPosition() <= -220) {
+                    BucketServo.setPosition(MiddleBucketPosition);
+                    middle_level_event = false;
+                }
+            }
         }
     }
 
-    private void LowBucketPosition (int arm_position) {
+    private void LowBucketPosition () {
 
-        Rail.setTargetPosition(650);
+        Rail.setTargetPosition(750);
         Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         Rail.setPower(0.5);
-        ET.reset();
-        while (ET.milliseconds() < 2000) {
-        }
-        Arm.setTargetPosition(arm_position);
-        //150 encoder
-        Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        Arm.setPower(0.2);
-        ET.reset();
-        while (ET.milliseconds() < 1000) {
-        }
-    }
-
-    private void BucketServoRight () {
-        ET.reset();
-        while (ET.milliseconds() < 850) {
-            BucketServo.setPower(-0.5);
-        }
-        BucketServo.setPower(0);
-        servo_power = false;
-        ET.reset();
-        while (ET.milliseconds() < 1000) {
-        }
-    }
-
-    private void BucketServoLeft () {
-        ET.reset();
-        while (ET.milliseconds() < 850) {
-            BucketServo.setPower(0.5);
-        }
-        BucketServo.setPower(0);
-        servo_power = true;
-        ET.reset();
-        while (ET.milliseconds() < 1000) {
+        low_level_event = true;
+        if (low_level_event == true) {
+            if (Rail.getCurrentPosition() >= 720 && Rail.getCurrentPosition() <= 780) {
+                Arm.setTargetPosition(Low_Arm_Left);
+                Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                Arm.setPower(0.3);
+                if (Arm.getCurrentPosition() >= -180 && Arm.getCurrentPosition() <= -120) {
+                    BucketServo.setPosition(LowBucketPosition);
+                    low_level_event = false;
+                }
+            }
         }
     }
 
     private void ResetBucketPosition () {
-        if (servo_power == true) {
-            BucketServo.setPower(-0.5);
-            sleep(855);
-            BucketServo.setPower(0);
-        } else if (servo_power == false) {
-            BucketServo.setPower(0.5);
-            sleep(855);
-            BucketServo.setPower(0);
-        }
-        Arm.setTargetPosition(0);
-        Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        Arm.setPower(0.2);
-        ET.reset();
-        while (ET.milliseconds() < 2000) {
-        }
-        Rail.setTargetPosition(400);
-        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        Rail.setPower(0.5);
-        ET.reset();
-        while (ET.milliseconds() < 1000) {
+        GateServo.setPosition(ClosingGatePosition);
+        BucketServo.setPosition(OriginalBucketPosition);
+        barrier_event = true;
+        if (barrier_event == true) {
+            if (BucketServo.getPosition() == OriginalBucketPosition) {
+                Arm.setTargetPosition(8);
+                Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                Arm.setPower(0.2);
+            }
+            if (Arm.getCurrentPosition() == 8) {
+                Rail.setTargetPosition(300);
+                Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                Rail.setPower(0.5);
+                barrier_event = false;
+            }
         }
     }
 
@@ -845,11 +915,11 @@ public class FarRed_V2 extends LinearOpMode {
         static final Scalar RED = new Scalar(255, 0, 0);
         static final Scalar YELLOW = new Scalar(255, 255, 0);
 
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(100,190);
-        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(600,190);
-        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1075,190);
-        static final int REGION_WIDTH = 150;
-        static final int REGION_HEIGHT = 150;
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(115,125);
+        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(625,125);
+        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1125,125);
+        static final int REGION_WIDTH = 75;
+        static final int REGION_HEIGHT = 75;
 
         static final int SHIPPING_ELEMENT_THRESHOLD = 55;
 
@@ -991,6 +1061,63 @@ public class FarRed_V2 extends LinearOpMode {
         public ShippingElementPosition getAnalysis()
         {
             return position;
+        }
+    }
+
+    private int WhiteYellowDetector() {
+
+        float[] HSV = new float[3];
+        NormalizedRGBA RGBA = colorsensor.getNormalizedColors();
+        colorsensor.setGain(30);
+
+        Color.colorToHSV(RGBA.toColor(), HSV);
+        telemetry.addData("H:", HSV[0]);
+        telemetry.addData("S:", HSV[1]);
+        telemetry.addData("V:", HSV[2]);
+
+        int Yellow = 2;
+        int White = 1;
+        int Unkwown = 0;
+
+        if (HSV[1] >= 0 && HSV[1] <= 0.45) {
+            if (HSV[2] >= 0.3 && HSV[2] <= 1) {
+                telemetry.addData("Color:", "White");
+                telemetry.update();
+                white = true;
+                yellow = false;
+                unknown = false;
+                return White;
+            } else {
+                telemetry.addData("Color:", "Unknown");
+                telemetry.update();
+                unknown = true;
+                yellow = false;
+                white = false;
+                return Unkwown;
+            }
+        } else if (HSV[1] >= 0.5 && HSV[1] <= 0.8) {
+            if (HSV[2] >= 0.6 && HSV[2] <= 1) {
+                telemetry.addData("Color:", "Yellow");
+                telemetry.update();
+                yellow = true;
+                white = false;
+                unknown = false;
+                return Yellow;
+            } else {
+                telemetry.addData("Color:", "Unknown");
+                telemetry.update();
+                unknown = true;
+                yellow = false;
+                white = false;
+                return Unkwown;
+            }
+        } else {
+            telemetry.addData("Color:", "Unknown");
+            telemetry.update();
+            unknown = true;
+            yellow = false;
+            white = false;
+            return Unkwown;
         }
     }
 

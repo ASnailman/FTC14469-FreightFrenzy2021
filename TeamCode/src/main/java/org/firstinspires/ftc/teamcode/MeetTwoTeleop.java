@@ -6,8 +6,6 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
@@ -15,8 +13,8 @@ import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp(name="MecanumDriveTeleopV2", group="MecanumDrive")
-public class OfficialTeleop_V2 extends LinearOpMode {
+@TeleOp(name="MeetTwoTeleop", group="MecanumDrive")
+public class MeetTwoTeleop extends LinearOpMode {
 
     static DcMotor FrontLeft;
     static DcMotor BackLeft;
@@ -76,16 +74,16 @@ public class OfficialTeleop_V2 extends LinearOpMode {
 
     boolean BucketIsEmpty = true;
 
-    static final double OriginalBucketPosition = 0.49;
+    static final double OriginalBucketPosition = 0.52;
 
-    static final double TopBucketPosition = 0.15;
-    static final double MirrorTopBucketPosition = 0.85;
+    static final double TopBucketPosition = 0.18;
+    static final double MirrorTopBucketPosition = 0.88;
 
-    static final double MiddleBucketPosition = 0.19;
-    static final double MirrorMiddleBucketPosition = 0.79;
+    static final double MiddleBucketPosition = 0.23;
+    static final double MirrorMiddleBucketPosition = 0.82;
 
-    static final double LowBucketPosition = 0.25;
-    static final double MirrorLowBucketPosition = 0.73;
+    static final double LowBucketPosition = 0.28;
+    static final double MirrorLowBucketPosition = 0.76;
 
     static final double OpenGatePosition = 0.5;
     static final double OpenIntakePosition = 0.6;
@@ -184,7 +182,7 @@ public class OfficialTeleop_V2 extends LinearOpMode {
             double y = -gamepad1.left_stick_y * 0.75;
             //double x = gamepad1.left_stick_x * 0.55;
             double x = gamepad1.left_stick_x * 0.75;
-            double rx = gamepad1.right_stick_x * 0.7;
+            double rx = gamepad1.right_stick_x * 0.6;
 
             double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
             double FLPower = (y + x + rx) / denominator;
@@ -246,20 +244,20 @@ public class OfficialTeleop_V2 extends LinearOpMode {
                     if (top_level_event == true) {
                         if (Rail.getCurrentPosition() >= 970 && Rail.getCurrentPosition() <= 1030) {
                             if (mirror_event) {
-                                Arm.setTargetPosition(350);
+                                Arm.setTargetPosition(390);
                                 Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                                 Arm.setPower(0.3);
 
-                                if (Arm.getCurrentPosition() >= 320 && Arm.getCurrentPosition() <= 380) {
+                                if (Arm.getCurrentPosition() >= 360 && Arm.getCurrentPosition() <= 420) {
                                     BucketServo.setPosition(MirrorTopBucketPosition);
                                     top_level_event = false;
                                 }
                             } else {
-                                Arm.setTargetPosition(-350);
+                                Arm.setTargetPosition(-390);
                                 Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                                 Arm.setPower(0.3);
 
-                                if (Arm.getCurrentPosition() >= -380 && Arm.getCurrentPosition() <= -320) {
+                                if (Arm.getCurrentPosition() >= -420 && Arm.getCurrentPosition() <= -360) {
                                     BucketServo.setPosition(TopBucketPosition);
                                     top_level_event = false;
                                 }
@@ -292,22 +290,22 @@ public class OfficialTeleop_V2 extends LinearOpMode {
                     if (middle_level_event == true) {
                         if (Rail.getCurrentPosition() >= 720 && Rail.getCurrentPosition() <= 780) {
                             if (mirror_event) {
-                                Arm.setTargetPosition(250);
+                                Arm.setTargetPosition(290);
                                 Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                                 Arm.setPower(0.3);
 
-                                if (Arm.getCurrentPosition() >= 220 && Arm.getCurrentPosition() <= 280) {
-                                    sleep(2000);
+                                if (Arm.getCurrentPosition() >= 260 && Arm.getCurrentPosition() <= 320) {
+                                    //sleep(2000);
                                     BucketServo.setPosition(MirrorMiddleBucketPosition);
                                     middle_level_event = false;
                                 }
                             } else {
-                                Arm.setTargetPosition(-250);
+                                Arm.setTargetPosition(-290);
                                 Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                                 Arm.setPower(0.3);
 
-                                if (Arm.getCurrentPosition() >= -280 && Arm.getCurrentPosition() <= -220) {
-                                    sleep(2000);
+                                if (Arm.getCurrentPosition() >= -320 && Arm.getCurrentPosition() <= -260) {
+                                    //sleep(2000);
                                     BucketServo.setPosition(MiddleBucketPosition);
                                     middle_level_event = false;
                                 }
@@ -380,28 +378,13 @@ public class OfficialTeleop_V2 extends LinearOpMode {
                 }
                 else {
                     if (barrier_event == true) {
-                        if (mirror_event) {
-                            if (BucketServo.getPosition() == OriginalBucketPosition) {
-                                Arm.setTargetPosition(-8);
-                                Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                                Arm.setPower(0.2);
-                            }
-                            mirror_event = false;
-                        } else {
-                            if (BucketServo.getPosition() == OriginalBucketPosition) {
-                                Arm.setTargetPosition(8);
-                                Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                                Arm.setPower(0.2);
-                            }
-                            mirror_event = false;
+                        if (BucketServo.getPosition() == OriginalBucketPosition) {
+                            Arm.setTargetPosition(0);
+                            Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                            Arm.setPower(0.2);
                         }
-                        if (Arm.getCurrentPosition() == -8) {
-                            Rail.setTargetPosition(300);
-                            Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                            Rail.setPower(0.5);
-                            barrier_event = false;
-                        }
-                        if (Arm.getCurrentPosition() == 8) {
+                        mirror_event = false;
+                        if (Arm.getCurrentPosition() == 0) {
                             Rail.setTargetPosition(300);
                             Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                             Rail.setPower(0.5);
@@ -412,23 +395,6 @@ public class OfficialTeleop_V2 extends LinearOpMode {
             } else {
                 if (!gamepad2.x) {
                     button_x_already_pressed = false;
-                }
-            }
-
-            /****************************************
-             Default Position For Barrier Passing (Start of Program)
-             ***************************************/
-
-            if (button_dpad_up_already_pressed == false) {
-                if (gamepad2.dpad_up) {
-                    Rail.setTargetPosition(300);
-                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    Rail.setPower(0.5);
-                    button_dpad_up_already_pressed = true;
-                }
-            } else {
-                if (!gamepad2.dpad_up) {
-                    button_dpad_up_already_pressed = false;
                 }
             }
 
@@ -472,234 +438,10 @@ public class OfficialTeleop_V2 extends LinearOpMode {
                 }
             }
 
-            /****************************
-             Shipping Element PLacement Right Bumper
-             ****************************/
-
-            //first press
-
-            if (button_bumper_right_already_pressed2 == false) {
-                if (gamepad2.right_bumper && press1 && !press2 && !press3 && !press4) {
-                    Rail.setTargetPosition(750);
-                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    Rail.setPower(0.5);
-                    button_bumper_right_already_pressed2 = true;
-                }
-                else {
-                    if (press1) {
-                        if (Rail.getCurrentPosition() == 750) {
-                            Arm.setTargetPosition(150);
-                            Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                            Arm.setPower(0.2);
-
-                            if (Arm.getCurrentPosition() == 150) {
-                                BucketServo.setPosition(1);
-                                press1 = false;
-                                press2 = true;
-                                press3 = false;
-                                press4 = false;
-                            }
-                        }
-                    }
-                }
-            }
-            else {
-                if (!gamepad2.right_bumper) {
-                    button_bumper_right_already_pressed2 = false;
-                }
-            }
-
-            //second press
-
-            if (button_bumper_right_already_pressed2 == false) {
-                if (gamepad2.right_bumper && !press1 && press2 && !press3 && !press4) {
-                    Rail.setTargetPosition(1000);
-                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    Rail.setPower(0.5);
-                    if (ET.milliseconds() > 1000) {
-                            Arm.setTargetPosition(450);
-                            Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                            Arm.setPower(0.2);
-                    }
-                    button_bumper_right_already_pressed2 = true;
-                }
-            }
-            else {
-                if (!gamepad2.right_bumper) {
-                    button_bumper_right_already_pressed2 = false;
-                    press1 = false;
-                    press2 = false;
-                    press3 = true;
-                    press4 = false;
-                }
-            }
-
-            //third press
-
-            if (button_bumper_right_already_pressed2 == false) {
-                if (gamepad2.right_bumper && !press1 && !press2 && press3 && !press4) {
-                    Arm.setTargetPosition(400);
-                    Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    Arm.setPower(0.2);
-                    button_bumper_right_already_pressed2 = true;
-                }
-            }
-            else {
-                if (!gamepad2.right_bumper) {
-                    button_bumper_right_already_pressed2 = false;
-                    press1 = false;
-                    press2 = false;
-                    press3 = false;
-                    press4 = true;
-                }
-            }
-
-            //fourth press
-
-            if (button_bumper_right_already_pressed2 == false) {
-                if (gamepad2.right_bumper && !press1 && !press2 && !press3 && press4) {
-                    BucketServo.setPosition(0.5);
-                    Arm.setTargetPosition(0);
-                    Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    Arm.setPower(0.2);
-                    ET.reset();
-                    barrier_event = true;
-                    if (barrier_event == true) {
-                        if (ET.milliseconds() > 1000) {
-                            Rail.setTargetPosition(300);
-                            Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                            Rail.setPower(0.5);
-                            barrier_event = false;
-                        }
-                    }
-                    button_bumper_right_already_pressed2 = true;
-                }
-            }
-            else {
-                if (!gamepad2.right_bumper) {
-                    button_bumper_right_already_pressed2 = false;
-                    press1 = true;
-                    press2 = false;
-                    press3 = false;
-                    press4 = false;
-                }
-            }
-
-            /****************************
-             Shipping Element PLacement Left Bumper
-             ****************************/
-
-            //first press
-
-            if (button_bumper_left_already_pressed2 == false) {
-                if (gamepad2.left_bumper && press1 && !press2 && !press3 && !press4) {
-                    Rail.setTargetPosition(750);
-                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    Rail.setPower(0.5);
-                    ET.reset();
-                    if (ET.milliseconds() > 1000) {
-                        Arm.setTargetPosition(-150);
-                        Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        Arm.setPower(0.2);
-                    }
-                    BucketServo.setPosition(0);
-                    button_bumper_left_already_pressed2 = true;
-                }
-            }
-            else {
-                if (!gamepad2.left_bumper) {
-                    button_bumper_left_already_pressed2 = false;
-                    press1 = false;
-                    press2 = true;
-                    press3 = false;
-                    press4 = false;
-                }
-            }
-
-            //second press
-
-            if (button_bumper_left_already_pressed2 == false) {
-                if (gamepad2.left_bumper && !press1 && press2 && !press3 && !press4) {
-                    Rail.setTargetPosition(1000);
-                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    Rail.setPower(0.5);
-                    if (ET.milliseconds() > 1000) {
-                        Arm.setTargetPosition(-450);
-                        Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        Arm.setPower(0.2);
-                    }
-                    button_bumper_left_already_pressed2 = true;
-                }
-            }
-            else {
-                if (!gamepad2.left_bumper) {
-                    button_bumper_left_already_pressed2 = false;
-                    press1 = false;
-                    press2 = false;
-                    press3 = true;
-                    press4 = false;
-                }
-            }
-
-            //third press
-
-            if (button_bumper_left_already_pressed2 == false) {
-                if (gamepad2.left_bumper && !press1 && !press2 && press3 && !press4) {
-                    Arm.setTargetPosition(-400);
-                    Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    Arm.setPower(0.2);
-                    button_bumper_left_already_pressed2 = true;
-                }
-            }
-            else {
-                if (!gamepad2.left_bumper) {
-                    button_bumper_left_already_pressed2 = false;
-                    press1 = false;
-                    press2 = false;
-                    press3 = false;
-                    press4 = true;
-                }
-            }
-
-            //fourth press
-
-            if (button_bumper_left_already_pressed2 == false) {
-                if (gamepad2.left_bumper && !press1 && !press2 && !press3 && press4) {
-                    BucketServo.setPosition(0.5);
-                    Arm.setTargetPosition(0);
-                    Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    Arm.setPower(0.2);
-                    ET.reset();
-                    barrier_event = true;
-                    if (barrier_event == true) {
-                        if (ET.milliseconds() > 1000) {
-                            Rail.setTargetPosition(300);
-                            Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                            Rail.setPower(0.5);
-                            barrier_event = false;
-                        }
-                    }
-                    button_bumper_left_already_pressed2 = true;
-                }
-            }
-            else {
-                if (!gamepad2.left_bumper) {
-                    button_bumper_left_already_pressed2 = false;
-                    press1 = true;
-                    press2 = false;
-                    press3 = false;
-                    press4 = false;
-                }
-            }
-
             telemetry.addData("Arm Current Position", Arm.getCurrentPosition());
             telemetry.addData("Rail Current Position", Rail.getCurrentPosition());
             telemetry.addData("encoder", FrontRight.getCurrentPosition());
             telemetry.addData("encoder", BackRight.getCurrentPosition());
-            telemetry.addData("FLPower", FLPower);
-            telemetry.addData("BLPower", BLPower);
-            telemetry.addData("FRPower", FRPower);
-            telemetry.addData("BRPower", BRPower);
             telemetry.update();
 
         }
