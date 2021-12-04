@@ -74,16 +74,26 @@ public class MeetTwoTeleop extends LinearOpMode {
 
     boolean BucketIsEmpty = true;
 
-    static final double OriginalBucketPosition = 0.52;
+    static final double OriginalBucketPosition_Base = 0.52;
+    static double OriginalBucketPosition = OriginalBucketPosition_Base;
 
-    static final double TopBucketPosition = 0.18;
-    static final double MirrorTopBucketPosition = 0.88;
+    static final double TopBucketPosition_Base = 0.18;
+    static double TopBucketPosition = TopBucketPosition_Base;
 
-    static final double MiddleBucketPosition = 0.23;
-    static final double MirrorMiddleBucketPosition = 0.82;
+    static final double MirrorTopBucketPosition_Base = 0.88;
+    static double MirrorTopBucketPosition = MirrorTopBucketPosition_Base;
 
-    static final double LowBucketPosition = 0.28;
-    static final double MirrorLowBucketPosition = 0.76;
+    static final double MiddleBucketPosition_Base = 0.23;
+    static double MiddleBucketPosition = MiddleBucketPosition_Base;
+
+    static final double MirrorMiddleBucketPosition_Base = 0.82;
+    static double MirrorMiddleBucketPosition = MirrorMiddleBucketPosition_Base;
+
+    static final double LowBucketPosition_Base = 0.28;
+    static double LowBucketPosition = LowBucketPosition_Base;
+
+    static final double MirrorLowBucketPosition_Base = 0.76;
+    static double MirrorLowBucketPosition = MirrorLowBucketPosition_Base;
 
     static final double OpenGatePosition = 0.5;
     static final double OpenIntakePosition = 0.6;
@@ -251,6 +261,7 @@ public class MeetTwoTeleop extends LinearOpMode {
                                 if (Arm.getCurrentPosition() >= 360 && Arm.getCurrentPosition() <= 420) {
                                     BucketServo.setPosition(MirrorTopBucketPosition);
                                     top_level_event = false;
+                                    mirror_event = false;
                                 }
                             } else {
                                 Arm.setTargetPosition(-390);
@@ -298,6 +309,7 @@ public class MeetTwoTeleop extends LinearOpMode {
                                     //sleep(2000);
                                     BucketServo.setPosition(MirrorMiddleBucketPosition);
                                     middle_level_event = false;
+                                    mirror_event = false;
                                 }
                             } else {
                                 Arm.setTargetPosition(-290);
@@ -345,6 +357,7 @@ public class MeetTwoTeleop extends LinearOpMode {
                                 if (Arm.getCurrentPosition() >= 120 && Arm.getCurrentPosition() <= 180) {
                                     BucketServo.setPosition(MirrorLowBucketPosition);
                                     low_level_event = false;
+                                    mirror_event = false;
                                 }
                             } else {
                                 Arm.setTargetPosition(-150);
@@ -383,13 +396,21 @@ public class MeetTwoTeleop extends LinearOpMode {
                             Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                             Arm.setPower(0.2);
                         }
-                        mirror_event = false;
+
                         if (Arm.getCurrentPosition() == 0) {
+                            Rail.setTargetPosition(750);
+                            Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                            Rail.setPower(0.5);
+                        }
+
+                        if (Rail.getCurrentPosition() >= 720 && Rail.getCurrentPosition() <= 780) {
                             Rail.setTargetPosition(300);
                             Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                             Rail.setPower(0.5);
                             barrier_event = false;
                         }
+
+                        mirror_event = false;
                     }
                 }
             } else {
@@ -435,6 +456,49 @@ public class MeetTwoTeleop extends LinearOpMode {
             else {
                 if (gamepad1.right_trigger == 0) {
                     button_right_trigger_already_pressed = false;
+                }
+            }
+
+            /********************************
+             * Calibrate bucket zero position
+             ********************************/
+            if (button_bumper_right_already_pressed == false) {
+                if (gamepad1.right_bumper) {
+                    OriginalBucketPosition = OriginalBucketPosition + 0.01;
+                    BucketServo.setPosition(OriginalBucketPosition);
+
+                    TopBucketPosition = TopBucketPosition + 0.01;
+                    MirrorTopBucketPosition = MirrorTopBucketPosition + 0.01;
+                    MiddleBucketPosition = MiddleBucketPosition + 0.01;
+                    MirrorMiddleBucketPosition = MirrorMiddleBucketPosition + 0.01;
+                    LowBucketPosition = LowBucketPosition + 0.01;
+                    MirrorLowBucketPosition = MirrorLowBucketPosition + 0.01;
+
+                    button_bumper_right_already_pressed = true;
+                }
+            } else {
+                if (!gamepad1.right_bumper) {
+                    button_bumper_right_already_pressed = false;
+                }
+            }
+
+            if (button_bumper_left_already_pressed == false) {
+                if (gamepad1.left_bumper) {
+                    OriginalBucketPosition = OriginalBucketPosition - 0.01;
+                    BucketServo.setPosition(OriginalBucketPosition);
+
+                    TopBucketPosition = TopBucketPosition - 0.01;
+                    MirrorTopBucketPosition = MirrorTopBucketPosition - 0.01;
+                    MiddleBucketPosition = MiddleBucketPosition - 0.01;
+                    MirrorMiddleBucketPosition = MirrorMiddleBucketPosition - 0.01;
+                    LowBucketPosition = LowBucketPosition - 0.01;
+                    MirrorLowBucketPosition = MirrorLowBucketPosition - 0.01;
+
+                    button_bumper_left_already_pressed = true;
+                }
+            } else {
+                if (!gamepad1.left_bumper) {
+                    button_bumper_left_already_pressed = false;
                 }
             }
 
