@@ -21,8 +21,6 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import android.icu.text.RelativeDateTimeFormatter;
-
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -36,7 +34,6 @@ import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
-import org.openftc.easyopencv.OpenCvInternalCamera;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
@@ -45,8 +42,8 @@ import org.openftc.easyopencv.OpenCvWebcam;
  * 100% accurate) method of detecting the skystone when lined up with
  * the sample regions over the first 3 stones.
  */
-@TeleOp(name="ShippingElementVision", group="MecanumDrive")
-public class FreightFrenzyOpenCV extends LinearOpMode {
+@TeleOp(name="FarRedVision", group="MecanumDrive")
+public class FarRedOpenCV extends LinearOpMode {
 
     //OpenCvInternalCamera phoneCam;
     OpenCvWebcam webcam;
@@ -69,7 +66,7 @@ public class FreightFrenzyOpenCV extends LinearOpMode {
          */
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 2"), cameraMonitorViewId);
         pipeline = new SkystoneDeterminationPipeline();
         webcam.setPipeline(pipeline);
 
@@ -79,7 +76,7 @@ public class FreightFrenzyOpenCV extends LinearOpMode {
             @Override
             public void onOpened()
             {
-                webcam.startStreaming(1280,720, OpenCvCameraRotation.UPRIGHT);
+                //webcam.startStreaming(1280,720, OpenCvCameraRotation.UPRIGHT);
             }
 
             @Override
@@ -129,9 +126,9 @@ public class FreightFrenzyOpenCV extends LinearOpMode {
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(115,125);
-        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(625,105);
-        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1175,85);
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(20,125);
+        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(500,125);
+        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(950,145);
         static final int REGION_WIDTH = 75;
         static final int REGION_HEIGHT = 75;
 
@@ -387,6 +384,18 @@ public class FreightFrenzyOpenCV extends LinearOpMode {
 
         public int Avg3 () {
             return avg3;
+        }
+
+        public boolean BarcodeLeft () {
+            return BarcodeLeft;
+        }
+
+        public boolean BarcodeCenter () {
+            return BarcodeCenter;
+        }
+
+        public boolean BarcodeRight () {
+            return BarcodeRight;
         }
 
         /*

@@ -37,6 +37,7 @@ public class MeetTwoTeleop extends LinearOpMode {
     boolean mirror_event;
     //boolean reset_low_level_event;
     boolean barrier_event;
+    boolean barrier_correction_event;
     boolean servo_left_event;
     boolean servo_default_event;
     boolean servo_power;
@@ -74,25 +75,25 @@ public class MeetTwoTeleop extends LinearOpMode {
 
     boolean BucketIsEmpty = true;
 
-    static final double OriginalBucketPosition_Base = 0.52;
+    static final double OriginalBucketPosition_Base = 0.5;
     static double OriginalBucketPosition = OriginalBucketPosition_Base;
 
-    static final double TopBucketPosition_Base = 0.18;
+    static final double TopBucketPosition_Base = 0.16;
     static double TopBucketPosition = TopBucketPosition_Base;
 
-    static final double MirrorTopBucketPosition_Base = 0.88;
+    static final double MirrorTopBucketPosition_Base = 0.86;
     static double MirrorTopBucketPosition = MirrorTopBucketPosition_Base;
 
-    static final double MiddleBucketPosition_Base = 0.23;
+    static final double MiddleBucketPosition_Base = 0.20;
     static double MiddleBucketPosition = MiddleBucketPosition_Base;
 
-    static final double MirrorMiddleBucketPosition_Base = 0.82;
+    static final double MirrorMiddleBucketPosition_Base = 0.80;
     static double MirrorMiddleBucketPosition = MirrorMiddleBucketPosition_Base;
 
-    static final double LowBucketPosition_Base = 0.28;
+    static final double LowBucketPosition_Base = 0.26;
     static double LowBucketPosition = LowBucketPosition_Base;
 
-    static final double MirrorLowBucketPosition_Base = 0.76;
+    static final double MirrorLowBucketPosition_Base = 0.74;
     static double MirrorLowBucketPosition = MirrorLowBucketPosition_Base;
 
     static final double OpenGatePosition = 0.5;
@@ -191,7 +192,7 @@ public class MeetTwoTeleop extends LinearOpMode {
 
             double y = -gamepad1.left_stick_y * 0.75;
             //double x = gamepad1.left_stick_x * 0.55;
-            double x = gamepad1.left_stick_x * 0.75;
+            double x = gamepad1.left_stick_x * 0.825;
             double rx = gamepad1.right_stick_x * 0.6;
 
             double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
@@ -398,17 +399,18 @@ public class MeetTwoTeleop extends LinearOpMode {
                         }
 
                         if (Arm.getCurrentPosition() == 0) {
-                            Rail.setTargetPosition(750);
-                            Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                            Rail.setPower(0.5);
-                        }
-
-                        if (Rail.getCurrentPosition() >= 720 && Rail.getCurrentPosition() <= 780) {
                             Rail.setTargetPosition(300);
                             Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                             Rail.setPower(0.5);
                             barrier_event = false;
                         }
+
+                        //if (Rail.getCurrentPosition() >= 570 && Rail.getCurrentPosition() <= 630) {
+                        //    Rail.setTargetPosition(300);
+                        //    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        //    Rail.setPower(0.5);
+                        //    barrier_event = false;
+                        //}
 
                         mirror_event = false;
                     }
@@ -423,14 +425,14 @@ public class MeetTwoTeleop extends LinearOpMode {
              Open Gate
              ***************************************/
 
-            if (button_dpad_right_already_pressed2 == false) {
-                if (gamepad2.dpad_right) {
+            if (button_bumper_right_already_pressed2 == false) {
+                if (gamepad2.right_bumper) {
                     GateServo.setPosition(OpenGatePosition);
-                    button_dpad_right_already_pressed2 = true;
+                    button_bumper_right_already_pressed2 = true;
                 }
             } else {
-                if (!gamepad2.dpad_right) {
-                    button_dpad_right_already_pressed2 = false;
+                if (!gamepad2.right_bumper) {
+                    button_bumper_right_already_pressed2 = false;
                 }
             }
 
@@ -501,6 +503,37 @@ public class MeetTwoTeleop extends LinearOpMode {
                     button_bumper_left_already_pressed = false;
                 }
             }
+
+            /********************************
+             * Bucket Barrier Return Auto Fix
+             ********************************/
+            if (button_bumper_left_already_pressed2 == false) {
+
+                if (gamepad2.left_bumper) {
+
+                    Rail.setTargetPosition(750);
+                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    Rail.setPower(0.5);
+                    button_bumper_left_already_pressed2 = true;
+                    barrier_correction_event = true;
+                }
+                else if (barrier_correction_event)
+                {
+                    if (Rail.getCurrentPosition() >= 720 && Rail.getCurrentPosition() <= 780) {
+                        //BucketServo.setPosition(OriginalBucketPosition);
+                        //sleep(1500);
+                        //Rail.setTargetPosition(300);
+                        //Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        //Rail.setPower(0.5);
+                        barrier_correction_event = false;
+                    }
+                }
+            } else {
+                if (!gamepad2.left_bumper) {
+                    button_bumper_left_already_pressed2 = false;
+                }
+            }
+
 
             telemetry.addData("Arm Current Position", Arm.getCurrentPosition());
             telemetry.addData("Rail Current Position", Rail.getCurrentPosition());

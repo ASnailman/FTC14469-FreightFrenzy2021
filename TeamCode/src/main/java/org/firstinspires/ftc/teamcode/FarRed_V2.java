@@ -76,7 +76,7 @@ public class FarRed_V2 extends LinearOpMode {
     byte AXIS_MAP_CONFIG_BYTE = 0x6; //rotates control hub 90 degrees around y axis by swapping x and z axis
 
     OpenCvWebcam webcam;
-    SkystoneDeterminationPipeline pipeline;
+    FarRedOpenCV.SkystoneDeterminationPipeline pipeline;
     static int DifferenceLeft;
     static int DifferenceCenter;
     static int DifferenceRight;
@@ -89,25 +89,25 @@ public class FarRed_V2 extends LinearOpMode {
     boolean low_level_event;
     boolean barrier_event;
 
-    static final int Top_Arm_Left = -350;
-    static final int Top_Arm_Right = 350;
+    static final int Top_Arm_Left = -390;
+    static final int Top_Arm_Right = 390;
 
-    static final int Middle_Arm_Left = -250;
-    static final int Middle_Arm_Right = 250;
+    static final int Middle_Arm_Left = -290;
+    static final int Middle_Arm_Right = 290;
 
     static final int Low_Arm_Left = -150;
     static final int Low_Arm_Right = 150;
 
-    static final double OriginalBucketPosition = 0.49;
+    static final double OriginalBucketPosition = 0.5;
 
-    static final double TopBucketPosition = 0.15;
-    static final double MirrorTopBucketPosition = 0.85;
+    static final double TopBucketPosition = 0.16;
+    static final double MirrorTopBucketPosition = 0.86;
 
-    static final double MiddleBucketPosition = 0.19;
-    static final double MirrorMiddleBucketPosition = 0.79;
+    static final double MiddleBucketPosition = 0.20;
+    static final double MirrorMiddleBucketPosition = 0.80;
 
-    static final double LowBucketPosition = 0.25;
-    static final double MirrorLowBucketPosition = 0.73;
+    static final double LowBucketPosition = 0.26;
+    static final double MirrorLowBucketPosition = 0.74;
 
     static final double OpenGatePosition = 0.5;
     static final double OpenIntakePosition = 0.6;
@@ -177,11 +177,11 @@ public class FarRed_V2 extends LinearOpMode {
         IntakeServo.scaleRange(0,1);
         GateServo.scaleRange(0,1);
 
-        BucketServo.setPosition(OriginalBucketPosition);
+        //BucketServo.setPosition(OriginalBucketPosition);
         IntakeServo.setPosition(OpenIntakePosition);
         GateServo.setPosition(ClosingGatePosition);
 
-        pipeline = new SkystoneDeterminationPipeline();
+        pipeline = new FarRedOpenCV.SkystoneDeterminationPipeline();
         webcam.setPipeline(pipeline);
 
         webcam.setMillisecondsPermissionTimeout(2500);
@@ -202,6 +202,8 @@ public class FarRed_V2 extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
+
+            webcam.pauseViewport();
 
             /****************************************
              Yellow & White Sensing
@@ -238,44 +240,63 @@ public class FarRed_V2 extends LinearOpMode {
              Autonomous
              ***************************************/
 
-            if (BarcodeLeft && !BarcodeCenter && !BarcodeRight) {
-                MechDrive(-90, 0.4, 1050, 0.00002, 0, 0);
-                MechDrive(180, 0.4, 800, 0.00002, 0, 0);
-                //put pre load
+            if (pipeline.BarcodeLeft() && !pipeline.BarcodeCenter() && !pipeline.BarcodeRight()) {
+                MechDrive(180, 0.5, 1350, 0.00002, 0, 0);
+                MechDrive(-90, 0.5, 500, 0.00002, 0, 0);
                 LowBucketPosition();
-                //BucketServoLeft();
+                BucketServo.setPosition(LowBucketPosition);
+                sleep(2000);
+                GateServo.setPosition(OpenGatePosition);
+                sleep(1000);
                 ResetBucketPosition();
-                //run intake (not meet one)
-                MechDrive(0, 0.6, 2600, 0.00002, 0, 0);
-                Rail.setTargetPosition(0);
-                Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                Rail.setPower(0.5);
-            } else if (!BarcodeLeft && BarcodeCenter && !BarcodeRight) {
-                MechDrive(-90, 0.4, 1050, 0.00002, 0, 0);
-                MechDrive(180, 0.4, 800, 0.00002, 0, 0);
-                //put pre load
-                MiddleBucketPosition();
-                //BucketServoLeft();
-                ResetBucketPosition();
-                //run intake (not meet one)
-                MechDrive(0, 0.6, 2600, 0.00002, 0, 0);
-                Rail.setTargetPosition(0);
-                Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                Rail.setPower(0.5);
-            } else if (!BarcodeLeft && !BarcodeCenter && BarcodeRight) {
-                MechDrive(-90, 0.4, 1050, 0.00002, 0, 0);
-                MechDrive(180, 0.4, 800, 0.00002, 0, 0);
-                //put pre load
-                //TopBucketPosition(-350);
-                //BucketServoLeft();
-                ResetBucketPosition();
-                //run intake (not meet one)
-                MechDrive(0, 0.6, 2600, 0.00002, 0, 0);
-                Rail.setTargetPosition(0);
-                Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                Rail.setPower(0.5);
-            }
+                MechDrive(0, 0.7, 3500, 0.00002, 0, 0);
 
+                //IntakeServo.setPosition(OpenIntakePosition);
+                //Intake.setPower(1);
+                //Rail.setTargetPosition(0);
+                //Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                //Rail.setPower(0.5);
+                //MechDrive(0, 0.6, 5000, 0.00002, 0, 0);
+                //sleep(1000);
+                //MechDrive(180, 0.6, 5000, 0.00002, 0, 0);
+                //MechDrive(-90, 0.6, 1075, 0.00002, 0, 0);
+                //LowBucketPosition();
+                //GateServo.setPosition(OpenGatePosition);
+                //ResetBucketPosition();
+                //MechDrive(90, 0.6, 100, 0.00002, 0, 0);
+                //MechDrive(0, 0.6, 2700, 0.00002, 0, 0);
+
+            } else if (!pipeline.BarcodeLeft() && pipeline.BarcodeCenter() && pipeline.BarcodeRight()) {
+                MechDrive(180, 0.5, 1350, 0.00002, 0, 0);
+                MechDrive(-90, 0.5, 500, 0.00002, 0, 0);
+                MiddleBucketPosition();
+                BucketServo.setPosition(MiddleBucketPosition);
+                sleep(2000);
+                GateServo.setPosition(OpenGatePosition);
+                sleep(1000);
+                ResetBucketPosition();
+                MechDrive(0, 0.7, 3500, 0.00002, 0, 0);
+            } else if (!pipeline.BarcodeLeft() && !pipeline.BarcodeCenter() && pipeline.BarcodeRight()) {
+                MechDrive(180, 0.5, 1350, 0.00002, 0, 0);
+                MechDrive(-90, 0.5, 500, 0.00002, 0, 0);
+                TopBucketPosition();
+                BucketServo.setPosition(TopBucketPosition);
+                sleep(2000);
+                GateServo.setPosition(OpenGatePosition);
+                sleep(1000);
+                ResetBucketPosition();
+                MechDrive(0, 0.7, 3500, 0.00002, 0, 0);
+            } else {
+                MechDrive(180, 0.5, 1350, 0.00002, 0, 0);
+                MechDrive(-90, 0.5, 500, 0.00002, 0, 0);
+                TopBucketPosition();
+                BucketServo.setPosition(TopBucketPosition);
+                sleep(2000);
+                GateServo.setPosition(OpenGatePosition);
+                sleep(1000);
+                ResetBucketPosition();
+                MechDrive(0, 0.7, 3500, 0.00002, 0, 0);
+            }
             break;
         }
     }
@@ -830,13 +851,12 @@ public class FarRed_V2 extends LinearOpMode {
         Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         Rail.setPower(0.5);
         top_level_event = true;
-        if (top_level_event == true) {
+        while (top_level_event == true) {
             if (Rail.getCurrentPosition() >= 970 && Rail.getCurrentPosition() <= 1030) {
                 Arm.setTargetPosition(Top_Arm_Left);
                 Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 Arm.setPower(0.3);
-                if (Arm.getCurrentPosition() >= 320 && Arm.getCurrentPosition() <= 380) {
-                    BucketServo.setPosition(TopBucketPosition);
+                if (Arm.getCurrentPosition() >= -420 && Arm.getCurrentPosition() <= -360) {
                     top_level_event = false;
                 }
             }
@@ -849,13 +869,12 @@ public class FarRed_V2 extends LinearOpMode {
         Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         Rail.setPower(0.5);
         middle_level_event = true;
-        if (middle_level_event == true) {
+        while (middle_level_event == true) {
             if (Rail.getCurrentPosition() >= 720 && Rail.getCurrentPosition() <= 780) {
                 Arm.setTargetPosition(Middle_Arm_Left);
                 Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 Arm.setPower(0.3);
-                if (Arm.getCurrentPosition() >= -280 && Arm.getCurrentPosition() <= -220) {
-                    BucketServo.setPosition(MiddleBucketPosition);
+                if (Arm.getCurrentPosition() >= -320 && Arm.getCurrentPosition() <= -260) {
                     middle_level_event = false;
                 }
             }
@@ -868,13 +887,12 @@ public class FarRed_V2 extends LinearOpMode {
         Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         Rail.setPower(0.5);
         low_level_event = true;
-        if (low_level_event == true) {
+        while (low_level_event == true) {
             if (Rail.getCurrentPosition() >= 720 && Rail.getCurrentPosition() <= 780) {
                 Arm.setTargetPosition(Low_Arm_Left);
                 Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 Arm.setPower(0.3);
                 if (Arm.getCurrentPosition() >= -180 && Arm.getCurrentPosition() <= -120) {
-                    BucketServo.setPosition(LowBucketPosition);
                     low_level_event = false;
                 }
             }
@@ -885,182 +903,18 @@ public class FarRed_V2 extends LinearOpMode {
         GateServo.setPosition(ClosingGatePosition);
         BucketServo.setPosition(OriginalBucketPosition);
         barrier_event = true;
-        if (barrier_event == true) {
+        while (barrier_event == true) {
             if (BucketServo.getPosition() == OriginalBucketPosition) {
-                Arm.setTargetPosition(8);
+                Arm.setTargetPosition(0);
                 Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 Arm.setPower(0.2);
             }
-            if (Arm.getCurrentPosition() == 8) {
+            if (Arm.getCurrentPosition() == 0) {
                 Rail.setTargetPosition(300);
                 Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 Rail.setPower(0.5);
                 barrier_event = false;
             }
-        }
-    }
-
-    public static class SkystoneDeterminationPipeline extends OpenCvPipeline
-    {
-
-        public enum ShippingElementPosition
-        {
-            LEFT,
-            CENTER,
-            RIGHT
-        }
-
-        static final Scalar BLUE = new Scalar(0, 0, 255);
-        static final Scalar GREEN = new Scalar(0, 255, 0);
-        static final Scalar RED = new Scalar(255, 0, 0);
-        static final Scalar YELLOW = new Scalar(255, 255, 0);
-
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(115,125);
-        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(625,125);
-        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1125,125);
-        static final int REGION_WIDTH = 75;
-        static final int REGION_HEIGHT = 75;
-
-        static final int SHIPPING_ELEMENT_THRESHOLD = 55;
-
-        Point region1_pointA = new Point(
-                REGION1_TOPLEFT_ANCHOR_POINT.x,
-                REGION1_TOPLEFT_ANCHOR_POINT.y);
-        Point region1_pointB = new Point(
-                REGION1_TOPLEFT_ANCHOR_POINT.x + REGION_WIDTH,
-                REGION1_TOPLEFT_ANCHOR_POINT.y + REGION_HEIGHT);
-        Point region2_pointA = new Point(
-                REGION2_TOPLEFT_ANCHOR_POINT.x,
-                REGION2_TOPLEFT_ANCHOR_POINT.y);
-        Point region2_pointB = new Point(
-                REGION2_TOPLEFT_ANCHOR_POINT.x + REGION_WIDTH,
-                REGION2_TOPLEFT_ANCHOR_POINT.y + REGION_HEIGHT);
-        Point region3_pointA = new Point(
-                REGION3_TOPLEFT_ANCHOR_POINT.x,
-                REGION3_TOPLEFT_ANCHOR_POINT.y);
-        Point region3_pointB = new Point(
-                REGION3_TOPLEFT_ANCHOR_POINT.x + REGION_WIDTH,
-                REGION3_TOPLEFT_ANCHOR_POINT.y + REGION_HEIGHT);
-
-        Mat region1_Cb, region2_Cb, region3_Cb;
-        Mat YCrCb = new Mat();
-        Mat Cb = new Mat();
-        int avg1, avg2, avg3;
-
-        private volatile ShippingElementPosition position = ShippingElementPosition.LEFT;
-
-        void inputToCb(Mat input)
-        {
-            Imgproc.cvtColor(input, YCrCb, Imgproc.COLOR_RGB2YCrCb);
-            Core.extractChannel(YCrCb, Cb, 2);
-        }
-
-        @Override
-        public void init(Mat firstFrame)
-        {
-
-            region1_Cb = Cb.submat(new Rect(region1_pointA, region1_pointB));
-            region2_Cb = Cb.submat(new Rect(region2_pointA, region2_pointB));
-            region3_Cb = Cb.submat(new Rect(region3_pointA, region3_pointB));
-        }
-
-        @Override
-        public Mat processFrame(Mat input)
-        {
-
-            inputToCb(input);
-
-            avg1 = (int) Core.mean(region1_Cb).val[0];
-            avg2 = (int) Core.mean(region2_Cb).val[0];
-            avg3 = (int) Core.mean(region3_Cb).val[0];
-
-            Imgproc.rectangle(
-                    input, // Buffer to draw on
-                    region1_pointA, // First point which defines the rectangle
-                    region1_pointB, // Second point which defines the rectangle
-                    RED, // The color the rectangle is drawn in
-                    4); // Thickness of the rectangle lines
-
-            Imgproc.rectangle(
-                    input, // Buffer to draw on
-                    region2_pointA, // First point which defines the rectangle
-                    region2_pointB, // Second point which defines the rectangle
-                    RED, // The color the rectangle is drawn in
-                    4); // Thickness of the rectangle lines
-
-            Imgproc.rectangle(
-                    input, // Buffer to draw on
-                    region3_pointA, // First point which defines the rectangle
-                    region3_pointB, // Second point which defines the rectangle
-                    RED, // The color the rectangle is drawn in
-                    4); // Thickness of the rectangle lines
-
-            DifferenceLeft = Avg1() - SHIPPING_ELEMENT_THRESHOLD;
-            if ((DifferenceLeft > -30) && (DifferenceLeft < 30)) { // Was it from region 1?
-                BarcodeLeft = true;
-                position = ShippingElementPosition.LEFT; // Record our analysis
-
-                Imgproc.rectangle(
-                        input, // Buffer to draw on
-                        region1_pointA, // First point which defines the rectangle
-                        region1_pointB, // Second point which defines the rectangle
-                        GREEN, // The color the rectangle is drawn in
-                        4); // Negative thickness means solid fill
-            } else {
-                BarcodeCenter = false;
-                BarcodeRight = false;
-            }
-
-            DifferenceCenter = Avg2() - SHIPPING_ELEMENT_THRESHOLD;
-            if ((DifferenceCenter > -30) && (DifferenceCenter < 30)) { // Was it from region 2?
-                BarcodeCenter = true;
-                position = ShippingElementPosition.CENTER; // Record our analysis
-
-                Imgproc.rectangle(
-                        input, // Buffer to draw on
-                        region2_pointA, // First point which defines the rectangle
-                        region2_pointB, // Second point which defines the rectangle
-                        GREEN, // The color the rectangle is drawn in
-                        4); // Negative thickness means solid fill
-            } else {
-                BarcodeLeft = false;
-                BarcodeRight = false;
-            }
-
-            DifferenceRight = Avg3() - SHIPPING_ELEMENT_THRESHOLD;
-            if ((DifferenceRight > -30) && (DifferenceRight < 30)) { // Was it from region 3?
-                BarcodeRight = true;
-                position = ShippingElementPosition.RIGHT; // Record our analysis
-
-                Imgproc.rectangle(
-                        input, // Buffer to draw on
-                        region3_pointA, // First point which defines the rectangle
-                        region3_pointB, // Second point which defines the rectangle
-                        GREEN, // The color the rectangle is drawn in
-                        4); // Negative thickness means solid fill
-            } else {
-                BarcodeLeft = false;
-                BarcodeCenter = false;
-            }
-
-            return input;
-        }
-
-        public int Avg1 () {
-            return avg1;
-        }
-
-        public int Avg2 () {
-            return avg2;
-        }
-
-        public int Avg3 () {
-            return avg3;
-        }
-
-        public ShippingElementPosition getAnalysis()
-        {
-            return position;
         }
     }
 

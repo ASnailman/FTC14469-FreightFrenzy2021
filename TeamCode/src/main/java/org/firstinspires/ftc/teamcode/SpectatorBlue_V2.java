@@ -76,7 +76,7 @@ public class SpectatorBlue_V2 extends LinearOpMode {
     byte AXIS_MAP_CONFIG_BYTE = 0x6; //rotates control hub 90 degrees around y axis by swapping x and z axis
 
     OpenCvWebcam webcam;
-    SkystoneDeterminationPipeline pipeline;
+    SpectatorBlueOpenCV.SkystoneDeterminationPipeline pipeline;
     static int DifferenceLeft;
     static int DifferenceCenter;
     static int DifferenceRight;
@@ -89,25 +89,25 @@ public class SpectatorBlue_V2 extends LinearOpMode {
     boolean low_level_event;
     boolean barrier_event;
 
-    static final int Top_Arm_Left = -350;
-    static final int Top_Arm_Right = 350;
+    static final int Top_Arm_Left = -390;
+    static final int Top_Arm_Right = 390;
 
-    static final int Middle_Arm_Left = -250;
-    static final int Middle_Arm_Right = 250;
+    static final int Middle_Arm_Left = -290;
+    static final int Middle_Arm_Right = 290;
 
     static final int Low_Arm_Left = -150;
     static final int Low_Arm_Right = 150;
 
-    static final double OriginalBucketPosition = 0.49;
+    static final double OriginalBucketPosition = 0.5;
 
-    static final double TopBucketPosition = 0.15;
-    static final double MirrorTopBucketPosition = 0.85;
+    static final double TopBucketPosition = 0.16;
+    static final double MirrorTopBucketPosition = 0.86;
 
-    static final double MiddleBucketPosition = 0.19;
-    static final double MirrorMiddleBucketPosition = 0.79;
+    static final double MiddleBucketPosition = 0.20;
+    static final double MirrorMiddleBucketPosition = 0.80;
 
-    static final double LowBucketPosition = 0.25;
-    static final double MirrorLowBucketPosition = 0.73;
+    static final double LowBucketPosition = 0.26;
+    static final double MirrorLowBucketPosition = 0.74;
 
     static final double OpenGatePosition = 0.5;
     static final double OpenIntakePosition = 0.6;
@@ -181,7 +181,7 @@ public class SpectatorBlue_V2 extends LinearOpMode {
         IntakeServo.setPosition(OpenIntakePosition);
         GateServo.setPosition(ClosingGatePosition);
 
-        pipeline = new SkystoneDeterminationPipeline();
+        pipeline = new SpectatorBlueOpenCV.SkystoneDeterminationPipeline();
         webcam.setPipeline(pipeline);
 
         webcam.setMillisecondsPermissionTimeout(2500);
@@ -202,6 +202,8 @@ public class SpectatorBlue_V2 extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
+
+            webcam.pauseViewport();
 
             /****************************************
              Yellow & White Sensing
@@ -238,42 +240,83 @@ public class SpectatorBlue_V2 extends LinearOpMode {
              Autonomous
              ***************************************/
 
-            if (BarcodeLeft && !BarcodeCenter && !BarcodeRight) {
-
-            } else if (!BarcodeLeft && BarcodeCenter && !BarcodeRight) {
-
-            } else if (!BarcodeLeft && !BarcodeCenter && BarcodeRight) {
-
+            if (SpectatorRedOpenCV.BarcodeLeft && !SpectatorRedOpenCV.BarcodeCenter && !SpectatorRedOpenCV.BarcodeRight) {
+                MechDrive(-90, 0.4, 975, 0.00002, 0, 0);
+                MechDrive(180, 0.4, 775, 0.00002, 0, 0);
+                LowBucketPosition();
+                BucketServo.setPosition(LowBucketPosition);
+                sleep(2000);
+                GateServo.setPosition(OpenGatePosition);
+                sleep(1000);
+                ResetBucketPosition();
+                MechDrive(90, 0.4, 610, 0.00002, 0, 0);
+                MechDrive(0, 0.4, 1450, 0.00002, 0, 0);
+                SetMotorPower(0.1);
+                sleep(1550);
+                SetMotorPower(0);
+                CarouselMotor.setPower(-1);
+                sleep(4000);
+                CarouselMotor.setPower(0);
+                MechDrive(-90, 0.4, 990, 0.00002, 0, 0);
+                MechDrive(0, 0.4, 200, 0.00002, 0, 0);
+            } else if (!SpectatorRedOpenCV.BarcodeLeft && SpectatorRedOpenCV.BarcodeCenter && !SpectatorRedOpenCV.BarcodeRight) {
+                MechDrive(-90, 0.4, 975, 0.00002, 0, 0);
+                MechDrive(180, 0.4, 775, 0.00002, 0, 0);
+                MiddleBucketPosition();
+                BucketServo.setPosition(MiddleBucketPosition);
+                sleep(2000);
+                GateServo.setPosition(OpenGatePosition);
+                sleep(1000);
+                ResetBucketPosition();
+                MechDrive(90, 0.4, 610, 0.00002, 0, 0);
+                MechDrive(0, 0.4, 1400, 0.00002, 0, 0);
+                SetMotorPower(0.1);
+                sleep(1550);
+                SetMotorPower(0);
+                CarouselMotor.setPower(-1);
+                sleep(4000);
+                CarouselMotor.setPower(0);
+                MechDrive(-90, 0.4, 990, 0.00002, 0, 0);
+                MechDrive(0, 0.4, 200, 0.00002, 0, 0);
+            } else if (!SpectatorRedOpenCV.BarcodeLeft && !SpectatorRedOpenCV.BarcodeCenter && SpectatorRedOpenCV.BarcodeRight) {
+                MechDrive(-90, 0.4, 975, 0.00002, 0, 0);
+                MechDrive(180, 0.4, 775, 0.00002, 0, 0);
+                TopBucketPosition();
+                BucketServo.setPosition(TopBucketPosition);
+                sleep(2000);
+                GateServo.setPosition(OpenGatePosition);
+                sleep(1000);
+                ResetBucketPosition();
+                MechDrive(90, 0.4, 610, 0.00002, 0, 0);
+                MechDrive(0, 0.4, 1400, 0.00002, 0, 0);
+                SetMotorPower(0.1);
+                sleep(1550);
+                SetMotorPower(0);
+                CarouselMotor.setPower(-1);
+                sleep(4000);
+                CarouselMotor.setPower(0);
+                MechDrive(-90, 0.4, 800, 0.00002, 0, 0);
+                MechDrive(0, 0.4, 200, 0.00002, 0, 0);
+            } else {
+                MechDrive(-90, 0.4, 775, 0.00002, 0, 0);
+                MechDrive(180, 0.4, 975, 0.00002, 0, 0);
+                TopBucketPosition();
+                BucketServo.setPosition(TopBucketPosition);
+                sleep(2000);
+                GateServo.setPosition(OpenGatePosition);
+                sleep(1000);
+                ResetBucketPosition();
+                MechDrive(90, 0.4, 900, 0.00002, 0, 0);
+                MechDrive(0, 0.4, 1775, 0.00002, 0, 0);
+                SetMotorPower(0.1);
+                sleep(1550);
+                SetMotorPower(0);
+                CarouselMotor.setPower(-1);
+                sleep(4000);
+                CarouselMotor.setPower(0);
+                MechDrive(-90, 0.4, 1200, 0.00002, 0, 0);
+                MechDrive(0, 0.4, 400, 0.00002, 0, 0);
             }
-
-            MechDrive(-90, 0.4, 1150, 0.00002, 0, 0);
-            MechDrive(180, 0.4, 775, 0.00002, 0, 0);
-            //put pre load
-            //TopBucketPosition(-350);
-            //BucketServoLeft();
-            ResetBucketPosition();
-            MechDrive(90, 0.4, 1000, 0.00002, 0, 0);
-            MechDrive(0, 0.4, 1850, 0.00002, 0, 0);
-
-            //GyroTurn(20, 0.4);
-
-            //CarouselMotor.setPower(0.7);
-
-            //FrontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            //FrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            //BackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            //BackLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-            SetMotorPower(0.1);
-            sleep(1550);
-            SetMotorPower(0);
-
-            //sleep(4000);
-            //CarouselMotor.setPower(0);
-            //carousel
-
-            MechDrive(-90, 0.4, 1300, 0.00002, 0, 0);
-
             break;
         }
     }
@@ -828,13 +871,12 @@ public class SpectatorBlue_V2 extends LinearOpMode {
         Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         Rail.setPower(0.5);
         top_level_event = true;
-        if (top_level_event == true) {
+        while (top_level_event == true) {
             if (Rail.getCurrentPosition() >= 970 && Rail.getCurrentPosition() <= 1030) {
                 Arm.setTargetPosition(Top_Arm_Left);
                 Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 Arm.setPower(0.3);
-                if (Arm.getCurrentPosition() >= -380 && Arm.getCurrentPosition() <= -320) {
-                    BucketServo.setPosition(TopBucketPosition);
+                if (Arm.getCurrentPosition() >= -420 && Arm.getCurrentPosition() <= -360) {
                     top_level_event = false;
                 }
             }
@@ -847,13 +889,12 @@ public class SpectatorBlue_V2 extends LinearOpMode {
         Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         Rail.setPower(0.5);
         middle_level_event = true;
-        if (middle_level_event == true) {
+        while (middle_level_event == true) {
             if (Rail.getCurrentPosition() >= 720 && Rail.getCurrentPosition() <= 780) {
                 Arm.setTargetPosition(Middle_Arm_Left);
                 Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 Arm.setPower(0.3);
-                if (Arm.getCurrentPosition() >= -280 && Arm.getCurrentPosition() <= -220) {
-                    BucketServo.setPosition(MiddleBucketPosition);
+                if (Arm.getCurrentPosition() >= -320 && Arm.getCurrentPosition() <= -260) {
                     middle_level_event = false;
                 }
             }
@@ -866,13 +907,12 @@ public class SpectatorBlue_V2 extends LinearOpMode {
         Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         Rail.setPower(0.5);
         low_level_event = true;
-        if (low_level_event == true) {
+        while (low_level_event == true) {
             if (Rail.getCurrentPosition() >= 720 && Rail.getCurrentPosition() <= 780) {
                 Arm.setTargetPosition(Low_Arm_Left);
                 Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 Arm.setPower(0.3);
                 if (Arm.getCurrentPosition() >= -180 && Arm.getCurrentPosition() <= -120) {
-                    BucketServo.setPosition(LowBucketPosition);
                     low_level_event = false;
                 }
             }
@@ -883,13 +923,13 @@ public class SpectatorBlue_V2 extends LinearOpMode {
         GateServo.setPosition(ClosingGatePosition);
         BucketServo.setPosition(OriginalBucketPosition);
         barrier_event = true;
-        if (barrier_event == true) {
+        while (barrier_event == true) {
             if (BucketServo.getPosition() == OriginalBucketPosition) {
-                Arm.setTargetPosition(8);
+                Arm.setTargetPosition(0);
                 Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 Arm.setPower(0.2);
             }
-            if (Arm.getCurrentPosition() == 8) {
+            if (Arm.getCurrentPosition() == 0) {
                 Rail.setTargetPosition(300);
                 Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 Rail.setPower(0.5);
