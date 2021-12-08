@@ -89,7 +89,7 @@ public class FarRed_V2 extends LinearOpMode {
     boolean low_level_event;
     boolean barrier_event;
 
-    static final int Top_Arm_Left = -390;
+    static final int Top_Arm_Left = -410;
     static final int Top_Arm_Right = 390;
 
     static final int Middle_Arm_Left = -290;
@@ -118,6 +118,11 @@ public class FarRed_V2 extends LinearOpMode {
     boolean white;
     boolean yellow;
     boolean unknown;
+
+    int test = 1;
+    boolean left;
+    boolean center;
+    boolean right;
 
     public void runOpMode () {
 
@@ -178,7 +183,7 @@ public class FarRed_V2 extends LinearOpMode {
         GateServo.scaleRange(0,1);
 
         //BucketServo.setPosition(OriginalBucketPosition);
-        IntakeServo.setPosition(OpenIntakePosition);
+        IntakeServo.setPosition(ClosingIntakePosition);
         GateServo.setPosition(ClosingGatePosition);
 
         pipeline = new FarRedOpenCV.SkystoneDeterminationPipeline();
@@ -240,6 +245,13 @@ public class FarRed_V2 extends LinearOpMode {
              Autonomous
              ***************************************/
 
+            //while (test == 1) {
+                //telemetry.addData("barcodeleft", BarcodeLeft);
+                //telemetry.addData("barcodecenter", BarcodeCenter);
+                //telemetry.addData("barcoderight", BarcodeRight);
+                //telemetry.update();
+            //}
+
             if (pipeline.BarcodeLeft() && !pipeline.BarcodeCenter() && !pipeline.BarcodeRight()) {
                 MechDrive(180, 0.5, 1350, 0.00002, 0, 0);
                 MechDrive(-90, 0.5, 500, 0.00002, 0, 0);
@@ -266,7 +278,7 @@ public class FarRed_V2 extends LinearOpMode {
                 //MechDrive(90, 0.6, 100, 0.00002, 0, 0);
                 //MechDrive(0, 0.6, 2700, 0.00002, 0, 0);
 
-            } else if (!pipeline.BarcodeLeft() && pipeline.BarcodeCenter() && pipeline.BarcodeRight()) {
+            } else if (!pipeline.BarcodeLeft() && pipeline.BarcodeCenter() && !pipeline.BarcodeRight()) {
                 MechDrive(180, 0.5, 1350, 0.00002, 0, 0);
                 MechDrive(-90, 0.5, 500, 0.00002, 0, 0);
                 MiddleBucketPosition();
@@ -287,14 +299,15 @@ public class FarRed_V2 extends LinearOpMode {
                 ResetBucketPosition();
                 MechDrive(0, 0.7, 3500, 0.00002, 0, 0);
             } else {
-                MechDrive(180, 0.5, 1350, 0.00002, 0, 0);
-                MechDrive(-90, 0.5, 500, 0.00002, 0, 0);
+                MechDrive(180, 0.5, 1250, 0.00002, 0, 0);
+                MechDrive(-90, 0.5, 600, 0.00002, 0, 0);
                 TopBucketPosition();
                 BucketServo.setPosition(TopBucketPosition);
                 sleep(2000);
                 GateServo.setPosition(OpenGatePosition);
                 sleep(1000);
                 ResetBucketPosition();
+                MechDrive(-90, 0.5, 300, 0.00002, 0, 0);
                 MechDrive(0, 0.7, 3500, 0.00002, 0, 0);
             }
             break;
@@ -856,7 +869,7 @@ public class FarRed_V2 extends LinearOpMode {
                 Arm.setTargetPosition(Top_Arm_Left);
                 Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 Arm.setPower(0.3);
-                if (Arm.getCurrentPosition() >= -420 && Arm.getCurrentPosition() <= -360) {
+                if (Arm.getCurrentPosition() >= -440 && Arm.getCurrentPosition() <= -380) {
                     top_level_event = false;
                 }
             }
@@ -973,6 +986,16 @@ public class FarRed_V2 extends LinearOpMode {
             white = false;
             return Unkwown;
         }
+    }
+
+    public static void LeftBarcode(boolean input) {
+        BarcodeLeft = input;
+    }
+    public static void CenterBarcode(boolean input) {
+        BarcodeCenter = input;
+    }
+    public static void RightBarcode(boolean input) {
+        BarcodeRight = input;
     }
 
 }

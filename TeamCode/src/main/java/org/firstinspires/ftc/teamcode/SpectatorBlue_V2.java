@@ -75,6 +75,8 @@ public class SpectatorBlue_V2 extends LinearOpMode {
     byte AXIS_MAP_SIGN_BYTE = 0x6; //rotates control hub 180 degrees around z axis by negating x and y signs
     byte AXIS_MAP_CONFIG_BYTE = 0x6; //rotates control hub 90 degrees around y axis by swapping x and z axis
 
+    int test = 1;
+
     OpenCvWebcam webcam;
     SpectatorBlueOpenCV.SkystoneDeterminationPipeline pipeline;
     static int DifferenceLeft;
@@ -178,7 +180,7 @@ public class SpectatorBlue_V2 extends LinearOpMode {
         GateServo.scaleRange(0,1);
 
         BucketServo.setPosition(OriginalBucketPosition);
-        IntakeServo.setPosition(OpenIntakePosition);
+        IntakeServo.setPosition(ClosingIntakePosition);
         GateServo.setPosition(ClosingGatePosition);
 
         pipeline = new SpectatorBlueOpenCV.SkystoneDeterminationPipeline();
@@ -240,6 +242,8 @@ public class SpectatorBlue_V2 extends LinearOpMode {
              Autonomous
              ***************************************/
 
+
+
             if (SpectatorRedOpenCV.BarcodeLeft && !SpectatorRedOpenCV.BarcodeCenter && !SpectatorRedOpenCV.BarcodeRight) {
                 MechDrive(-90, 0.4, 975, 0.00002, 0, 0);
                 MechDrive(180, 0.4, 775, 0.00002, 0, 0);
@@ -254,7 +258,7 @@ public class SpectatorBlue_V2 extends LinearOpMode {
                 SetMotorPower(0.1);
                 sleep(1550);
                 SetMotorPower(0);
-                CarouselMotor.setPower(-1);
+                CarouselMotor.setPower(1);
                 sleep(4000);
                 CarouselMotor.setPower(0);
                 MechDrive(-90, 0.4, 990, 0.00002, 0, 0);
@@ -273,7 +277,7 @@ public class SpectatorBlue_V2 extends LinearOpMode {
                 SetMotorPower(0.1);
                 sleep(1550);
                 SetMotorPower(0);
-                CarouselMotor.setPower(-1);
+                CarouselMotor.setPower(1);
                 sleep(4000);
                 CarouselMotor.setPower(0);
                 MechDrive(-90, 0.4, 990, 0.00002, 0, 0);
@@ -292,7 +296,7 @@ public class SpectatorBlue_V2 extends LinearOpMode {
                 SetMotorPower(0.1);
                 sleep(1550);
                 SetMotorPower(0);
-                CarouselMotor.setPower(-1);
+                CarouselMotor.setPower(1);
                 sleep(4000);
                 CarouselMotor.setPower(0);
                 MechDrive(-90, 0.4, 800, 0.00002, 0, 0);
@@ -311,7 +315,7 @@ public class SpectatorBlue_V2 extends LinearOpMode {
                 SetMotorPower(0.1);
                 sleep(1550);
                 SetMotorPower(0);
-                CarouselMotor.setPower(-1);
+                CarouselMotor.setPower(1);
                 sleep(4000);
                 CarouselMotor.setPower(0);
                 MechDrive(-90, 0.4, 1200, 0.00002, 0, 0);

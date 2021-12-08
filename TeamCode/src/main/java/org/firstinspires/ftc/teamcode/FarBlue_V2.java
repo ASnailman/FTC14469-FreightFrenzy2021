@@ -178,7 +178,7 @@ public class FarBlue_V2 extends LinearOpMode {
         GateServo.scaleRange(0,1);
 
         BucketServo.setPosition(OriginalBucketPosition);
-        IntakeServo.setPosition(OpenIntakePosition);
+        IntakeServo.setPosition(ClosingIntakePosition);
         GateServo.setPosition(ClosingGatePosition);
 
         pipeline = new FarBlueOpenCV.SkystoneDeterminationPipeline();

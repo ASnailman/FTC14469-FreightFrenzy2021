@@ -126,7 +126,7 @@ public class SpectatorBlueOpenCV extends LinearOpMode {
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(70,125);
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(40,125);
         static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(550,125);
         static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1050,125);
         static final int REGION_WIDTH = 75;

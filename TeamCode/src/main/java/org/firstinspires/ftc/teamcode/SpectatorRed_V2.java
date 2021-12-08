@@ -171,7 +171,7 @@ public class SpectatorRed_V2 extends LinearOpMode {
 
         BucketServo.setPosition(OriginalBucketPosition);
         IntakeServo.setPosition(ClosingIntakePosition);
-        GateServo.setPosition(OpenGatePosition);
+        GateServo.setPosition(ClosingGatePosition);
 
         /**
          * NOTE: Many comments have been omitted from this sample for the

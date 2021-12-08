@@ -177,6 +177,9 @@ public class FarRedOpenCV extends LinearOpMode {
         Mat YCrCb = new Mat();
         Mat Cb = new Mat();
         int avg1, avg2, avg3;
+        boolean barcodeleft;
+        boolean barcodecenter;
+        boolean barcoderight;
 
         // Volatile since accessed by OpMode thread w/o synchronization
         private volatile ShippingElementPosition position = ShippingElementPosition.LEFT;
@@ -310,8 +313,9 @@ public class FarRedOpenCV extends LinearOpMode {
              */
 
             DifferenceLeft = Avg1() - SHIPPING_ELEMENT_THRESHOLD;
-            if ((DifferenceLeft > -30) && (DifferenceLeft < 30)) { // Was it from region 1?
-                BarcodeLeft = true;
+            if ((DifferenceLeft > -40) && (DifferenceLeft < 40)) { // Was it from region 1?
+                FarRed_V2.LeftBarcode(true);
+                //barcodeleft = true;
                 position = ShippingElementPosition.LEFT; // Record our analysis
                 /*
                  * Draw a solid rectangle on top of the chosen region.
@@ -324,13 +328,13 @@ public class FarRedOpenCV extends LinearOpMode {
                         GREEN, // The color the rectangle is drawn in
                 4); // Negative thickness means solid fill
             } else {
-                BarcodeCenter = false;
-                BarcodeRight = false;
+                FarRed_V2.CenterBarcode(false);
+                FarRed_V2.RightBarcode(false);
             }
 
             DifferenceCenter = Avg2() - SHIPPING_ELEMENT_THRESHOLD;
-            if ((DifferenceCenter > -30) && (DifferenceCenter < 30)) { // Was it from region 2?
-                BarcodeCenter = true;
+            if ((DifferenceCenter > -40) && (DifferenceCenter < 40)) { // Was it from region 2?
+                FarRed_V2.CenterBarcode(true);
                 position = ShippingElementPosition.CENTER; // Record our analysis
                 /*
                  * Draw a solid rectangle on top of the chosen region.
@@ -343,13 +347,13 @@ public class FarRedOpenCV extends LinearOpMode {
                         GREEN, // The color the rectangle is drawn in
                         4); // Negative thickness means solid fill
             } else {
-                BarcodeLeft = false;
-                BarcodeRight = false;
+                FarRed_V2.LeftBarcode(false);
+                FarRed_V2.RightBarcode(false);
             }
 
             DifferenceRight = Avg3() - SHIPPING_ELEMENT_THRESHOLD;
-            if ((DifferenceRight > -30) && (DifferenceRight < 30)) { // Was it from region 3?
-                BarcodeRight = true;
+            if ((DifferenceRight > -40) && (DifferenceRight < 40)) { // Was it from region 3?
+                FarRed_V2.RightBarcode(true);
                 position = ShippingElementPosition.RIGHT; // Record our analysis
                 /*
                  * Draw a solid rectangle on top of the chosen region.
@@ -362,8 +366,8 @@ public class FarRedOpenCV extends LinearOpMode {
                         GREEN, // The color the rectangle is drawn in
                         4); // Negative thickness means solid fill
             } else {
-                BarcodeLeft = false;
-                BarcodeCenter = false;
+                FarRed_V2.LeftBarcode(false);
+                FarRed_V2.CenterBarcode(false);
             }
 
             /*
@@ -387,15 +391,15 @@ public class FarRedOpenCV extends LinearOpMode {
         }
 
         public boolean BarcodeLeft () {
-            return BarcodeLeft;
+            return barcodeleft;
         }
 
         public boolean BarcodeCenter () {
-            return BarcodeCenter;
+            return barcodecenter;
         }
 
         public boolean BarcodeRight () {
-            return BarcodeRight;
+            return barcoderight;
         }
 
         /*

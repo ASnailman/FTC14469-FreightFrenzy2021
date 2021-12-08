@@ -63,6 +63,9 @@ public class MeetTwoTeleop extends LinearOpMode {
     boolean button_dpad_left_already_pressed2 = false;
     boolean button_dpad_right_already_pressed2 = false;
     boolean button_dpad_down_already_pressed3 = false;
+    boolean button_left_trigger_already_pressed = false;
+    boolean button_left_trigger_already_pressed2 = false;
+    boolean button_right_trigger_already_pressed2 = false;
 
     boolean press1 = true;
     boolean press2 = false;
@@ -462,19 +465,43 @@ public class MeetTwoTeleop extends LinearOpMode {
             }
 
             /********************************
+             * Calibrate Arm zero position
+             ********************************/
+            if (button_left_trigger_already_pressed == false) {
+                if (gamepad1.left_trigger > 0) {
+                    Arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    Arm.setPower(0);
+                    ET.reset();
+                    while (ET.milliseconds() < 1000) {
+
+                    }
+                    Arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    //Rail.setTargetPosition(0);
+                    //Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    //Rail.setPower(0.5);
+                    button_left_trigger_already_pressed = true;
+                }
+            }
+            else {
+                if (gamepad1.left_trigger == 0) {
+                    button_left_trigger_already_pressed = false;
+                }
+            }
+
+            /********************************
              * Calibrate bucket zero position
              ********************************/
             if (button_bumper_right_already_pressed == false) {
                 if (gamepad1.right_bumper) {
-                    OriginalBucketPosition = OriginalBucketPosition + 0.01;
+                    OriginalBucketPosition = OriginalBucketPosition + 0.03;
                     BucketServo.setPosition(OriginalBucketPosition);
 
-                    TopBucketPosition = TopBucketPosition + 0.01;
-                    MirrorTopBucketPosition = MirrorTopBucketPosition + 0.01;
-                    MiddleBucketPosition = MiddleBucketPosition + 0.01;
-                    MirrorMiddleBucketPosition = MirrorMiddleBucketPosition + 0.01;
-                    LowBucketPosition = LowBucketPosition + 0.01;
-                    MirrorLowBucketPosition = MirrorLowBucketPosition + 0.01;
+                    TopBucketPosition = TopBucketPosition + 0.03;
+                    MirrorTopBucketPosition = MirrorTopBucketPosition + 0.03;
+                    MiddleBucketPosition = MiddleBucketPosition + 0.03;
+                    MirrorMiddleBucketPosition = MirrorMiddleBucketPosition + 0.03;
+                    LowBucketPosition = LowBucketPosition + 0.03;
+                    MirrorLowBucketPosition = MirrorLowBucketPosition + 0.03;
 
                     button_bumper_right_already_pressed = true;
                 }
@@ -486,15 +513,15 @@ public class MeetTwoTeleop extends LinearOpMode {
 
             if (button_bumper_left_already_pressed == false) {
                 if (gamepad1.left_bumper) {
-                    OriginalBucketPosition = OriginalBucketPosition - 0.01;
+                    OriginalBucketPosition = OriginalBucketPosition - 0.03;
                     BucketServo.setPosition(OriginalBucketPosition);
 
-                    TopBucketPosition = TopBucketPosition - 0.01;
-                    MirrorTopBucketPosition = MirrorTopBucketPosition - 0.01;
-                    MiddleBucketPosition = MiddleBucketPosition - 0.01;
-                    MirrorMiddleBucketPosition = MirrorMiddleBucketPosition - 0.01;
-                    LowBucketPosition = LowBucketPosition - 0.01;
-                    MirrorLowBucketPosition = MirrorLowBucketPosition - 0.01;
+                    TopBucketPosition = TopBucketPosition - 0.03;
+                    MirrorTopBucketPosition = MirrorTopBucketPosition - 0.03;
+                    MiddleBucketPosition = MiddleBucketPosition - 0.03;
+                    MirrorMiddleBucketPosition = MirrorMiddleBucketPosition - 0.03;
+                    LowBucketPosition = LowBucketPosition - 0.03;
+                    MirrorLowBucketPosition = MirrorLowBucketPosition - 0.03;
 
                     button_bumper_left_already_pressed = true;
                 }
@@ -534,6 +561,44 @@ public class MeetTwoTeleop extends LinearOpMode {
                 }
             }
 
+            /****************************
+             * Arm micro adjustments
+             ****************************/
+            if (button_right_trigger_already_pressed2 == false) {
+                if (gamepad2.right_trigger > 0) {
+                    Arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    Arm.setPower(-0.5);
+                    ET.reset();
+                    while (ET.milliseconds() < 20) {
+
+                    }
+                    Arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    button_right_trigger_already_pressed2 = true;
+                }
+            }
+            else {
+                if (gamepad2.right_trigger == 0) {
+                    button_right_trigger_already_pressed2 = false;
+                }
+            }
+
+            if (button_left_trigger_already_pressed2 == false) {
+                if (gamepad2.left_trigger > 0) {
+                    Arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    Arm.setPower(0.5);
+                    ET.reset();
+                    while (ET.milliseconds() < 20) {
+
+                    }
+                    Arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    button_left_trigger_already_pressed2 = true;
+                }
+            }
+            else {
+                if (gamepad2.left_trigger == 0) {
+                    button_left_trigger_already_pressed2 = false;
+                }
+            }
 
             telemetry.addData("Arm Current Position", Arm.getCurrentPosition());
             telemetry.addData("Rail Current Position", Rail.getCurrentPosition());
