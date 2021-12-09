@@ -604,6 +604,11 @@ public class MeetTwoTeleop extends LinearOpMode {
             telemetry.addData("Rail Current Position", Rail.getCurrentPosition());
             telemetry.addData("encoder", FrontRight.getCurrentPosition());
             telemetry.addData("encoder", BackRight.getCurrentPosition());
+            telemetry.addData("bucket position", BucketServo.getPosition());
+            telemetry.addData("Original bucket position", OriginalBucketPosition);
+            telemetry.addData("High bucket position", TopBucketPosition);
+            telemetry.addData("Middle bucket position", MiddleBucketPosition);
+            telemetry.addData("Low bucket position", LowBucketPosition);
             telemetry.update();
 
         }
