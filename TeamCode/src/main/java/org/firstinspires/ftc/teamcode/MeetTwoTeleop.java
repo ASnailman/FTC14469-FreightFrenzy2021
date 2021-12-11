@@ -431,10 +431,13 @@ public class MeetTwoTeleop extends LinearOpMode {
             if (button_bumper_right_already_pressed2 == false) {
                 if (gamepad2.right_bumper) {
                     GateServo.setPosition(OpenGatePosition);
+                    //IntakeServo.setPosition(OpenIntakePosition);
                     button_bumper_right_already_pressed2 = true;
                 }
             } else {
                 if (!gamepad2.right_bumper) {
+                    //GateServo.setPosition(ClosingGatePosition);
+                    //IntakeServo.setPosition(ClosingIntakePosition);
                     button_bumper_right_already_pressed2 = false;
                 }
             }

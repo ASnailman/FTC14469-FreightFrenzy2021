@@ -41,9 +41,6 @@ public class FarBlue_V3 extends LinearOpMode {
     static int DifferenceLeft;
     static int DifferenceCenter;
     static int DifferenceRight;
-    static boolean BarcodeLeft;
-    static boolean BarcodeCenter;
-    static boolean BarcodeRight;
 
     static DcMotor BackLeft;
     static DcMotor BackRight;
@@ -183,8 +180,8 @@ public class FarBlue_V3 extends LinearOpMode {
         GateServo.scaleRange(0,1);
 
         //BucketServo.setPosition(OriginalBucketPosition);
-        //IntakeServo.setPosition(ClosingIntakePosition);
-        //GateServo.setPosition(ClosingGatePosition);
+        IntakeServo.setPosition(ClosingIntakePosition);
+        GateServo.setPosition(ClosingGatePosition);
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
@@ -248,9 +245,10 @@ public class FarBlue_V3 extends LinearOpMode {
             /****************************************
              Autonomous
              ***************************************/
+            MechDrive(180, 0.5, 1350, 0.00002, 0, 0);
+            MechDrive(90, 0.5, 500, 0.00002, 0, 0);
+
             if (pipeline.position == BarcodeDeterminationPipeline.ShippingElementPosition.LEFT) {
-                //MechDrive(180, 0.5, 1350, 0.00002, 0, 0);
-                //MechDrive(90, 0.5, 500, 0.00002, 0, 0);
                 IntakeServo.setPosition(ClosingIntakePosition);
                 GateServo.setPosition(ClosingGatePosition);
                 LowBucketPosition();
@@ -262,8 +260,6 @@ public class FarBlue_V3 extends LinearOpMode {
                 //MechDrive(0, 0.7, 3500, 0.00002, 0, 0);
 
             } else if (pipeline.position == BarcodeDeterminationPipeline.ShippingElementPosition.CENTER) {
-                //MechDrive(180, 0.5, 1350, 0.00002, 0, 0);
-                //MechDrive(90, 0.5, 500, 0.00002, 0, 0);
                 IntakeServo.setPosition(ClosingIntakePosition);
                 GateServo.setPosition(ClosingGatePosition);
                 MiddleBucketPosition();
@@ -274,8 +270,6 @@ public class FarBlue_V3 extends LinearOpMode {
                 ResetBucketPosition();
                 //MechDrive(0, 0.7, 3500, 0.00002, 0, 0);
             } else if (pipeline.position == BarcodeDeterminationPipeline.ShippingElementPosition.RIGHT) {
-                //MechDrive(180, 0.5, 1350, 0.00002, 0, 0);
-                //MechDrive(90, 0.5, 500, 0.00002, 0, 0);
                 IntakeServo.setPosition(ClosingIntakePosition);
                 GateServo.setPosition(ClosingGatePosition);
                 TopBucketPosition();
@@ -286,8 +280,6 @@ public class FarBlue_V3 extends LinearOpMode {
                 ResetBucketPosition();
                 //MechDrive(0, 0.7, 3500, 0.00002, 0, 0);
             } else {
-                //MechDrive(180, 0.5, 1350, 0.00002, 0, 0);
-                //MechDrive(90, 0.5, 500, 0.00002, 0, 0);
                 IntakeServo.setPosition(ClosingIntakePosition);
                 GateServo.setPosition(ClosingGatePosition);
                 TopBucketPosition();
@@ -312,6 +304,7 @@ public class FarBlue_V3 extends LinearOpMode {
          */
         public enum ShippingElementPosition
         {
+            NONE,
             LEFT,
             CENTER,
             RIGHT
@@ -384,7 +377,7 @@ public class FarBlue_V3 extends LinearOpMode {
 
         // Volatile since accessed by OpMode thread w/o synchronization
         //private volatile FarBlueOpenCV.SkystoneDeterminationPipeline.ShippingElementPosition position = FarBlueOpenCV.SkystoneDeterminationPipeline.ShippingElementPosition.LEFT;
-        private volatile ShippingElementPosition position = ShippingElementPosition.LEFT;
+        private volatile ShippingElementPosition position = ShippingElementPosition.NONE;
 
         /*
          * This function takes the RGB frame, converts to YCrCb,
@@ -515,9 +508,11 @@ public class FarBlue_V3 extends LinearOpMode {
              */
 
             DifferenceLeft = Avg1() - SHIPPING_ELEMENT_THRESHOLD;
+            DifferenceCenter = Avg2() - SHIPPING_ELEMENT_THRESHOLD;
+            DifferenceRight = Avg3() - SHIPPING_ELEMENT_THRESHOLD;
+
             if ((DifferenceLeft > -15) && (DifferenceLeft < 15)) { // Was it from region 1?
-                BarcodeLeft = true;
-                //position = FarBlueOpenCV.SkystoneDeterminationPipeline.ShippingElementPosition.LEFT; // Record our analysis
+
                 position = ShippingElementPosition.LEFT; // Record our analysis
 
                 /*
@@ -530,15 +525,10 @@ public class FarBlue_V3 extends LinearOpMode {
                         region1_pointB, // Second point which defines the rectangle
                         GREEN, // The color the rectangle is drawn in
                         4); // Negative thickness means solid fill
-            } else {
-                BarcodeCenter = false;
-                BarcodeRight = false;
             }
 
-            DifferenceCenter = Avg2() - SHIPPING_ELEMENT_THRESHOLD;
-            if ((DifferenceCenter > -15) && (DifferenceCenter < 15)) { // Was it from region 2?
-                BarcodeCenter = true;
-                //position = FarBlueOpenCV.SkystoneDeterminationPipeline.ShippingElementPosition.CENTER; // Record our analysis
+            else if ((DifferenceCenter > -15) && (DifferenceCenter < 15)) { // Was it from region 2?
+
                 position = ShippingElementPosition.CENTER; // Record our analysis
 
                 /*
@@ -551,15 +541,10 @@ public class FarBlue_V3 extends LinearOpMode {
                         region2_pointB, // Second point which defines the rectangle
                         GREEN, // The color the rectangle is drawn in
                         4); // Negative thickness means solid fill
-            } else {
-                BarcodeLeft = false;
-                BarcodeRight = false;
             }
 
-            DifferenceRight = Avg3() - SHIPPING_ELEMENT_THRESHOLD;
-            if ((DifferenceRight > -15) && (DifferenceRight < 15)) { // Was it from region 3?
-                BarcodeRight = true;
-                //position = FarBlueOpenCV.SkystoneDeterminationPipeline.ShippingElementPosition.RIGHT; // Record our analysis
+            else if ((DifferenceRight > -15) && (DifferenceRight < 15)) { // Was it from region 3?
+
                 position = ShippingElementPosition.RIGHT; // Record our analysis
 
                 /*
@@ -572,9 +557,10 @@ public class FarBlue_V3 extends LinearOpMode {
                         region3_pointB, // Second point which defines the rectangle
                         GREEN, // The color the rectangle is drawn in
                         4); // Negative thickness means solid fill
-            } else {
-                BarcodeLeft = false;
-                BarcodeCenter = false;
+            }
+
+            else {
+                position = ShippingElementPosition.NONE;
             }
 
             telemetry_vision.addData("Avg1", Avg1());
@@ -601,18 +587,6 @@ public class FarBlue_V3 extends LinearOpMode {
 
         public int Avg3 () {
             return avg3;
-        }
-
-        public boolean BarcodeLeft () {
-            return BarcodeLeft;
-        }
-
-        public boolean BarcodeCenter () {
-            return BarcodeCenter;
-        }
-
-        public boolean BarcodeRight () {
-            return BarcodeRight;
         }
 
         /*
@@ -730,6 +704,11 @@ public class FarBlue_V3 extends LinearOpMode {
         power_y_new = power_x_old * Math.sin(radians) + power_y_old * Math.cos(radians);
         SteeringOutput = pid.PID_Control(strafingangle, kp_in, ki_in, kd_in, GyroContinuity());
 
+        FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        FrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        BackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        BackLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
         FrontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         FrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         BackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -779,10 +758,6 @@ public class FarBlue_V3 extends LinearOpMode {
 
         }
 
-        FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        FrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        BackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        BackLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         SetMotorPower(0);
         sleep(100);
 
@@ -880,7 +855,7 @@ public class FarBlue_V3 extends LinearOpMode {
             if (BucketServo.getPosition() == OriginalBucketPosition) {
                 Arm.setTargetPosition(0);
                 Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                Arm.setPower(0.2);
+                Arm.setPower(0.1);
             }
             if (Arm.getCurrentPosition() == 0) {
                 Rail.setTargetPosition(300);
