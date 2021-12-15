@@ -7,9 +7,11 @@ import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -29,7 +31,11 @@ public class TeleopTester extends LinearOpMode {
     static RevBlinkinLedDriver ColorStrip;
     BNO055IMU IMU;
 
-    static DcMotor BucketMotor;
+    static DcMotorEx BucketMotor;
+    static PIDFCoefficients PIDCoefficient;
+    double kp;
+    double ki;
+    double kd;
 
     static Servo IntakeServo;
     static Servo GateServo;
@@ -121,7 +127,7 @@ public class TeleopTester extends LinearOpMode {
         //CarouselMotor = hardwareMap.get(DcMotor.class, "carouselmotor");
         colorsensor = hardwareMap.get(NormalizedColorSensor.class, "colorsensor");
         ColorStrip = hardwareMap.get(RevBlinkinLedDriver.class, "colorstrip");
-        BucketMotor = hardwareMap.get(DcMotor.class, "BucketMotor");
+        BucketMotor = hardwareMap.get(DcMotorEx.class, "BucketMotor");
         IntakeServo = hardwareMap.get(Servo.class, "IntakeServo");
         GateServo = hardwareMap.get(Servo.class, "GateServo");
         IMU = hardwareMap.get(BNO055IMU.class, "imu");
@@ -160,9 +166,16 @@ public class TeleopTester extends LinearOpMode {
         IntakeServo.setPosition(OpenIntakePosition);
         GateServo.setPosition(OpenGatePosition);
 
+        PIDCoefficient = BucketMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION);
+        kp = PIDCoefficient.p;
+        ki = PIDCoefficient.i;
+        kd = PIDCoefficient.d;
+
         waitForStart();
 
         ET.reset();
+
+        BucketMotor.getTargetPositionTolerance();
 
         while (opModeIsActive()) {
 
@@ -221,47 +234,40 @@ public class TeleopTester extends LinearOpMode {
              Run Intake
              ***************************************/
 
-            if (gamepad1.dpad_up) {
-                IntakeServo.setPosition(OpenIntakePosition);
-                Intake.setPower(1);
-                Rail.setTargetPosition(0);
-                Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                Rail.setPower(0.5);
-            }
-            if (gamepad1.dpad_down) {
-                Intake.setPower(0);
-            }
+            //if (gamepad1.dpad_up) {
+              //  IntakeServo.setPosition(OpenIntakePosition);
+                //Intake.setPower(1);
+                //Rail.setTargetPosition(0);
+                //Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                //Rail.setPower(0.5);
+            //}
+            //if (gamepad1.dpad_down) {
+              //  Intake.setPower(0);
+            //}
 
             /****************************************
              Run CarouselMotor
              ***************************************/
 
-            if (gamepad1.dpad_right) {
+            //if (gamepad1.dpad_right) {
                 //CarouselMotor.setPower(1.0);
-            }
+            //}
 
 
 
             if (button_dpad_left_already_pressed == false) {
                 if (gamepad1.dpad_left) {
                     BucketMotor.setTargetPosition(0);
+                    //BucketMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, PIDCoefficient);
                     BucketMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    BucketMotor.setPower(0.15);
+                    BucketMotor.setPower(0.3);
+                    //BucketMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
                     button_dpad_left_already_pressed = true;
                 }
-
-                if (BucketMotor.getCurrentPosition() == 0) {
-                    BucketMotor.setPower(0);
-                }
             } else {
-
                 if (!gamepad1.dpad_left) {
                     button_dpad_left_already_pressed = false;
-                }
-
-                if (BucketMotor.getCurrentPosition() == 0) {
-                    BucketMotor.setPower(0);
                 }
             }
 
@@ -554,14 +560,113 @@ public class TeleopTester extends LinearOpMode {
             }
 
             /********************************
+             PID Coefficient Tuner
+             ********************************/
+
+            if (button_dpad_left_already_pressed2 == false) {
+                if (gamepad2.dpad_left) {
+
+                    kp = kp - 0.1;
+
+                    button_dpad_left_already_pressed2 = true;
+                }
+            } else {
+                if (!gamepad2.dpad_left) {
+                    button_dpad_left_already_pressed2 = false;
+                }
+            }
+
+            if (button_dpad_left_already_pressed == false) {
+                if (gamepad1.dpad_left) {
+
+                    kp = kp + 0.1;
+
+                    button_dpad_left_already_pressed = true;
+                }
+            } else {
+                if (!gamepad1.dpad_left) {
+                    button_dpad_left_already_pressed = false;
+                }
+            }
+
+            if (button_dpad_up_already_pressed2 == false) {
+                if (gamepad2.dpad_up) {
+
+                    ki = ki - 0.001;
+
+                    button_dpad_up_already_pressed2 = true;
+                }
+            } else {
+                if (!gamepad2.dpad_up) {
+                    button_dpad_up_already_pressed2 = false;
+                }
+            }
+
+            if (button_dpad_up_already_pressed == false) {
+                if (gamepad1.dpad_up) {
+
+                    ki = ki + 0.001;
+
+                    button_dpad_up_already_pressed = true;
+                }
+            } else {
+                if (!gamepad1.dpad_up) {
+                    button_dpad_up_already_pressed = false;
+                }
+            }
+
+            if (button_dpad_right_already_pressed2 == false) {
+                if (gamepad2.dpad_right) {
+
+                    kd = kd - 0.0001;
+
+                    button_dpad_right_already_pressed2 = true;
+                }
+            } else {
+                if (!gamepad2.dpad_right) {
+                    button_dpad_right_already_pressed2 = false;
+                }
+            }
+
+            if (button_dpad_right_already_pressed == false) {
+                if (gamepad1.dpad_right) {
+
+                    kd = kd + 0.0001;
+
+                    button_dpad_right_already_pressed = true;
+                }
+            } else {
+                if (!gamepad1.dpad_right) {
+                    button_dpad_right_already_pressed = false;
+                }
+            }
+
+            if (button_right_trigger_already_pressed2 == false) {
+                if (gamepad2.right_trigger > 0) {
+
+                    PIDCoefficient.p = kp;
+                    PIDCoefficient.i = ki;
+                    PIDCoefficient.d = kd;
+                    BucketMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, PIDCoefficient);
+
+                    button_right_trigger_already_pressed2 = true;
+                }
+            } else {
+                if (gamepad2.right_trigger == 0) {
+                    button_right_trigger_already_pressed2 = false;
+                }
+            }
+
+            /********************************
              Move Bucket
              ********************************/
             if (button_bumper_right_already_pressed == false) {
                 if (gamepad1.right_bumper) {
 
-                    BucketMotor.setTargetPosition(288);
+                    BucketMotor.setTargetPosition(250);
                     BucketMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    BucketMotor.setPower(0.15);
+                    BucketMotor.setPower(0.3);
+                    //BucketMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
                     button_bumper_right_already_pressed = true;
                 }
@@ -574,9 +679,10 @@ public class TeleopTester extends LinearOpMode {
             if (button_bumper_left_already_pressed == false) {
                 if (gamepad1.left_bumper) {
 
-                    BucketMotor.setTargetPosition(-288);
+                    BucketMotor.setTargetPosition(-250);
                     BucketMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    BucketMotor.setPower(0.15);
+                    BucketMotor.setPower(0.3);
+                    //BucketMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
                     button_bumper_left_already_pressed = true;
                 }
@@ -595,6 +701,13 @@ public class TeleopTester extends LinearOpMode {
             telemetry.addData("High bucket position", TopBucketPosition);
             telemetry.addData("Middle bucket position", MiddleBucketPosition);
             telemetry.addData("Low bucket position", LowBucketPosition);
+            telemetry.addData("Shooter P", PIDCoefficient.p);
+            telemetry.addData("Shooter I", PIDCoefficient.i);
+            telemetry.addData("Shooter D", PIDCoefficient.d);
+            telemetry.addData("Shooter kp", kp);
+            telemetry.addData("Shooter ki", ki);
+            telemetry.addData("Shooter kd", kd);
+            telemetry.addData("PositionTolerance", BucketMotor.getTargetPositionTolerance());
             telemetry.update();
 
         }
