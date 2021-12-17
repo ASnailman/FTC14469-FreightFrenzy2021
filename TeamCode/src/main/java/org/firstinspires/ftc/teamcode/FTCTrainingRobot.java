@@ -17,8 +17,8 @@ import com.qualcomm.robotcore.hardware.ServoController;
 import com.qualcomm.robotcore.hardware.ServoControllerEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp(name="ColorTest", group="MecanumDriveTest")
-public class ColorSensorTest extends LinearOpMode {
+@TeleOp(name="FTCTrainingRobot", group="MecanumDriveTest")
+public class FTCTrainingRobot extends LinearOpMode {
 
     static NormalizedColorSensor colorsensor;
     static RevBlinkinLedDriver ColorStrip;
@@ -28,21 +28,30 @@ public class ColorSensorTest extends LinearOpMode {
     boolean yellow;
     boolean unknown;
 
+    static DcMotor bucket_motor;
+    Bucket_Control bucket_control_task;
+    double bucket_target = 60;
+
     boolean button_a_already_pressed = false;
     boolean button_b_already_pressed = false;
+    boolean button_bumper_right_already_pressed = false;
+    boolean button_bumper_left_already_pressed = false;
 
     @Override
     public void runOpMode() {
 
-        colorsensor = hardwareMap.get(NormalizedColorSensor.class, "colorsensor");
-        ColorStrip = hardwareMap.get(RevBlinkinLedDriver.class, "colorstrip");
-        IMU = hardwareMap.get(BNO055IMU.class, "imu");
+        //colorsensor = hardwareMap.get(NormalizedColorSensor.class, "colorsensor");
+        //ColorStrip = hardwareMap.get(RevBlinkinLedDriver.class, "colorstrip");
+        //IMU = hardwareMap.get(BNO055IMU.class, "imu");
+
+        bucket_motor = hardwareMap.get(DcMotor.class, "bucketmotor");
+        bucket_control_task = new Bucket_Control(bucket_motor);
 
         waitForStart();
 
         while (opModeIsActive()) {
 
-            WhiteYellowDetector();
+            /* WhiteYellowDetector();
 
             if (white) {
                 ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.SKY_BLUE);
@@ -54,10 +63,71 @@ public class ColorSensorTest extends LinearOpMode {
 
             if (unknown) {
                 ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+            } */
+
+            // TURN BUCKET CLOCKWISE
+            if (button_bumper_right_already_pressed == false) {
+                if (gamepad1.right_bumper) {
+
+                    // Don't allow a new target position to be requested if the task is still in RUN mode
+                    if (bucket_control_task.GetTaskState() == Task_State.INIT ||
+                            bucket_control_task.GetTaskState() == Task_State.DONE ||
+                            bucket_control_task.GetTaskState() == Task_State.OVERRIDE) {
+
+                        // Each button press moves the bucket by +60 encoder ticks
+                        bucket_target = bucket_target + 60;
+                        bucket_control_task.SetTargetPosition(bucket_target);
+                    }
+
+                    button_bumper_right_already_pressed = true;
+                }
+            } else {
+                if (!gamepad1.right_bumper) {
+                    button_bumper_right_already_pressed = false;
+                }
             }
 
+            // TURN BUCKET COUNTER CLOCKWISE
+            if (button_bumper_left_already_pressed == false) {
+                if (gamepad1.left_bumper) {
+
+                    // Don't allow a new target position to be requested if the task is still in RUN mode
+                    if (bucket_control_task.GetTaskState() == Task_State.INIT ||
+                            bucket_control_task.GetTaskState() == Task_State.DONE ||
+                            bucket_control_task.GetTaskState() == Task_State.OVERRIDE) {
+
+                        // Each button press moves the bucket by -60 encoder ticks
+                        bucket_target = bucket_target - 60;
+                        bucket_control_task.SetTargetPosition(bucket_target);
+                    }
+
+                    button_bumper_left_already_pressed = true;
+                }
+            } else {
+                if (!gamepad1.left_bumper) {
+                    button_bumper_left_already_pressed = false;
+                }
+            }
+
+            // OVERRIDE BUCKET MOTOR POWER
+            if (button_a_already_pressed == false) {
+                if (gamepad1.a) {
+
+                    bucket_control_task.OvControl(0);
+                    button_a_already_pressed = true;
+                }
+            } else {
+                if (!gamepad1.a) {
+                    button_a_already_pressed = false;
+                }
+            }
+
+
+            bucket_control_task.Task();
+
             //telemetry.addData("Colorstrip", ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN));
-            //telemetry.addData("color", );
+            telemetry.addData("motor command", bucket_motor.getPower());
+            telemetry.addData("bucket position", bucket_motor.getCurrentPosition() );
             telemetry.update();
 
         }
