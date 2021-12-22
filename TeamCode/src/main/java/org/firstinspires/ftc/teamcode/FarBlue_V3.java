@@ -93,7 +93,8 @@ public class FarBlue_V3 extends LinearOpMode {
     boolean yellow;
     boolean unknown;
 
-    int program_seq = 0;
+    int program1_seq = 0;
+    int program2_seq = 0;
     Mech_Drive MechDrive;
     static DcMotor BucketMotor;
     Bucket_Control BucketControl;
@@ -188,18 +189,21 @@ public class FarBlue_V3 extends LinearOpMode {
             // In other words, it will keep looping over and over and doing specific activities at specific times
 
             // This is the part of the program that is linear (i.e. only happen once)
-            // The program_seq is a counter that dictates that whatever has been completed won't be repeated again
+            // The program1_seq is a counter that dictates that whatever has been completed won't be repeated again
             // This section can consist of methods that are called to put a task in the RUN state or even a one-time activity
             // such as DC Motor's RUN_TO_POSITION or setting a servo position
-            // For features that require a task, you should check the state of a task first before deciding what to do
-            switch (program_seq) {
+            // For features that require a background task, you should check the state of a task first before deciding what to do
+
+            // The style of sequencing below is implemented so that only activities are done one after another (i.e. not in parallel)
+            // program1_seq consists of a major sequence followed by a minor sequence (e.g. 1.2 mean major sequence 1 and subsequence 2)
+            switch (program1_seq) {
 
                 case 0:
                     if (MechDrive.GetTaskState() == Task_State.INIT) {
                         MechDrive.SetTarget(1350, 180, 0.5);
                     }
                     else if (MechDrive.GetTaskState() == Task_State.DONE) {
-                        program_seq++;
+                        program1_seq++;
                     }
                     break;
                 case 1:
@@ -207,35 +211,46 @@ public class FarBlue_V3 extends LinearOpMode {
                         MechDrive.SetTarget(500, 90, 0.5);
                     }
                     else if (MechDrive.GetTaskState() == Task_State.DONE) {
-                        program_seq++;
+                        program1_seq++;
                     }
                     break;
                 case 2:
-                    IntakeServo.setPosition(ClosingIntakePosition);
-                    GateServo.setPosition(ClosingGatePosition);
-                    program_seq++;
-                    break;
-                case 3:
                     if (pipeline.position == BarcodeDeterminationPipeline.ShippingElementPosition.LEFT) {
                         LowArmPosition();
+
+                        if (Arm.getCurrentPosition() >= 120 && Arm.getCurrentPosition() <= 180) {
+                            program1_seq++;
+                        }
                     }
                     else if (pipeline.position == BarcodeDeterminationPipeline.ShippingElementPosition.CENTER) {
                         MiddleArmPosition();
+
+                        if (Arm.getCurrentPosition() >= 260 && Arm.getCurrentPosition() <= 320) {
+                            program1_seq++;
+                        }
                     }
                     else if (pipeline.position == BarcodeDeterminationPipeline.ShippingElementPosition.RIGHT) {
                         TopArmPosition();
+
+                        if (Arm.getCurrentPosition() >= 360 && Arm.getCurrentPosition() <= 420) {
+                            program1_seq++;
+                        }
                     }
                     else {
                         TopArmPosition();
+
+                        if (Arm.getCurrentPosition() >= 360 && Arm.getCurrentPosition() <= 420) {
+                            program1_seq++;
+                        }
                     }
                     break;
-                case 4:
+                case 3:
                     if (pipeline.position == BarcodeDeterminationPipeline.ShippingElementPosition.LEFT) {
                         if (BucketControl.GetTaskState() == Task_State.INIT) {
                             BucketControl.SetTargetPosition(MirrorLowBucketPosition);
                         }
                         else if (BucketControl.GetTaskState() == Task_State.DONE) {
-                            program_seq++;
+                            program1_seq++;
                         }
                     }
                     else if (pipeline.position == BarcodeDeterminationPipeline.ShippingElementPosition.CENTER) {
@@ -243,7 +258,7 @@ public class FarBlue_V3 extends LinearOpMode {
                             BucketControl.SetTargetPosition(MirrorMiddleBucketPosition);
                         }
                         else if (BucketControl.GetTaskState() == Task_State.DONE) {
-                            program_seq++;
+                            program1_seq++;
                         }
                     }
                     else if (pipeline.position == BarcodeDeterminationPipeline.ShippingElementPosition.RIGHT) {
@@ -251,7 +266,7 @@ public class FarBlue_V3 extends LinearOpMode {
                             BucketControl.SetTargetPosition(MirrorTopBucketPosition);
                         }
                         else if (BucketControl.GetTaskState() == Task_State.DONE) {
-                            program_seq++;
+                            program1_seq++;
                         }
                     }
                     else {
@@ -259,56 +274,198 @@ public class FarBlue_V3 extends LinearOpMode {
                             BucketControl.SetTargetPosition(MirrorTopBucketPosition);
                         }
                         else if (BucketControl.GetTaskState() == Task_State.DONE) {
-                            program_seq++;
+                            program1_seq++;
                         }
                     }
                     break;
-                case 5:
+                case 4:
                     GateServo.setPosition(OpenGatePosition);
                     ET.reset();
-                    program_seq++;
+                    program1_seq++;
                     break;
-                case 6:
+                case 5:
                     if (ET.milliseconds() > 1000) {
                         GateServo.setPosition(ClosingGatePosition);
-                        program_seq++;
+                        program1_seq++;
                     }
                     break;
-                case 7:
+                case 6:
                     if (BucketControl.GetTaskState() == Task_State.READY) {
                         BucketControl.SetTargetPosition(OriginalBucketPosition);
                     }
                     else if (BucketControl.GetTaskState() == Task_State.DONE) {
-                        program_seq++;
+                        program1_seq++;
                     }
                     break;
-                case 8:
+                case 7:
                     Arm.setTargetPosition(0);
                     Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     Arm.setPower(0.1);
 
                     if (Arm.getCurrentPosition() >= -30 && Arm.getCurrentPosition() <= 30) {
-                        program_seq++;
+                        program1_seq++;
                     }
                     break;
-                case 9:
+                case 8:
                     Rail.setTargetPosition(300);
                     Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     Rail.setPower(0.5);
+                    program1_seq++;
                     break;
-                case 10:
+                case 9:
                     if (MechDrive.GetTaskState() == Task_State.READY) {
                         MechDrive.SetTarget(3500, 0, 0.7);
                     }
                     else if (MechDrive.GetTaskState() == Task_State.DONE) {
-                        program_seq++;
+                        program1_seq++;
                     }
                     break;
                 default:
                     break;
             }
 
-            // THIS IS THE PART OF THE PROGRAM THAT IS REPETITIVE (WE SHALL CALL THEM 'TASKS')
+            // The sequencing method method below shows how to set things up to perform parallel activities or tasks
+            // It uses two program_seq counters
+
+            switch (program1_seq) {
+
+                case 0:
+                    if (MechDrive.GetTaskState() == Task_State.INIT) {
+                        MechDrive.SetTarget(1350, 180, 0.5);
+                    } else if (MechDrive.GetTaskState() == Task_State.DONE) {
+                        program1_seq++;
+                    }
+                    break;
+                case 1:
+                    if (MechDrive.GetTaskState() == Task_State.READY) {
+                        MechDrive.SetTarget(500, 90, 0.5);
+                    } else if (MechDrive.GetTaskState() == Task_State.DONE) {
+                        program1_seq++;
+                    }
+                    break;
+                case 4:
+                    if (MechDrive.GetTaskState() == Task_State.READY) {
+                        MechDrive.SetTarget(3500, 0, 0.7);
+                    }
+                    else if (MechDrive.GetTaskState() == Task_State.DONE) {
+                        program1_seq++;
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            switch (program2_seq) {
+
+                case 0:
+                    if (pipeline.position == BarcodeDeterminationPipeline.ShippingElementPosition.LEFT) {
+                        LowArmPosition();
+
+                        if (Arm.getCurrentPosition() >= 120 && Arm.getCurrentPosition() <= 180) {
+                            program2_seq++;
+                        }
+                    }
+                    else if (pipeline.position == BarcodeDeterminationPipeline.ShippingElementPosition.CENTER) {
+                        MiddleArmPosition();
+
+                        if (Arm.getCurrentPosition() >= 260 && Arm.getCurrentPosition() <= 320) {
+                            program2_seq++;
+                        }
+                    }
+                    else if (pipeline.position == BarcodeDeterminationPipeline.ShippingElementPosition.RIGHT) {
+                        TopArmPosition();
+
+                        if (Arm.getCurrentPosition() >= 360 && Arm.getCurrentPosition() <= 420) {
+                            program2_seq++;
+                        }
+                    }
+                    else {
+                        TopArmPosition();
+
+                        if (Arm.getCurrentPosition() >= 360 && Arm.getCurrentPosition() <= 420) {
+                            program2_seq++;
+                        }
+                    }
+                    break;
+                case 1:
+                    if (pipeline.position == BarcodeDeterminationPipeline.ShippingElementPosition.LEFT) {
+                        if (BucketControl.GetTaskState() == Task_State.INIT) {
+                            BucketControl.SetTargetPosition(MirrorLowBucketPosition);
+                        }
+                        else if (BucketControl.GetTaskState() == Task_State.DONE) {
+                            program2_seq++;
+                        }
+                    }
+                    else if (pipeline.position == BarcodeDeterminationPipeline.ShippingElementPosition.CENTER) {
+                        if (BucketControl.GetTaskState() == Task_State.INIT) {
+                            BucketControl.SetTargetPosition(MirrorMiddleBucketPosition);
+                        }
+                        else if (BucketControl.GetTaskState() == Task_State.DONE) {
+                            program2_seq++;
+                        }
+                    }
+                    else if (pipeline.position == BarcodeDeterminationPipeline.ShippingElementPosition.RIGHT) {
+                        if (BucketControl.GetTaskState() == Task_State.INIT) {
+                            BucketControl.SetTargetPosition(MirrorTopBucketPosition);
+                        }
+                        else if (BucketControl.GetTaskState() == Task_State.DONE) {
+                            program2_seq++;
+                        }
+                    }
+                    else {
+                        if (BucketControl.GetTaskState() == Task_State.INIT) {
+                            BucketControl.SetTargetPosition(MirrorTopBucketPosition);
+                        }
+                        else if (BucketControl.GetTaskState() == Task_State.DONE) {
+                            program2_seq++;
+                        }
+                    }
+                    break;
+                case 2:
+                    if (MechDrive.GetTaskState() == Task_State.READY) {
+                        GateServo.setPosition(OpenGatePosition);
+                        ET.reset();
+                        program1_seq++;
+                        program2_seq++;
+                    }
+                    break;
+                case 3:
+                    if (ET.milliseconds() > 1000) {
+                        GateServo.setPosition(ClosingGatePosition);
+                        program1_seq++;
+                        program2_seq++;
+                    }
+                    break;
+                case 4:
+                    if (BucketControl.GetTaskState() == Task_State.READY) {
+                        BucketControl.SetTargetPosition(OriginalBucketPosition);
+                    }
+                    else if (BucketControl.GetTaskState() == Task_State.DONE) {
+                        program2_seq++;
+                    }
+                    break;
+                case 5:
+                    Arm.setTargetPosition(0);
+                    Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    Arm.setPower(0.1);
+
+                    if (Arm.getCurrentPosition() >= -30 && Arm.getCurrentPosition() <= 30) {
+                        program2_seq++;
+                    }
+                    break;
+                case 6:
+                    Rail.setTargetPosition(300);
+                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    Rail.setPower(0.5);
+                    program2_seq++;
+                    break;
+                default:
+                    break;
+            }
+
+
+            // THIS IS THE PART OF THE PROGRAM THAT IS REPETITIVE
+            // THEY ARE CALLED 'BACKGROUND TASKS" BUT FOR SIMPLICITY, WE SHALL CALL THEM 'TASKS'
 
             // Detect for objects in the bucket
             BucketObjectColorDetector();
@@ -337,6 +494,9 @@ public class FarBlue_V3 extends LinearOpMode {
                     BucketIsEmpty = true;
                 }
             }
+
+            MechDrive.Task(GyroContinuity());
+            BucketControl.Task();
         }
     }
 
@@ -753,10 +913,6 @@ public class FarBlue_V3 extends LinearOpMode {
             Arm.setTargetPosition(Top_Arm_Right);
             Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             Arm.setPower(0.3);
-
-            if (Arm.getCurrentPosition() >= 360 && Arm.getCurrentPosition() <= 420) {
-                program_seq++;
-            }
         }
     }
 
@@ -770,10 +926,6 @@ public class FarBlue_V3 extends LinearOpMode {
             Arm.setTargetPosition(Middle_Arm_Right);
             Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             Arm.setPower(0.3);
-
-            if (Arm.getCurrentPosition() >= 260 && Arm.getCurrentPosition() <= 320) {
-                program_seq++;
-            }
         }
     }
 
@@ -787,10 +939,6 @@ public class FarBlue_V3 extends LinearOpMode {
             Arm.setTargetPosition(Low_Arm_Right);
             Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             Arm.setPower(0.3);
-
-            if (Arm.getCurrentPosition() >= 120 && Arm.getCurrentPosition() <= 180) {
-                program_seq++;
-            }
         }
     }
 
