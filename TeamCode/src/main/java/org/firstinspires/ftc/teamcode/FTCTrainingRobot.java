@@ -71,8 +71,7 @@ public class FTCTrainingRobot extends LinearOpMode {
 
                     // Don't allow a new target position to be requested if the task is still in RUN mode
                     if (bucket_control_task.GetTaskState() == Task_State.INIT ||
-                            bucket_control_task.GetTaskState() == Task_State.DONE ||
-                            bucket_control_task.GetTaskState() == Task_State.OVERRIDE) {
+                            bucket_control_task.GetTaskState() == Task_State.DONE) {
 
                         // Each button press moves the bucket by +60 encoder ticks
                         bucket_target = bucket_target + 60;
@@ -93,8 +92,7 @@ public class FTCTrainingRobot extends LinearOpMode {
 
                     // Don't allow a new target position to be requested if the task is still in RUN mode
                     if (bucket_control_task.GetTaskState() == Task_State.INIT ||
-                            bucket_control_task.GetTaskState() == Task_State.DONE ||
-                            bucket_control_task.GetTaskState() == Task_State.OVERRIDE) {
+                            bucket_control_task.GetTaskState() == Task_State.DONE) {
 
                         // Each button press moves the bucket by -60 encoder ticks
                         bucket_target = bucket_target - 60;
@@ -109,11 +107,11 @@ public class FTCTrainingRobot extends LinearOpMode {
                 }
             }
 
-            // OVERRIDE BUCKET MOTOR POWER
+            // CALIBRATE BUCKET POSITION
             if (button_a_already_pressed == false) {
                 if (gamepad1.a) {
 
-                    bucket_control_task.OvControl(0);
+                    bucket_control_task.Calibrate();
                     button_a_already_pressed = true;
                 }
             } else {

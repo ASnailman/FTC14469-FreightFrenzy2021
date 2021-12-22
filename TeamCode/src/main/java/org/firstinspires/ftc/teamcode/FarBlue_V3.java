@@ -35,7 +35,6 @@ import org.openftc.easyopencv.OpenCvWebcam;
 @Autonomous(name="FarBlue_V3", group="MecanumDrive")
 public class FarBlue_V3 extends LinearOpMode {
 
-    //OpenCvInternalCamera phoneCam;
     OpenCvWebcam webcam;
     BarcodeDeterminationPipeline pipeline;
     static int DifferenceLeft;
@@ -52,15 +51,10 @@ public class FarBlue_V3 extends LinearOpMode {
     static DcMotor CarouselMotor;
     static NormalizedColorSensor colorsensor;
     static RevBlinkinLedDriver ColorStrip;
-    static Servo BucketServo;
     static Servo IntakeServo;
     static Servo GateServo;
     static MoveDirection Direction;
-    static MoveDirection DiagDirection;
-    static DistanceSensor DistancesensorForward;
-    static DistanceSensor DistancesensorRight;
-    static ColorSensor Colorsensor;
-    static Servo BackServo;
+
     BNO055IMU IMU;
     BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
     BNO055IMU ACCIMU;
@@ -69,42 +63,25 @@ public class FarBlue_V3 extends LinearOpMode {
     double current_value;
     double prev_value = 0;
     double final_value;
-    double FRpower;
-    double FLpower;
-    double BRpower;
-    double BLpower;
-    double SteeringOutput;
-    double power_x_old;
-    double power_y_old;
+
     ElapsedTime ET = new ElapsedTime();
-    boolean servo_power;
     byte AXIS_MAP_SIGN_BYTE = 0x6; //rotates control hub 180 degrees around z axis by negating x and y signs
     byte AXIS_MAP_CONFIG_BYTE = 0x6; //rotates control hub 90 degrees around y axis by swapping x and z axis
 
-    boolean top_level_event;
-    boolean middle_level_event;
-    boolean low_level_event;
-    boolean barrier_event;
-
     static final int Top_Arm_Left = -390;
     static final int Top_Arm_Right = 390;
-
     static final int Middle_Arm_Left = -290;
     static final int Middle_Arm_Right = 290;
-
     static final int Low_Arm_Left = -150;
     static final int Low_Arm_Right = 150;
 
-    static final double OriginalBucketPosition = 0.25;
-
-    static final double TopBucketPosition = 0.16;
-    static final double MirrorTopBucketPosition = 0.86;
-
-    static final double MiddleBucketPosition = 0.20;
-    static final double MirrorMiddleBucketPosition = 0.80;
-
-    static final double LowBucketPosition = 0.26;
-    static final double MirrorLowBucketPosition = 0.74;
+    static final double OriginalBucketPosition = 0;
+    static final double TopBucketPosition = -150;
+    static final double MirrorTopBucketPosition = 150;
+    static final double MiddleBucketPosition = -120;
+    static final double MirrorMiddleBucketPosition = 120;
+    static final double LowBucketPosition = -100;
+    static final double MirrorLowBucketPosition = 100;
 
     static final double OpenGatePosition = 0.5;
     static final double OpenIntakePosition = 0.6;
@@ -115,6 +92,11 @@ public class FarBlue_V3 extends LinearOpMode {
     boolean white;
     boolean yellow;
     boolean unknown;
+
+    int program_seq = 0;
+    Mech_Drive MechDrive;
+    static DcMotor BucketMotor;
+    Bucket_Control BucketControl;
 
     @Override
     public void runOpMode() {
@@ -136,7 +118,6 @@ public class FarBlue_V3 extends LinearOpMode {
         CarouselMotor = hardwareMap.get(DcMotor.class, "carouselmotor");
         colorsensor = hardwareMap.get(NormalizedColorSensor.class, "colorsensor");
         ColorStrip = hardwareMap.get(RevBlinkinLedDriver.class, "colorstrip");
-        BucketServo = hardwareMap.get(Servo.class, "BucketServo");
         IntakeServo = hardwareMap.get(Servo.class, "IntakeServo");
         GateServo = hardwareMap.get(Servo.class, "GateServo");
         IMU = hardwareMap.get(BNO055IMU.class, "imu");
@@ -150,7 +131,7 @@ public class FarBlue_V3 extends LinearOpMode {
         sleep(100);
 
         AttachmentSetDirection();
-        SetDirection(MoveDirection.REVERSE);
+
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
         IMU.initialize(parameters);
 
@@ -159,29 +140,21 @@ public class FarBlue_V3 extends LinearOpMode {
         Arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         Rail.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        FrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        BackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        BackLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        FrontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        FrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        BackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        BackLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
         Arm.setTargetPosition(0);
         Rail.setTargetPosition(0);
 
         Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        BucketServo.scaleRange(0,1);
         IntakeServo.scaleRange(0,1);
         GateServo.scaleRange(0,1);
 
-        //BucketServo.setPosition(OriginalBucketPosition);
         IntakeServo.setPosition(ClosingIntakePosition);
         GateServo.setPosition(ClosingGatePosition);
+
+        MechDrive = new Mech_Drive(FrontLeft, FrontRight, BackLeft, BackRight, MoveDirection.REVERSE, telemetry);
+        BucketMotor = hardwareMap.get(DcMotor.class, "bucketmotor");
+        BucketControl = new Bucket_Control(BucketMotor);
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
@@ -211,11 +184,134 @@ public class FarBlue_V3 extends LinearOpMode {
 
         while (opModeIsActive())
         {
-            /****************************************
-             Yellow & White Sensing
-             ***************************************/
+            // We are going to write this autonomous program as a state machine
+            // In other words, it will keep looping over and over and doing specific activities at specific times
 
-            WhiteYellowDetector();
+            // This is the part of the program that is linear (i.e. only happen once)
+            // The program_seq is a counter that dictates that whatever has been completed won't be repeated again
+            // This section can consist of methods that are called to put a task in the RUN state or even a one-time activity
+            // such as DC Motor's RUN_TO_POSITION or setting a servo position
+            // For features that require a task, you should check the state of a task first before deciding what to do
+            switch (program_seq) {
+
+                case 0:
+                    if (MechDrive.GetTaskState() == Task_State.INIT) {
+                        MechDrive.SetTarget(1350, 180, 0.5);
+                    }
+                    else if (MechDrive.GetTaskState() == Task_State.DONE) {
+                        program_seq++;
+                    }
+                    break;
+                case 1:
+                    if (MechDrive.GetTaskState() == Task_State.READY) {
+                        MechDrive.SetTarget(500, 90, 0.5);
+                    }
+                    else if (MechDrive.GetTaskState() == Task_State.DONE) {
+                        program_seq++;
+                    }
+                    break;
+                case 2:
+                    IntakeServo.setPosition(ClosingIntakePosition);
+                    GateServo.setPosition(ClosingGatePosition);
+                    program_seq++;
+                    break;
+                case 3:
+                    if (pipeline.position == BarcodeDeterminationPipeline.ShippingElementPosition.LEFT) {
+                        LowArmPosition();
+                    }
+                    else if (pipeline.position == BarcodeDeterminationPipeline.ShippingElementPosition.CENTER) {
+                        MiddleArmPosition();
+                    }
+                    else if (pipeline.position == BarcodeDeterminationPipeline.ShippingElementPosition.RIGHT) {
+                        TopArmPosition();
+                    }
+                    else {
+                        TopArmPosition();
+                    }
+                    break;
+                case 4:
+                    if (pipeline.position == BarcodeDeterminationPipeline.ShippingElementPosition.LEFT) {
+                        if (BucketControl.GetTaskState() == Task_State.INIT) {
+                            BucketControl.SetTargetPosition(MirrorLowBucketPosition);
+                        }
+                        else if (BucketControl.GetTaskState() == Task_State.DONE) {
+                            program_seq++;
+                        }
+                    }
+                    else if (pipeline.position == BarcodeDeterminationPipeline.ShippingElementPosition.CENTER) {
+                        if (BucketControl.GetTaskState() == Task_State.INIT) {
+                            BucketControl.SetTargetPosition(MirrorMiddleBucketPosition);
+                        }
+                        else if (BucketControl.GetTaskState() == Task_State.DONE) {
+                            program_seq++;
+                        }
+                    }
+                    else if (pipeline.position == BarcodeDeterminationPipeline.ShippingElementPosition.RIGHT) {
+                        if (BucketControl.GetTaskState() == Task_State.INIT) {
+                            BucketControl.SetTargetPosition(MirrorTopBucketPosition);
+                        }
+                        else if (BucketControl.GetTaskState() == Task_State.DONE) {
+                            program_seq++;
+                        }
+                    }
+                    else {
+                        if (BucketControl.GetTaskState() == Task_State.INIT) {
+                            BucketControl.SetTargetPosition(MirrorTopBucketPosition);
+                        }
+                        else if (BucketControl.GetTaskState() == Task_State.DONE) {
+                            program_seq++;
+                        }
+                    }
+                    break;
+                case 5:
+                    GateServo.setPosition(OpenGatePosition);
+                    ET.reset();
+                    program_seq++;
+                    break;
+                case 6:
+                    if (ET.milliseconds() > 1000) {
+                        GateServo.setPosition(ClosingGatePosition);
+                        program_seq++;
+                    }
+                    break;
+                case 7:
+                    if (BucketControl.GetTaskState() == Task_State.READY) {
+                        BucketControl.SetTargetPosition(OriginalBucketPosition);
+                    }
+                    else if (BucketControl.GetTaskState() == Task_State.DONE) {
+                        program_seq++;
+                    }
+                    break;
+                case 8:
+                    Arm.setTargetPosition(0);
+                    Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    Arm.setPower(0.1);
+
+                    if (Arm.getCurrentPosition() >= -30 && Arm.getCurrentPosition() <= 30) {
+                        program_seq++;
+                    }
+                    break;
+                case 9:
+                    Rail.setTargetPosition(300);
+                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    Rail.setPower(0.5);
+                    break;
+                case 10:
+                    if (MechDrive.GetTaskState() == Task_State.READY) {
+                        MechDrive.SetTarget(3500, 0, 0.7);
+                    }
+                    else if (MechDrive.GetTaskState() == Task_State.DONE) {
+                        program_seq++;
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            // THIS IS THE PART OF THE PROGRAM THAT IS REPETITIVE (WE SHALL CALL THEM 'TASKS')
+
+            // Detect for objects in the bucket
+            BucketObjectColorDetector();
 
             if (BucketIsEmpty) {
 
@@ -241,59 +337,6 @@ public class FarBlue_V3 extends LinearOpMode {
                     BucketIsEmpty = true;
                 }
             }
-
-            /****************************************
-             Autonomous
-             ***************************************/
-            MechDrive(180, 0.5, 1350, 0.00002, 0, 0);
-            MechDrive(90, 0.5, 500, 0.00002, 0, 0);
-
-            if (pipeline.position == BarcodeDeterminationPipeline.ShippingElementPosition.LEFT) {
-                IntakeServo.setPosition(ClosingIntakePosition);
-                GateServo.setPosition(ClosingGatePosition);
-                LowBucketPosition();
-                BucketServo.setPosition(MirrorLowBucketPosition);
-                sleep(2000);
-                GateServo.setPosition(OpenGatePosition);
-                sleep(1000);
-                ResetBucketPosition();
-                //MechDrive(0, 0.7, 3500, 0.00002, 0, 0);
-
-            } else if (pipeline.position == BarcodeDeterminationPipeline.ShippingElementPosition.CENTER) {
-                IntakeServo.setPosition(ClosingIntakePosition);
-                GateServo.setPosition(ClosingGatePosition);
-                MiddleBucketPosition();
-                BucketServo.setPosition(MirrorMiddleBucketPosition);
-                sleep(2000);
-                GateServo.setPosition(OpenGatePosition);
-                sleep(1000);
-                ResetBucketPosition();
-                //MechDrive(0, 0.7, 3500, 0.00002, 0, 0);
-            } else if (pipeline.position == BarcodeDeterminationPipeline.ShippingElementPosition.RIGHT) {
-                IntakeServo.setPosition(ClosingIntakePosition);
-                GateServo.setPosition(ClosingGatePosition);
-                TopBucketPosition();
-                BucketServo.setPosition(MirrorTopBucketPosition);
-                sleep(2000);
-                GateServo.setPosition(OpenGatePosition);
-                sleep(1000);
-                ResetBucketPosition();
-                //MechDrive(0, 0.7, 3500, 0.00002, 0, 0);
-            } else {
-                IntakeServo.setPosition(ClosingIntakePosition);
-                GateServo.setPosition(ClosingGatePosition);
-                TopBucketPosition();
-                BucketServo.setPosition(MirrorTopBucketPosition);
-                sleep(2000);
-                GateServo.setPosition(OpenGatePosition);
-                sleep(1000);
-                ResetBucketPosition();
-                //MechDrive(0, 0.7, 3500, 0.00002, 0, 0);
-            }
-
-            // Don't burn CPU cycles busy-looping in this sample
-            //sleep(50);
-            break;
         }
     }
 
@@ -606,33 +649,14 @@ public class FarBlue_V3 extends LinearOpMode {
     private void AttachmentSetDirection () {
 
         CarouselMotor.setDirection(DcMotor.Direction.REVERSE);
-        BucketServo.setDirection(Servo.Direction.FORWARD);
         IntakeServo.setDirection(Servo.Direction.FORWARD);
         GateServo.setDirection(Servo.Direction.FORWARD);
         Intake.setDirection(DcMotor.Direction.FORWARD);
         Arm.setDirection(DcMotor.Direction.FORWARD);
         Rail.setDirection(DcMotor.Direction.FORWARD);
-
     }
 
-    private void SetDirection (MoveDirection direction) {
-
-        Direction = direction;
-
-        if (Direction == MoveDirection.FORWARD) {
-            FrontLeft.setDirection(DcMotor.Direction.REVERSE);
-            FrontRight.setDirection(DcMotor.Direction.FORWARD);
-            BackLeft.setDirection(DcMotor.Direction.REVERSE);
-            BackRight.setDirection(DcMotor.Direction.FORWARD);
-        } else if (Direction == MoveDirection.REVERSE) {
-            FrontLeft.setDirection(DcMotor.Direction.FORWARD);
-            FrontRight.setDirection(DcMotor.Direction.REVERSE);
-            BackLeft.setDirection(DcMotor.Direction.FORWARD);
-            BackRight.setDirection(DcMotor.Direction.REVERSE);
-        }
-    }
-
-    private int WhiteYellowDetector() {
+    private int BucketObjectColorDetector() {
 
         float[] HSV = new float[3];
         NormalizedRGBA RGBA = colorsensor.getNormalizedColors();
@@ -689,80 +713,6 @@ public class FarBlue_V3 extends LinearOpMode {
         }
     }
 
-    private void MechDrive (double strafingangle, double power, double targetdistance, double kp_in, double ki_in, double kd_in) {
-
-        PID pid = new PID();
-        double power_y_new;
-        double power_x_new;
-        double encoder;
-        double radians = Math.toRadians(-strafingangle); // negate strafing angle for left hand rule
-
-        power_y_old = power; // make x_old 0 to make the degrees start at the front of the robot
-        power_x_old = 0;
-
-        power_x_new = power_x_old * Math.cos(radians) - power_y_old * Math.sin(radians); // equation for right hand rule
-        power_y_new = power_x_old * Math.sin(radians) + power_y_old * Math.cos(radians);
-        SteeringOutput = pid.PID_Control(strafingangle, kp_in, ki_in, kd_in, GyroContinuity());
-
-        FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        FrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        BackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        BackLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        FrontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        FrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        BackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        BackLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        //if ((radians <= Math.toRadians(90) && radians >= Math.toRadians(0)) || (radians >= Math.toRadians(180) && radians <= Math.toRadians(270))) {
-        //encoder = FrontLeft.getCurrentPosition();
-        //} else {
-        //encoder = BackLeft.getCurrentPosition();
-        //}
-        encoder = FrontRight.getCurrentPosition();
-        if (encoder < 0) {
-            encoder = -encoder;
-        }
-
-        while (encoder < targetdistance) {
-
-            //if ((radians <= Math.toRadians(90) && radians >= Math.toRadians(0)) || (radians >= Math.toRadians(180) && radians <= Math.toRadians(270))) {
-            //encoder = FrontLeft.getCurrentPosition();
-            //} else {
-            //encoder = BackLeft.getCurrentPosition();
-            //}
-            encoder = FrontRight.getCurrentPosition();
-            if (encoder < 0) {
-                encoder = -encoder;
-            }
-
-            double denominator = Math.max(Math.abs(power_y_new) + Math.abs(power_x_new), 1);
-            double flpower = (power_y_new + 1.1*power_x_new + SteeringOutput) / denominator;
-            double blpower = (power_y_new - 1.1*power_x_new + SteeringOutput) / denominator;
-            double frpower = (power_y_new - 1.1*power_x_new - SteeringOutput) / denominator;
-            double brpower = (power_y_new + 1.1*power_x_new - SteeringOutput) / denominator;
-
-            FrontLeft.setPower(flpower);
-            FrontRight.setPower(frpower);
-            BackLeft.setPower(blpower);
-            BackRight.setPower(brpower);
-
-            //telemetry.addData("Frontleft", FrontLeft.getCurrentPosition());
-            //telemetry.addData("Backleft", BackLeft.getCurrentPosition());
-            telemetry.addData("ActualDistance", encoder);
-            telemetry.addData("Steering", SteeringOutput);
-            telemetry.addData("DirectionZ", GyroContinuity());
-            telemetry.addData("DirectionX", orientation.thirdAngle);
-            telemetry.addData("DirectionY", orientation.secondAngle);
-            telemetry.update();
-
-        }
-
-        SetMotorPower(0);
-        sleep(100);
-
-    }
-
     private double GyroContinuity() {
 
         orientation = IMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
@@ -793,78 +743,55 @@ public class FarBlue_V3 extends LinearOpMode {
 
     }
 
-    private void TopBucketPosition () {
+    private void TopArmPosition () {
 
         Rail.setTargetPosition(1000);
         Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         Rail.setPower(0.5);
-        top_level_event = true;
-        while (top_level_event == true) {
-            if (Rail.getCurrentPosition() >= 970 && Rail.getCurrentPosition() <= 1030) {
-                Arm.setTargetPosition(Top_Arm_Right);
-                Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                Arm.setPower(0.3);
-                if (Arm.getCurrentPosition() >= 360 && Arm.getCurrentPosition() <= 420) {
-                    top_level_event = false;
-                }
+
+        if (Rail.getCurrentPosition() >= 970 && Rail.getCurrentPosition() <= 1030) {
+            Arm.setTargetPosition(Top_Arm_Right);
+            Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            Arm.setPower(0.3);
+
+            if (Arm.getCurrentPosition() >= 360 && Arm.getCurrentPosition() <= 420) {
+                program_seq++;
             }
         }
     }
 
-    private void MiddleBucketPosition () {
+    private void MiddleArmPosition () {
 
         Rail.setTargetPosition(750);
         Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         Rail.setPower(0.5);
-        middle_level_event = true;
-        while (middle_level_event == true) {
-            if (Rail.getCurrentPosition() >= 720 && Rail.getCurrentPosition() <= 780) {
-                Arm.setTargetPosition(Middle_Arm_Right);
-                Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                Arm.setPower(0.3);
-                if (Arm.getCurrentPosition() >= 260 && Arm.getCurrentPosition() <= 320) {
-                    middle_level_event = false;
-                }
+
+        if (Rail.getCurrentPosition() >= 720 && Rail.getCurrentPosition() <= 780) {
+            Arm.setTargetPosition(Middle_Arm_Right);
+            Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            Arm.setPower(0.3);
+
+            if (Arm.getCurrentPosition() >= 260 && Arm.getCurrentPosition() <= 320) {
+                program_seq++;
             }
         }
     }
 
-    private void LowBucketPosition () {
+    private void LowArmPosition () {
 
         Rail.setTargetPosition(750);
         Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         Rail.setPower(0.5);
-        low_level_event = true;
-        while (low_level_event == true) {
-            if (Rail.getCurrentPosition() >= 720 && Rail.getCurrentPosition() <= 780) {
-                Arm.setTargetPosition(Low_Arm_Right);
-                Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                Arm.setPower(0.3);
-                if (Arm.getCurrentPosition() >= 120 && Arm.getCurrentPosition() <= 180) {
-                    low_level_event = false;
-                }
+
+        if (Rail.getCurrentPosition() >= 720 && Rail.getCurrentPosition() <= 780) {
+            Arm.setTargetPosition(Low_Arm_Right);
+            Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            Arm.setPower(0.3);
+
+            if (Arm.getCurrentPosition() >= 120 && Arm.getCurrentPosition() <= 180) {
+                program_seq++;
             }
         }
     }
-
-    private void ResetBucketPosition () {
-        GateServo.setPosition(ClosingGatePosition);
-        BucketServo.setPosition(OriginalBucketPosition);
-        barrier_event = true;
-        while (barrier_event == true) {
-            if (BucketServo.getPosition() == OriginalBucketPosition) {
-                Arm.setTargetPosition(0);
-                Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                Arm.setPower(0.1);
-            }
-            if (Arm.getCurrentPosition() == 0) {
-                Rail.setTargetPosition(300);
-                Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                Rail.setPower(0.5);
-                barrier_event = false;
-            }
-        }
-    }
-
 
 }
