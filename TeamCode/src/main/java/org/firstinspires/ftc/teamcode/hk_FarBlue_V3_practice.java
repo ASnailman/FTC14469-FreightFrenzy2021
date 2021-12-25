@@ -30,7 +30,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-@Autonomous(name="FarBlue_V3", group="MecanumDrive")
+@Autonomous(name="hk_FarBlue_V3", group="MecanumDrive")
 public class hk_FarBlue_V3_practice extends LinearOpMode {
 
     OpenCvWebcam webcam;
@@ -464,7 +464,7 @@ public class hk_FarBlue_V3_practice extends LinearOpMode {
             }
 
             MechDrive.Task(GyroContinuity());
-            BucketControl.Task();
+            BucketControl.BucketTask();
         }
     }
 

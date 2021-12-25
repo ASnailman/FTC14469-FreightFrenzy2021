@@ -51,7 +51,7 @@ public class hk_BucketControl {
     }
 
     // THIS IS THE TASK THAT A STATE MACHINE OPMODE SHOULD CALL REPEATEDLY IN ITS LOOP
-    public void Task () {
+    public void BucketTask () {
 
         double bucketpower_range;
 

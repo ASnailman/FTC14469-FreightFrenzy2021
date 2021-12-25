@@ -16,17 +16,23 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoController;
 import com.qualcomm.robotcore.hardware.ServoControllerEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 @TeleOp(name="FTCTrainingRobot", group="MecanumDriveTest")
 public class FTCTrainingRobot extends LinearOpMode {
 
     static NormalizedColorSensor colorsensor;
     static RevBlinkinLedDriver ColorStrip;
+    static Servo ElementServo;
     BNO055IMU IMU;
     double strip_color;
     boolean white;
     boolean yellow;
     boolean unknown;
+
+    int servoseqleft = 0;
+    int servoseqright = 0;
+    double servoposition;
 
     static DcMotor bucket_motor;
     Bucket_Control bucket_control_task;
@@ -34,6 +40,8 @@ public class FTCTrainingRobot extends LinearOpMode {
 
     boolean button_a_already_pressed = false;
     boolean button_b_already_pressed = false;
+    boolean button_x_already_pressed = false;
+    boolean button_y_already_pressed = false;
     boolean button_bumper_right_already_pressed = false;
     boolean button_bumper_left_already_pressed = false;
 
@@ -44,6 +52,7 @@ public class FTCTrainingRobot extends LinearOpMode {
         //ColorStrip = hardwareMap.get(RevBlinkinLedDriver.class, "colorstrip");
         //IMU = hardwareMap.get(BNO055IMU.class, "imu");
 
+        ElementServo = hardwareMap.get(Servo.class, "ElementServo");
         bucket_motor = hardwareMap.get(DcMotor.class, "bucketmotor");
         bucket_control_task = new Bucket_Control(bucket_motor);
 
@@ -71,7 +80,7 @@ public class FTCTrainingRobot extends LinearOpMode {
 
                     // Don't allow a new target position to be requested if the task is still in RUN mode
                     if (bucket_control_task.GetTaskState() == Task_State.INIT ||
-                            bucket_control_task.GetTaskState() == Task_State.DONE) {
+                            bucket_control_task.GetTaskState() == Task_State.READY) {
 
                         // Each button press moves the bucket by +60 encoder ticks
                         bucket_target = bucket_target + 60;
@@ -92,7 +101,7 @@ public class FTCTrainingRobot extends LinearOpMode {
 
                     // Don't allow a new target position to be requested if the task is still in RUN mode
                     if (bucket_control_task.GetTaskState() == Task_State.INIT ||
-                            bucket_control_task.GetTaskState() == Task_State.DONE) {
+                            bucket_control_task.GetTaskState() == Task_State.READY) {
 
                         // Each button press moves the bucket by -60 encoder ticks
                         bucket_target = bucket_target - 60;
@@ -120,12 +129,79 @@ public class FTCTrainingRobot extends LinearOpMode {
                 }
             }
 
+            //Testing Back Arm for picking up shipping element
+
+            if (button_b_already_pressed == false) {
+                if (gamepad1.b) {
+
+                   ElementServo.setPosition(0);
+
+                    button_b_already_pressed = true;
+                }
+            } else {
+                if (!gamepad1.b) {
+                    button_b_already_pressed = false;
+                }
+            }
+
+            if (button_x_already_pressed == false) {
+                if (gamepad1.x) {
+                    servoseqleft = 1;
+
+                    button_x_already_pressed = true;
+                }
+            } else {
+                if (!gamepad1.x) {
+                    button_x_already_pressed = false;
+                    servoseqleft = 0;
+                }
+            }
+
+            switch (servoseqleft) {
+
+                case 1:
+                    servoposition = servoposition - 0.001;
+                    servoposition = Range.clip(servoposition, 0, 1);
+                    ElementServo.setPosition(servoposition);
+                    break;
+
+                default:
+                    break;
+
+            }
+
+            if (button_y_already_pressed == false) {
+                if (gamepad1.y) {
+
+                    servoseqright = 1;
+
+                    button_y_already_pressed = true;
+                }
+            } else {
+                if (!gamepad1.y) {
+                    servoseqright = 0;
+                    button_y_already_pressed = false;
+                }
+            }
+
+            switch (servoseqright) {
+
+                case 1:
+                    servoposition = servoposition + 0.001;
+                    servoposition = Range.clip(servoposition, 0, 1);
+                    ElementServo.setPosition(servoposition);
+                    break;
+
+                default:
+                    break;
+
+            }
 
             bucket_control_task.Task();
 
             //telemetry.addData("Colorstrip", ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN));
             telemetry.addData("motor command", bucket_motor.getPower());
-            telemetry.addData("bucket position", bucket_motor.getCurrentPosition() );
+            telemetry.addData("bucket position", bucket_motor.getCurrentPosition());
             telemetry.update();
 
         }
