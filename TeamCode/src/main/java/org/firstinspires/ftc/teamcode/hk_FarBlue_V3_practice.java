@@ -47,6 +47,7 @@ public class hk_FarBlue_V3_practice extends LinearOpMode {
     static DcMotor Rail;
     static DcMotor Intake;
     static DcMotor CarouselMotor;
+    static DcMotor BucketMotor;
     static NormalizedColorSensor colorsensor;
     static RevBlinkinLedDriver ColorStrip;
     static Servo IntakeServo;
@@ -94,8 +95,8 @@ public class hk_FarBlue_V3_practice extends LinearOpMode {
     int programorder1 = 0;
     int programorder2 = 0;
     hk_MechDrive MechDrive;
-    static DcMotor BucketMotor;
     hk_BucketControl BucketControl;
+    hk_Arm_Control ArmControl;
 
     boolean left;
     boolean center;
@@ -119,6 +120,7 @@ public class hk_FarBlue_V3_practice extends LinearOpMode {
         Arm = hardwareMap.get(DcMotor.class, "arm");
         Rail = hardwareMap.get(DcMotor.class, "rail");
         CarouselMotor = hardwareMap.get(DcMotor.class, "carouselmotor");
+        BucketMotor = hardwareMap.get(DcMotor.class, "BucketMotor");
         colorsensor = hardwareMap.get(NormalizedColorSensor.class, "colorsensor");
         ColorStrip = hardwareMap.get(RevBlinkinLedDriver.class, "colorstrip");
         IntakeServo = hardwareMap.get(Servo.class, "IntakeServo");
@@ -156,8 +158,8 @@ public class hk_FarBlue_V3_practice extends LinearOpMode {
         GateServo.setPosition(ClosingGatePosition);
 
         MechDrive = new hk_MechDrive(FrontLeft, FrontRight, BackLeft, BackRight, MoveDirection.REVERSE, telemetry);
-        BucketMotor = hardwareMap.get(DcMotor.class, "bucketmotor");
         BucketControl = new hk_BucketControl(BucketMotor);
+        ArmControl = new hk_Arm_Control(Arm);
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
@@ -228,16 +230,49 @@ public class hk_FarBlue_V3_practice extends LinearOpMode {
 
                 case 3:
                     if (left) {
-                        LowArmPosition();
-                        programorder1++;
+                        Rail.setTargetPosition(750);
+                        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        Rail.setPower(0.5);
+
+                        if (Rail.getCurrentPosition() >= 720 && Rail.getCurrentPosition() <= 780) {
+                            if (ArmControl.GetTaskState() == Task_State.INIT) {
+
+                                ArmControl.SetTargetPosition(Low_Arm_Right, 0.7);
+                            }
+                            else if (ArmControl.GetTaskState() == Task_State.DONE) {
+                                programorder1++;
+                            }
+                        }
                     }
                     else if (center) {
-                        MiddleArmPosition();
-                        programorder1++;
+                        Rail.setTargetPosition(750);
+                        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        Rail.setPower(0.5);
+
+                        if (Rail.getCurrentPosition() >= 720 && Rail.getCurrentPosition() <= 780) {
+                            if (ArmControl.GetTaskState() == Task_State.INIT) {
+
+                                ArmControl.SetTargetPosition(Middle_Arm_Right, 0.7);
+                            }
+                            else if (ArmControl.GetTaskState() == Task_State.DONE) {
+                                programorder1++;
+                            }
+                        }
                     }
                     else if (right) {
-                        TopArmPosition();
-                        programorder1++;
+                        Rail.setTargetPosition(1000);
+                        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        Rail.setPower(0.5);
+
+                        if (Rail.getCurrentPosition() >= 970 && Rail.getCurrentPosition() <= 1030) {
+                            if (ArmControl.GetTaskState() == Task_State.INIT) {
+
+                                ArmControl.SetTargetPosition(Top_Arm_Right, 0.7);
+                            }
+                            else if (ArmControl.GetTaskState() == Task_State.DONE) {
+                                programorder1++;
+                            }
+                        }
                     }
                     break;
 
@@ -336,32 +371,26 @@ public class hk_FarBlue_V3_practice extends LinearOpMode {
 
                 case 7:
                     if (left) {
-                        if (BucketControl.GetTaskState() == Task_State.READY) {
-                            Arm.setTargetPosition(0);
-                            Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                            Arm.setPower(0.2);
+                        if (ArmControl.GetTaskState() == Task_State.READY) {
+                            ArmControl.SetTargetPosition(0, 0.1);
                         }
-                        else if (BucketControl.GetTaskState() == Task_State.DONE) {
+                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
                             programorder1++;
                         }
                     }
                     else if (center) {
-                        if (BucketControl.GetTaskState() == Task_State.READY) {
-                            Arm.setTargetPosition(0);
-                            Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                            Arm.setPower(0.2);
+                        if (ArmControl.GetTaskState() == Task_State.READY) {
+                            ArmControl.SetTargetPosition(0, 0.1);
                         }
-                        else if (BucketControl.GetTaskState() == Task_State.DONE) {
+                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
                             programorder1++;
                         }
                     }
                     else if (right) {
-                        if (BucketControl.GetTaskState() == Task_State.READY) {
-                            Arm.setTargetPosition(0);
-                            Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                            Arm.setPower(0.2);
+                        if (ArmControl.GetTaskState() == Task_State.READY) {
+                            ArmControl.SetTargetPosition(0, 0.1);
                         }
-                        else if (BucketControl.GetTaskState() == Task_State.DONE) {
+                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
                             programorder1++;
                         }
                     }
@@ -465,6 +494,7 @@ public class hk_FarBlue_V3_practice extends LinearOpMode {
 
             MechDrive.Task(GyroContinuity());
             BucketControl.BucketTask();
+            ArmControl.ArmTask();
         }
     }
 
@@ -780,7 +810,7 @@ public class hk_FarBlue_V3_practice extends LinearOpMode {
         IntakeServo.setDirection(Servo.Direction.FORWARD);
         GateServo.setDirection(Servo.Direction.FORWARD);
         Intake.setDirection(DcMotor.Direction.FORWARD);
-        Arm.setDirection(DcMotor.Direction.FORWARD);
+        //Arm.setDirection(DcMotor.Direction.FORWARD);
         Rail.setDirection(DcMotor.Direction.FORWARD);
     }
 

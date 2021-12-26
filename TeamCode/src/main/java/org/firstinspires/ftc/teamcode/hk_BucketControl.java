@@ -38,7 +38,8 @@ public class hk_BucketControl {
     public void SetTargetPosition(double TargetPosition) {
 
         targetposition = TargetPosition;
-        state = Task_State.READY;
+        state = Task_State.RUN;
+        pid.Reset_PID();
 
     }
 
@@ -62,7 +63,7 @@ public class hk_BucketControl {
             bucketpower = pid.PID_Control(targetposition, 0.07, 0.000001, 0.000005, bucketmotor.getCurrentPosition() );
 
             // Don't let the motor run too fast. Otherwise, it will overshoot
-            bucketpower_range = Range.clip(bucketpower, -0.3, 0.3);
+            bucketpower_range = Range.clip(bucketpower, -0.35, 0.35);
             bucketmotor.setPower(bucketpower_range);
 
             // If the bucket is within range of the target position, treat the task as done so that the opmode can move on to
@@ -70,7 +71,7 @@ public class hk_BucketControl {
             if (state == Task_State.DONE) {
                 state = Task_State.READY;
             }
-            else if (bucketmotor.getCurrentPosition() > (targetposition - tolerance) &&
+            else if (state == Task_State.RUN && bucketmotor.getCurrentPosition() > (targetposition - tolerance) &&
                     bucketmotor.getCurrentPosition() < (targetposition + tolerance)) {
                 state = Task_State.DONE;
             }
