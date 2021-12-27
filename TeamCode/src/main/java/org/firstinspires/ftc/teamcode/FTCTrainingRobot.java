@@ -6,16 +6,10 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.ServoController;
-import com.qualcomm.robotcore.hardware.ServoControllerEx;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 @TeleOp(name="FTCTrainingRobot", group="MecanumDriveTest")
@@ -35,7 +29,7 @@ public class FTCTrainingRobot extends LinearOpMode {
     double servoposition;
 
     static DcMotor bucket_motor;
-    Bucket_Control bucket_control_task;
+    Bucket_Control_Sample bucket_control_task;
     double bucket_target = 60;
 
     boolean button_a_already_pressed = false;
@@ -54,7 +48,7 @@ public class FTCTrainingRobot extends LinearOpMode {
 
         ElementServo = hardwareMap.get(Servo.class, "ElementServo");
         bucket_motor = hardwareMap.get(DcMotor.class, "bucketmotor");
-        bucket_control_task = new Bucket_Control(bucket_motor);
+        bucket_control_task = new Bucket_Control_Sample(bucket_motor);
 
         waitForStart();
 

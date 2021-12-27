@@ -100,8 +100,8 @@ public class Meet3Teleop extends LinearOpMode {
     static final double ClosingGatePosition = 0.2;
     static final double ClosingIntakePosition = 0.8;
 
-    hk_BucketControl BucketMotor;
-    hk_Arm_Control ArmMotor;
+    Bucket_Control BucketMotor;
+    Arm_Control ArmMotor;
 
     int bucketresetorder = 0;
     int lowhuborder = 0;
@@ -166,8 +166,8 @@ public class Meet3Teleop extends LinearOpMode {
         IntakeServo.setPosition(OpenIntakePosition);
         GateServo.setPosition(OpenGatePosition);
 
-        BucketMotor = new hk_BucketControl(Bucket);
-        ArmMotor = new hk_Arm_Control(Arm);
+        BucketMotor = new Bucket_Control(Bucket);
+        ArmMotor = new Arm_Control(Arm);
 
         waitForStart();
 
@@ -307,14 +307,14 @@ public class Meet3Teleop extends LinearOpMode {
                     if (mirror_event) {
                         if (ArmMotor.GetTaskState() == Task_State.INIT || ArmMotor.GetTaskState() == Task_State.READY) {
 
-                            ArmMotor.SetTargetPosition(390, 0.6);
+                            ArmMotor.SetTargetPosition(390, 0.6, 0.6);
                         } else if (ArmMotor.GetTaskState() == Task_State.DONE) {
                             tophuborder++;
                         }
                     } else if (!mirror_event) {
                         if (ArmMotor.GetTaskState() == Task_State.INIT || ArmMotor.GetTaskState() == Task_State.READY) {
 
-                            ArmMotor.SetTargetPosition(-390, 0.6);
+                            ArmMotor.SetTargetPosition(-390, 0.6, 0.6);
                         }
                         else if (ArmMotor.GetTaskState() == Task_State.DONE) {
                             tophuborder++;
@@ -384,7 +384,7 @@ public class Meet3Teleop extends LinearOpMode {
                     if (ArmMotor.GetTaskState() == Task_State.INIT ||
                             ArmMotor.GetTaskState() == Task_State.READY) {
 
-                        ArmMotor.SetTargetPosition(0, -0.00003);
+                        ArmMotor.SetTargetPosition(0, 0.6, -0.00003);
                     }
                     else if (ArmMotor.GetTaskState() == Task_State.DONE) {
                         bucketresetorder++;
