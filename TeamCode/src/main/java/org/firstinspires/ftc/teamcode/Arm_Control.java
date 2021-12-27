@@ -90,6 +90,7 @@ public class Arm_Control {
                 // memory of what it previously did which may cause bad commands from carrying forward)
                 pid_obj.Reset_PID();
                 run_state = Task_State.DONE;
+                motor_obj.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             }
         }
     }

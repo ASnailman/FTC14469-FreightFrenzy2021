@@ -88,6 +88,7 @@ public class Bucket_Control {
                 // memory of what it previously did which may cause bad commands from carrying forward)
                 pid.Reset_PID();
                 state = Task_State.DONE;
+                bucketmotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             }
         }
     }

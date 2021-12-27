@@ -327,10 +327,10 @@ public class Meet3Teleop extends LinearOpMode {
                         if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
 
                             BucketMotor.SetTargetPosition(MirrorTopBucketPosition);
+                            mirror_event = false;
                         }
                         else if (BucketMotor.GetTaskState() == Task_State.DONE) {
                             tophuborder++;
-                            mirror_event = false;
                         }
                     }
                     else {
@@ -384,7 +384,13 @@ public class Meet3Teleop extends LinearOpMode {
                     if (ArmMotor.GetTaskState() == Task_State.INIT ||
                             ArmMotor.GetTaskState() == Task_State.READY) {
 
-                        ArmMotor.SetTargetPosition(0, -0.6, -0.00003);
+                        if (mirror_event) {
+                            ArmMotor.SetTargetPosition(120, 0.001, 0.01);
+                        }
+                        else {
+                            ArmMotor.SetTargetPosition(-120, -0.6, -0.0001);
+                        }
+
                     }
                     else if (ArmMotor.GetTaskState() == Task_State.DONE) {
                         bucketresetorder++;
@@ -393,13 +399,30 @@ public class Meet3Teleop extends LinearOpMode {
                     break;
 
                 case 4:
-                    if (ET.milliseconds() > 10000) {
-                        bucketresetorder++;
-                    }
+                    if (ArmMotor.GetTaskState() == Task_State.INIT ||
+                            ArmMotor.GetTaskState() == Task_State.READY) {
 
+                        if (mirror_event) {
+                            ArmMotor.SetTargetPosition(-2, -0.105, 0.6);
+                        }
+                        else {
+                            ArmMotor.SetTargetPosition(2, -0.6, 0.2);
+                        }
+
+                    }
+                    else if (ArmMotor.GetTaskState() == Task_State.DONE) {
+                        bucketresetorder++;
+                        ET.reset();
+                    }
                     break;
 
                 case 5:
+                    if (ET.milliseconds() > 2000) {
+                        bucketresetorder++;
+                    }
+                    break;
+
+                case 6:
                     if (ArmMotor.GetTaskState() == Task_State.INIT ||
                             ArmMotor.GetTaskState() == Task_State.READY) {
 
@@ -409,7 +432,7 @@ public class Meet3Teleop extends LinearOpMode {
                         Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                         Rail.setPower(0.5);
                     }
-                    else if (ArmMotor.GetTaskState() == Task_State.DONE && BucketMotor.GetTaskState() == Task_State.DONE) {
+                    else if (ArmMotor.GetTaskState() == Task_State.DONE) {
                         bucketresetorder++;
                     }
                     break;
@@ -485,7 +508,10 @@ public class Meet3Teleop extends LinearOpMode {
 
                 if (gamepad2.left_bumper) {
 
-                    Rail.setTargetPosition(750);
+                    if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
+                        BucketMotor.SetTargetPosition(0);
+                    }
+                    Rail.setTargetPosition(300);
                     Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     Rail.setPower(0.5);
                     button_bumper_left_already_pressed2 = true;
@@ -627,6 +653,9 @@ public class Meet3Teleop extends LinearOpMode {
             telemetry.addData("Arm Current Position", Arm.getCurrentPosition());
             telemetry.addData("BucketPower", Bucket.getPower());
             telemetry.addData("bucket position", Bucket.getCurrentPosition());
+            telemetry.addData("rail", Rail.getCurrentPosition());
+            telemetry.addData("mirror event", mirror_event);
+            telemetry.addData("task state", ArmMotor.GetTaskState());
 
             telemetry.update();
 
