@@ -31,7 +31,7 @@ public class SpectatorRed_V2 extends LinearOpMode {
     //OpenCvInternalCamera phoneCam;
     OpenCvWebcam webcam;
     //ShippingElementDeterminationPipeline pipeline;
-    SpectatorRedOpenCV.SkystoneDeterminationPipeline pipeline;
+    //SpectatorRedOpenCV.SkystoneDeterminationPipeline pipeline;
     static int DifferenceLeft;
     static int DifferenceCenter;
     static int DifferenceRight;
@@ -183,8 +183,8 @@ public class SpectatorRed_V2 extends LinearOpMode {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
         //webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"));
-        pipeline = new SpectatorRedOpenCV.SkystoneDeterminationPipeline();
-        webcam.setPipeline(pipeline);
+        //pipeline = new SpectatorRedOpenCV.SkystoneDeterminationPipeline();
+        //webcam.setPipeline(pipeline);
 
         webcam.setMillisecondsPermissionTimeout(2500);
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
@@ -244,7 +244,7 @@ public class SpectatorRed_V2 extends LinearOpMode {
              Autonomous
              ***************************************/
 
-            if (SpectatorRedOpenCV.BarcodeLeft && !SpectatorRedOpenCV.BarcodeCenter && !SpectatorRedOpenCV.BarcodeRight) {
+            //if (SpectatorRedOpenCV.BarcodeLeft && !SpectatorRedOpenCV.BarcodeCenter && !SpectatorRedOpenCV.BarcodeRight) {
                 MechDrive(90, 0.4, 975, 0.00002, 0, 0);
                 MechDrive(180, 0.4, 775, 0.00002, 0, 0);
                 LowBucketPosition();
@@ -263,7 +263,7 @@ public class SpectatorRed_V2 extends LinearOpMode {
                 CarouselMotor.setPower(0);
                 MechDrive(90, 0.4, 990, 0.00002, 0, 0);
                 MechDrive(0, 0.4, 200, 0.00002, 0, 0);
-            } else if (!SpectatorRedOpenCV.BarcodeLeft && SpectatorRedOpenCV.BarcodeCenter && !SpectatorRedOpenCV.BarcodeRight) {
+            //} else if (!SpectatorRedOpenCV.BarcodeLeft && SpectatorRedOpenCV.BarcodeCenter && !SpectatorRedOpenCV.BarcodeRight) {
                 MechDrive(90, 0.4, 975, 0.00002, 0, 0);
                 MechDrive(180, 0.4, 775, 0.00002, 0, 0);
                 MiddleBucketPosition();
@@ -282,7 +282,7 @@ public class SpectatorRed_V2 extends LinearOpMode {
                 CarouselMotor.setPower(0);
                 MechDrive(90, 0.4, 990, 0.00002, 0, 0);
                 MechDrive(0, 0.4, 200, 0.00002, 0, 0);
-            } else if (!SpectatorRedOpenCV.BarcodeLeft && !SpectatorRedOpenCV.BarcodeCenter && SpectatorRedOpenCV.BarcodeRight) {
+            //} else if (!SpectatorRedOpenCV.BarcodeLeft && !SpectatorRedOpenCV.BarcodeCenter && SpectatorRedOpenCV.BarcodeRight) {
                 MechDrive(90, 0.4, 975, 0.00002, 0, 0);
                 MechDrive(180, 0.4, 775, 0.00002, 0, 0);
                 TopBucketPosition();
@@ -301,7 +301,7 @@ public class SpectatorRed_V2 extends LinearOpMode {
                 CarouselMotor.setPower(0);
                 MechDrive(90, 0.4, 800, 0.00002, 0, 0);
                 MechDrive(0, 0.4, 200, 0.00002, 0, 0);
-            } else {
+            //} else {
                 MechDrive(90, 0.4, 775, 0.00002, 0, 0);
                 MechDrive(180, 0.4, 975, 0.00002, 0, 0);
                 TopBucketPosition();
@@ -320,7 +320,7 @@ public class SpectatorRed_V2 extends LinearOpMode {
                 CarouselMotor.setPower(0);
                 MechDrive(90, 0.4, 1200, 0.00002, 0, 0);
                 MechDrive(0, 0.4, 400, 0.00002, 0, 0);
-            }
+            //}
             break;
         }
     }

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package SampleCode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
@@ -9,6 +9,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.teamcode.MoveDirection;
 
 @TeleOp(name="AttachmentTuning", group="MecanumDrive")
 public class AttachmentTuning extends LinearOpMode {

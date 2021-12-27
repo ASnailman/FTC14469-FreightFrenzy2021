@@ -30,8 +30,8 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-@Autonomous(name="FarBlue_V3", group="MecanumDrive")
-public class FarBlue_V3 extends LinearOpMode {
+@Autonomous(name="SpectatorBlue_V3", group="MecanumDrive")
+public class SpectatorBlue_V3 extends LinearOpMode {
 
     OpenCvWebcam webcam;
     BarcodeDeterminationPipeline pipeline;
@@ -162,7 +162,7 @@ public class FarBlue_V3 extends LinearOpMode {
         ArmControl = new Arm_Control(Arm);
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 2"), cameraMonitorViewId);
         pipeline = new BarcodeDeterminationPipeline();
         webcam.setPipeline(pipeline);
         pipeline.InitTelemetry(telemetry);
@@ -237,7 +237,7 @@ public class FarBlue_V3 extends LinearOpMode {
                         if (Rail.getCurrentPosition() >= 720 && Rail.getCurrentPosition() <= 780) {
                             if (ArmControl.GetTaskState() == Task_State.INIT) {
 
-                                ArmControl.SetTargetPosition(Low_Arm_Right, -0.2, 0.7);
+                                ArmControl.SetTargetPosition(Low_Arm_Right, 0.2, 0.7);
                             }
                             else if (ArmControl.GetTaskState() == Task_State.DONE) {
                                 programorder1++;
@@ -252,7 +252,7 @@ public class FarBlue_V3 extends LinearOpMode {
                         if (Rail.getCurrentPosition() >= 720 && Rail.getCurrentPosition() <= 780) {
                             if (ArmControl.GetTaskState() == Task_State.INIT) {
 
-                                ArmControl.SetTargetPosition(Middle_Arm_Right, -0.2, 0.7);
+                                ArmControl.SetTargetPosition(Middle_Arm_Right, 0.2, 0.7);
                             }
                             else if (ArmControl.GetTaskState() == Task_State.DONE) {
                                 programorder1++;
@@ -267,7 +267,7 @@ public class FarBlue_V3 extends LinearOpMode {
                         if (Rail.getCurrentPosition() >= 970 && Rail.getCurrentPosition() <= 1030) {
                             if (ArmControl.GetTaskState() == Task_State.INIT) {
 
-                                ArmControl.SetTargetPosition(Top_Arm_Right, -0.2, 0.7);
+                                ArmControl.SetTargetPosition(Top_Arm_Right, 0.2, 0.7);
                             }
                             else if (ArmControl.GetTaskState() == Task_State.DONE) {
                                 programorder1++;
@@ -349,7 +349,7 @@ public class FarBlue_V3 extends LinearOpMode {
                 case 7:
                     if (left) {
                         if (ArmControl.GetTaskState() == Task_State.READY) {
-                            ArmControl.SetTargetPosition(0, -0.2, 0.2);
+                            ArmControl.SetTargetPosition(0, 0.2, 0.7);
                         }
                         else if (ArmControl.GetTaskState() == Task_State.DONE) {
                             programorder1++;
@@ -357,7 +357,7 @@ public class FarBlue_V3 extends LinearOpMode {
                     }
                     else if (center) {
                         if (ArmControl.GetTaskState() == Task_State.READY) {
-                            ArmControl.SetTargetPosition(0, -0.2, 0.2);
+                            ArmControl.SetTargetPosition(0, 0.2, 0.7);
                         }
                         else if (ArmControl.GetTaskState() == Task_State.DONE) {
                             programorder1++;
@@ -365,7 +365,7 @@ public class FarBlue_V3 extends LinearOpMode {
                     }
                     else if (right) {
                         if (ArmControl.GetTaskState() == Task_State.READY) {
-                            ArmControl.SetTargetPosition(0, -0.2, 0.2);
+                            ArmControl.SetTargetPosition(0, 0.2, 0.7);
                         }
                         else if (ArmControl.GetTaskState() == Task_State.DONE) {
                             programorder1++;
@@ -455,9 +455,9 @@ public class FarBlue_V3 extends LinearOpMode {
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(115,125);
-        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(600,165);
-        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1100,205);
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(40,125);
+        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(550,125);
+        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1050,125);
         static final int REGION_WIDTH = 75;
         static final int REGION_HEIGHT = 75;
 

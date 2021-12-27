@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package SampleCode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.teamcode.MoveDirection;
 
 @TeleOp(name="Test", group="MecanumDrive")
 public class CRServo_MultiThread extends LinearOpMode {

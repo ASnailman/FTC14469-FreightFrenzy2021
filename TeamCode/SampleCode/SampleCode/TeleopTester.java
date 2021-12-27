@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package SampleCode;
 
 import android.graphics.Color;
 
@@ -15,6 +15,9 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.teamcode.MoveDirection;
+import org.firstinspires.ftc.teamcode.PID;
 
 @TeleOp(name="TeleopTester", group="MecanumDrive")
 public class TeleopTester extends LinearOpMode {

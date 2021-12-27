@@ -78,7 +78,7 @@ public class SpectatorBlue_V2 extends LinearOpMode {
     int test = 1;
 
     OpenCvWebcam webcam;
-    SpectatorBlueOpenCV.SkystoneDeterminationPipeline pipeline;
+    //SpectatorBlueOpenCV.SkystoneDeterminationPipeline pipeline;
     static int DifferenceLeft;
     static int DifferenceCenter;
     static int DifferenceRight;
@@ -183,8 +183,8 @@ public class SpectatorBlue_V2 extends LinearOpMode {
         IntakeServo.setPosition(ClosingIntakePosition);
         GateServo.setPosition(ClosingGatePosition);
 
-        pipeline = new SpectatorBlueOpenCV.SkystoneDeterminationPipeline();
-        webcam.setPipeline(pipeline);
+        //pipeline = new SpectatorBlueOpenCV.SkystoneDeterminationPipeline();
+        //webcam.setPipeline(pipeline);
 
         webcam.setMillisecondsPermissionTimeout(2500);
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
@@ -244,7 +244,7 @@ public class SpectatorBlue_V2 extends LinearOpMode {
 
 
 
-            if (SpectatorRedOpenCV.BarcodeLeft && !SpectatorRedOpenCV.BarcodeCenter && !SpectatorRedOpenCV.BarcodeRight) {
+            //if (SpectatorRedOpenCV.BarcodeLeft && !SpectatorRedOpenCV.BarcodeCenter && !SpectatorRedOpenCV.BarcodeRight) {
                 MechDrive(-90, 0.4, 975, 0.00002, 0, 0);
                 MechDrive(180, 0.4, 775, 0.00002, 0, 0);
                 LowBucketPosition();
@@ -263,7 +263,7 @@ public class SpectatorBlue_V2 extends LinearOpMode {
                 CarouselMotor.setPower(0);
                 MechDrive(-90, 0.4, 990, 0.00002, 0, 0);
                 MechDrive(0, 0.4, 200, 0.00002, 0, 0);
-            } else if (!SpectatorRedOpenCV.BarcodeLeft && SpectatorRedOpenCV.BarcodeCenter && !SpectatorRedOpenCV.BarcodeRight) {
+            //} else if (!SpectatorRedOpenCV.BarcodeLeft && SpectatorRedOpenCV.BarcodeCenter && !SpectatorRedOpenCV.BarcodeRight) {
                 MechDrive(-90, 0.4, 975, 0.00002, 0, 0);
                 MechDrive(180, 0.4, 775, 0.00002, 0, 0);
                 MiddleBucketPosition();
@@ -282,7 +282,7 @@ public class SpectatorBlue_V2 extends LinearOpMode {
                 CarouselMotor.setPower(0);
                 MechDrive(-90, 0.4, 990, 0.00002, 0, 0);
                 MechDrive(0, 0.4, 200, 0.00002, 0, 0);
-            } else if (!SpectatorRedOpenCV.BarcodeLeft && !SpectatorRedOpenCV.BarcodeCenter && SpectatorRedOpenCV.BarcodeRight) {
+            //} else if (!SpectatorRedOpenCV.BarcodeLeft && !SpectatorRedOpenCV.BarcodeCenter && SpectatorRedOpenCV.BarcodeRight) {
                 MechDrive(-90, 0.4, 975, 0.00002, 0, 0);
                 MechDrive(180, 0.4, 775, 0.00002, 0, 0);
                 TopBucketPosition();
@@ -301,7 +301,7 @@ public class SpectatorBlue_V2 extends LinearOpMode {
                 CarouselMotor.setPower(0);
                 MechDrive(-90, 0.4, 800, 0.00002, 0, 0);
                 MechDrive(0, 0.4, 200, 0.00002, 0, 0);
-            } else {
+            //} else {
                 MechDrive(-90, 0.4, 775, 0.00002, 0, 0);
                 MechDrive(180, 0.4, 975, 0.00002, 0, 0);
                 TopBucketPosition();
@@ -320,7 +320,7 @@ public class SpectatorBlue_V2 extends LinearOpMode {
                 CarouselMotor.setPower(0);
                 MechDrive(-90, 0.4, 1200, 0.00002, 0, 0);
                 MechDrive(0, 0.4, 400, 0.00002, 0, 0);
-            }
+            //}
             break;
         }
     }
