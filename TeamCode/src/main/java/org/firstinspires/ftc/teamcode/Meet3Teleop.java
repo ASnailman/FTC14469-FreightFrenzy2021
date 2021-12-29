@@ -6,6 +6,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
@@ -25,7 +26,8 @@ public class Meet3Teleop extends LinearOpMode {
     static DcMotor Rail;
     static MoveDirection Direction;
     static DcMotor Intake;
-    //static DcMotor CarouselMotor;
+    static CRServo CarouselLeft;
+    static CRServo CarouselRight;
     static NormalizedColorSensor colorsensor;
     static RevBlinkinLedDriver ColorStrip;
     BNO055IMU IMU;
@@ -126,7 +128,8 @@ public class Meet3Teleop extends LinearOpMode {
         Intake = hardwareMap.get(DcMotor.class, "Intake");
         Arm = hardwareMap.get(DcMotor.class, "arm");
         Rail = hardwareMap.get(DcMotor.class, "rail");
-        //CarouselMotor = hardwareMap.get(DcMotor.class, "carouselmotor");
+        CarouselLeft = hardwareMap.get(CRServo.class, "carouselleft");
+        CarouselRight = hardwareMap.get(CRServo.class, "carouselright");
         colorsensor = hardwareMap.get(NormalizedColorSensor.class, "colorsensor");
         ColorStrip = hardwareMap.get(RevBlinkinLedDriver.class, "colorstrip");
         Bucket = hardwareMap.get(DcMotor.class, "BucketMotor");
@@ -641,12 +644,11 @@ public class Meet3Teleop extends LinearOpMode {
 
     private void AttachmentSetDirection () {
 
-        //CarouselMotor.setDirection(DcMotor.Direction.REVERSE);
-        //CarouselMotor.setDirection(DcMotor.Direction.REVERSE);
+        CarouselRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        CarouselLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         IntakeServo.setDirection(Servo.Direction.FORWARD);
         GateServo.setDirection(Servo.Direction.FORWARD);
         Intake.setDirection(DcMotor.Direction.FORWARD);
-        //.setDirection(DcMotor.Direction.FORWARD);
         Rail.setDirection(DcMotor.Direction.FORWARD);
 
     }
