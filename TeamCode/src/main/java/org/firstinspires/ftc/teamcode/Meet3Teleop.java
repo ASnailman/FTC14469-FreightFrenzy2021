@@ -236,6 +236,7 @@ public class Meet3Teleop extends LinearOpMode {
                 Rail.setTargetPosition(0);
                 Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 Rail.setPower(0.5);
+                BucketMotor.Calibrate();
             }
             if (gamepad1.dpad_down) {
                 Intake.setPower(0);
@@ -311,7 +312,7 @@ public class Meet3Teleop extends LinearOpMode {
                         } else if (ArmMotor.GetTaskState() == Task_State.DONE) {
                             tophuborder++;
                         }
-                    } else if (!mirror_event) {
+                    } else {
                         if (ArmMotor.GetTaskState() == Task_State.INIT || ArmMotor.GetTaskState() == Task_State.READY) {
 
                             ArmMotor.SetTargetPosition(-390, -0.6, 0.6);
@@ -327,7 +328,6 @@ public class Meet3Teleop extends LinearOpMode {
                         if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
 
                             BucketMotor.SetTargetPosition(MirrorTopBucketPosition);
-                            mirror_event = false;
                         }
                         else if (BucketMotor.GetTaskState() == Task_State.DONE) {
                             tophuborder++;
@@ -373,7 +373,13 @@ public class Meet3Teleop extends LinearOpMode {
 
                 case 2:
                     if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
-                        BucketMotor.SetTargetPosition(OriginalBucketPosition);
+                        //BucketMotor.SetTargetPosition(OriginalBucketPosition);
+                        if (mirror_event) {
+                            BucketMotor.SetTargetPosition(15);
+                        }
+                        else {
+                            BucketMotor.SetTargetPosition(-15);
+                        }
                     }
                     else if (BucketMotor.GetTaskState() == Task_State.DONE) {
                         bucketresetorder++;
@@ -385,16 +391,17 @@ public class Meet3Teleop extends LinearOpMode {
                             ArmMotor.GetTaskState() == Task_State.READY) {
 
                         if (mirror_event) {
-                            ArmMotor.SetTargetPosition(120, 0.001, 0.01);
+                            //ArmMotor.SetTargetPosition(120, 0.001, 0.01);
+                            ArmMotor.SetTargetPosition(120, 0.001, 0.001);
                         }
                         else {
-                            ArmMotor.SetTargetPosition(-120, -0.6, -0.0001);
+                            //ArmMotor.SetTargetPosition(-120, -0.6, -0.0001);
+                            ArmMotor.SetTargetPosition(-120, -0.0001, -0.0001);
                         }
 
                     }
                     else if (ArmMotor.GetTaskState() == Task_State.DONE) {
                         bucketresetorder++;
-                        ET.reset();
                     }
                     break;
 
@@ -403,10 +410,12 @@ public class Meet3Teleop extends LinearOpMode {
                             ArmMotor.GetTaskState() == Task_State.READY) {
 
                         if (mirror_event) {
-                            ArmMotor.SetTargetPosition(-2, -0.105, 0.6);
+                            //ArmMotor.SetTargetPosition(-2, -0.105, 0.6);
+                            ArmMotor.SetTargetPosition(-8, -0.2, 0.2);
                         }
                         else {
-                            ArmMotor.SetTargetPosition(2, -0.6, 0.2);
+                            //ArmMotor.SetTargetPosition(2, -0.6, 0.2);
+                            ArmMotor.SetTargetPosition(8, -0.2, 0.2);
                         }
 
                     }
@@ -417,7 +426,7 @@ public class Meet3Teleop extends LinearOpMode {
                     break;
 
                 case 5:
-                    if (ET.milliseconds() > 2000) {
+                    if (ET.milliseconds() > 500) {
                         bucketresetorder++;
                     }
                     break;
@@ -436,7 +445,16 @@ public class Meet3Teleop extends LinearOpMode {
                         bucketresetorder++;
                     }
                     break;
-
+                case 7:
+                    if (Rail.getCurrentPosition() > 270 && Rail.getCurrentPosition() < 330) {
+                        if (BucketMotor.GetTaskState() == Task_State.READY) {
+                            BucketMotor.SetTargetPosition(OriginalBucketPosition);
+                            bucketresetorder++;
+                        }
+                    }
+                case 8:
+                        bucketresetorder++;
+                        mirror_event = false;
                 default:
                     break;
             }
@@ -508,10 +526,10 @@ public class Meet3Teleop extends LinearOpMode {
 
                 if (gamepad2.left_bumper) {
 
-                    if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
-                        BucketMotor.SetTargetPosition(0);
-                    }
-                    Rail.setTargetPosition(300);
+                    //if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
+                    //    BucketMotor.SetTargetPosition(0);
+                    //}
+                    Rail.setTargetPosition(600);
                     Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     Rail.setPower(0.5);
                     button_bumper_left_already_pressed2 = true;
@@ -519,6 +537,9 @@ public class Meet3Teleop extends LinearOpMode {
             } else {
                 if (!gamepad2.left_bumper) {
                     button_bumper_left_already_pressed2 = false;
+                    Rail.setTargetPosition(300);
+                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    Rail.setPower(0.5);
                 }
             }
 
