@@ -51,6 +51,13 @@ public class Bucket_Control {
         state = Task_State.CALIBRATE;
     }
 
+    // METHOD TO OVERRIDE THE BUCKET MOTOR COMMAND TO ZERO FOR ONE SEC
+    // USEFUL FOR ALLOWING THE BUCKET TO HANG LOOSELY WHILE IT'S TUCKED INTO THE BASE
+    public void Override() {
+        et.reset();
+        state = Task_State.OVERRIDE;
+    }
+
     // THIS IS THE TASK THAT A STATE MACHINE OPMODE SHOULD CALL REPEATEDLY IN ITS LOOP
     public void BucketTask () {
 
@@ -89,6 +96,17 @@ public class Bucket_Control {
                 pid.Reset_PID();
                 state = Task_State.DONE;
                 bucketmotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            }
+        }
+        else if (state == Task_State.OVERRIDE) {
+            bucketmotor.setPower(0);
+
+            if (et.milliseconds() >= 1000) {
+
+                // Reset the PID object (otherwise, the PID will still have leftover
+                // memory of what it previously did which may cause bad commands from carrying forward)
+                pid.Reset_PID();
+                state = Task_State.DONE;
             }
         }
     }

@@ -47,10 +47,16 @@ public class Arm_Control {
     // METHOD TO CALIBRATE THE BUCKET POSITION.
     // OVERRIDES THE PID BUCKET CONTROL'S OUTPUT TO ZERO TO ALLOW MANUAL ADJUSTMENT OF BUCKET POSITION
     // ONCE CALIBRATION IS DONE, THE BUCKET WILL RETURN TO ITS TARGET POSITION
-
     public void Calibrate() {
         et.reset();
         run_state = Task_State.CALIBRATE;
+    }
+
+    // METHOD TO OVERRIDE THE ARM MOTOR COMMAND TO ZERO FOR ONE SECOND
+    // USEFUL FOR ALLOWING THE ARM TO HANG LOOSELY TO BE TUCKED INTO THE BASE
+    public void Override() {
+        et.reset();
+        run_state = Task_State.OVERRIDE;
     }
 
     // THIS IS THE TASK THAT A STATE MACHINE OPMODE SHOULD CALL REPEATEDLY IN ITS LOOP
@@ -91,6 +97,17 @@ public class Arm_Control {
                 pid_obj.Reset_PID();
                 run_state = Task_State.DONE;
                 motor_obj.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            }
+        }
+        else if (run_state == Task_State.OVERRIDE) {
+            motor_obj.setPower(0);
+
+            if (et.milliseconds() >= 1000) {
+
+                // Reset the PID object (otherwise, the PID will still have leftover
+                // memory of what it previously did which may cause bad commands from carrying forward)
+                pid_obj.Reset_PID();
+                run_state = Task_State.DONE;
             }
         }
     }

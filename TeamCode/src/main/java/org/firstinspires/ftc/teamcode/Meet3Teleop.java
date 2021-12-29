@@ -118,6 +118,7 @@ public class Meet3Teleop extends LinearOpMode {
     @Override
     public void runOpMode() {
 
+        // Retrieve hardware object references
         BackLeft = hardwareMap.get(DcMotor.class, "BackLeft");
         BackRight = hardwareMap.get(DcMotor.class, "BackRight");
         FrontLeft = hardwareMap.get(DcMotor.class, "FrontLeft");
@@ -134,49 +135,42 @@ public class Meet3Teleop extends LinearOpMode {
         ElementServo = hardwareMap.get(Servo.class, "ElementServo");
         IMU = hardwareMap.get(BNO055IMU.class, "imu");
 
-        //BucketCRServoCtrl_Thread cr_thread = new BucketCRServoCtrl_Thread();
-        //cr_thread.start();
-
         AttachmentSetDirection();
+
+        // Initialize all four drive motors
         SetDirection(MoveDirection.REVERSE);
 
-        //Arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        Rail.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        //BackLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //BackRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //FrontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //FrontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         BackLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         BackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         FrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
         BackLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         BackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         FrontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         FrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        //Arm.setTargetPosition(0);
+        // Initialize the rail controller (we will use the default DC motor controller for it)
+        Rail.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         Rail.setTargetPosition(0);
-
-        //Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        // Initialize intake and outtake servos
         IntakeServo.scaleRange(0,1);
         GateServo.scaleRange(0,1);
-
         IntakeServo.setPosition(OpenIntakePosition);
         GateServo.setPosition(OpenGatePosition);
 
+        // Construct controllers for the bucket and arm (we will use our own controllers instead of the default one)
         BucketMotor = new Bucket_Control(Bucket);
         ArmMotor = new Arm_Control(Arm);
 
         waitForStart();
 
-        ET.reset();
-
         while (opModeIsActive()) {
 
             /****************************************
-             Yellow & White Sensing
+             Bucket object sensing
              ***************************************/
 
             WhiteYellowDetector();
@@ -207,7 +201,7 @@ public class Meet3Teleop extends LinearOpMode {
             }
 
             /****************************************
-             Movement
+             Robot Movement (Mecanum Drive)
              ***************************************/
 
             double y = -gamepad1.left_stick_y * 0.5;
@@ -231,12 +225,14 @@ public class Meet3Teleop extends LinearOpMode {
              ***************************************/
 
             if (gamepad1.dpad_up) {
+                // Open the intake gate and turn on the intake
                 IntakeServo.setPosition(OpenIntakePosition);
                 Intake.setPower(1);
+
+                // Move the rail down and allow the bucket to hang loosely
                 Rail.setTargetPosition(0);
                 Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 Rail.setPower(0.5);
-                BucketMotor.Calibrate();
             }
             if (gamepad1.dpad_down) {
                 Intake.setPower(0);
@@ -252,13 +248,13 @@ public class Meet3Teleop extends LinearOpMode {
             //if (gamepad1.dpad_left) {
                 //CarouselMotor.setPower(-1.0);
             //}
-            //if (gamepad1.x) {
+            //if (gamepad1.a) {
                 //CarouselMotor.setPower(0);
             //}
 
-            /****************************************
-             Top Level (For Opposite, press dpad_down first)
-             ***************************************/
+            /***********************************************************
+             Button Y - Top Level (For Opposite, press dpad_down first)
+             ***********************************************************/
 
             if (button_dpad_down_already_pressed2 == false) {
                 if (gamepad2.dpad_down) {
@@ -266,7 +262,6 @@ public class Meet3Teleop extends LinearOpMode {
                 }
             } else {
                 if (!gamepad2.dpad_down) {
-                    //mirror_event = false;
                     button_dpad_down_already_pressed2 = false;
                 }
             }
@@ -281,23 +276,32 @@ public class Meet3Teleop extends LinearOpMode {
                 }
             }
 
+            // SEQUENCE MANAGER TO DUMP ONTO THE TOP LEVEL OF THE ALLIANCE HUB
             switch (tophuborder) {
 
                 case 1:
+                    // Always check for INIT OR READY the first time
                     if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
+
+                        // Lock the bucket in the zero position first before raising the rail or arm to prevent it from falling
                         BucketMotor.SetTargetPosition(0);
                     }
                     else if (BucketMotor.GetTaskState() == Task_State.DONE) {
                         tophuborder++;
                     }
+
+                    // Close the intake and outtake gates to prevent the object from falling out of the bucket
                     GateServo.setPosition(ClosingGatePosition);
                     IntakeServo.setPosition(ClosingIntakePosition);
                     break;
 
                 case 2:
+
+                    // Move the rail to its highest position
                     Rail.setTargetPosition(1000);
                     Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     Rail.setPower(0.5);
+
                     if (Rail.getCurrentPosition() >= 970 && Rail.getCurrentPosition() <= 1030) {
                         tophuborder++;
                     }
@@ -305,6 +309,7 @@ public class Meet3Teleop extends LinearOpMode {
 
                 case 3:
 
+                    // Move the arm to its highest position
                     if (mirror_event) {
                         if (ArmMotor.GetTaskState() == Task_State.INIT || ArmMotor.GetTaskState() == Task_State.READY) {
 
@@ -324,6 +329,8 @@ public class Meet3Teleop extends LinearOpMode {
                     break;
 
                 case 4:
+
+                    // Tip the bucket to get it ready to dump the object out
                     if (mirror_event) {
                         if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
 
@@ -349,9 +356,9 @@ public class Meet3Teleop extends LinearOpMode {
 
             }
 
-            /****************************************
-             Reset Position For Barrier Passing
-             ***************************************/
+            /***********************************************
+             Button X - Reset Position For Barrier Passing
+             ***********************************************/
 
             if (button_x_already_pressed == false) {
                 if (gamepad2.x) {
@@ -364,16 +371,21 @@ public class Meet3Teleop extends LinearOpMode {
                 }
             }
 
+            // SEQUENCE MANAGER TO TUCK THE BUCKET BACK INTO ITS BASE POSITION INSIDE THE ROBOT
             switch (bucketresetorder) {
 
                 case 1:
+
+                    // Close the outtake gate first
                     GateServo.setPosition(ClosingGatePosition);
                     bucketresetorder++;
                     break;
 
                 case 2:
+
+                    // Deliberately tip the bucket at an angle so it doesn't hit the chassis when the rail moves down later
                     if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
-                        //BucketMotor.SetTargetPosition(OriginalBucketPosition);
+
                         if (mirror_event) {
                             BucketMotor.SetTargetPosition(15);
                         }
@@ -387,6 +399,9 @@ public class Meet3Teleop extends LinearOpMode {
                     break;
 
                 case 3:
+
+                    // Let gravity bring the arm down but use a small amount of opposite force to ensure the arm's fall is gradual
+                    // We do this by clipping the command from the arm control
                     if (ArmMotor.GetTaskState() == Task_State.INIT ||
                             ArmMotor.GetTaskState() == Task_State.READY) {
 
@@ -406,16 +421,21 @@ public class Meet3Teleop extends LinearOpMode {
                     break;
 
                 case 4:
+
+                    // Once the arm is at a lower position, we will give the arm control a larger power range to allow
+                    // it to bring the arm to its desired position. Since we deliberately angled the bucket earlier,
+                    // we will also deliberately set a target position to overshoot the arm's zero position so that
+                    // when the rail lowers later, the bottom of the bucket won't hit the robot's chassis
                     if (ArmMotor.GetTaskState() == Task_State.INIT ||
                             ArmMotor.GetTaskState() == Task_State.READY) {
 
                         if (mirror_event) {
                             //ArmMotor.SetTargetPosition(-2, -0.105, 0.6);
-                            ArmMotor.SetTargetPosition(-8, -0.2, 0.2);
+                            ArmMotor.SetTargetPosition(-10, -0.1, 0.1);
                         }
                         else {
                             //ArmMotor.SetTargetPosition(2, -0.6, 0.2);
-                            ArmMotor.SetTargetPosition(8, -0.2, 0.2);
+                            ArmMotor.SetTargetPosition(10, -0.1, 0.1);
                         }
 
                     }
@@ -426,17 +446,21 @@ public class Meet3Teleop extends LinearOpMode {
                     break;
 
                 case 5:
+
+                    // Give some time for the arm control to work
                     if (ET.milliseconds() > 500) {
                         bucketresetorder++;
                     }
                     break;
 
                 case 6:
+
+                    // Let the arm hang loosely while the rail moves down
+                    // This should get the arm back to its zero position
                     if (ArmMotor.GetTaskState() == Task_State.INIT ||
                             ArmMotor.GetTaskState() == Task_State.READY) {
 
-                        ArmMotor.Calibrate();
-
+                        ArmMotor.Override();
                         Rail.setTargetPosition(300);
                         Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                         Rail.setPower(0.5);
@@ -445,22 +469,27 @@ public class Meet3Teleop extends LinearOpMode {
                         bucketresetorder++;
                     }
                     break;
+
                 case 7:
+
+                    // Once the bucket is inside the robot, move it back to its zero position
                     if (Rail.getCurrentPosition() > 270 && Rail.getCurrentPosition() < 330) {
                         if (BucketMotor.GetTaskState() == Task_State.READY) {
                             BucketMotor.SetTargetPosition(OriginalBucketPosition);
                             bucketresetorder++;
                         }
                     }
+
                 case 8:
-                        bucketresetorder++;
-                        mirror_event = false;
+                    bucketresetorder++;
+                    mirror_event = false;
+
                 default:
                     break;
             }
 
             /****************************************
-             Open Gate
+             Right Bumper - Open Gate
              ***************************************/
 
             if (button_bumper_right_already_pressed2 == false) {
@@ -474,78 +503,40 @@ public class Meet3Teleop extends LinearOpMode {
                 }
             }
 
-            /********************************
-             * Calibrate rail zero position
-             ********************************/
+            /*****************************************************************
+             * Left Bumper - Auto Calibration (To recalibrate bucket and arm)
+             *****************************************************************/
 
-            if (button_right_trigger_already_pressed == false) {
-                if (gamepad1.right_trigger > 0) {
-                    Rail.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    Rail.setPower(0);
-                    ET.reset();
-                    while (ET.milliseconds() < 1000) {
-
-                    }
-
-                    Rail.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    button_right_trigger_already_pressed = true;
-                }
-            }
-            else {
-                if (gamepad1.right_trigger == 0) {
-                    button_right_trigger_already_pressed = false;
-                }
-            }
-
-            /********************************
-             * Calibrate Arm zero position
-             ********************************/
-            if (button_left_trigger_already_pressed == false) {
-                if (gamepad1.left_trigger > 0) {
-                    Arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    Arm.setPower(0);
-                    ET.reset();
-                    while (ET.milliseconds() < 1000) {
-
-                    }
-                    Arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    button_left_trigger_already_pressed = true;
-                }
-            }
-            else {
-                if (gamepad1.left_trigger == 0) {
-                    button_left_trigger_already_pressed = false;
-                }
-            }
-
-            /********************************
-             * Bucket Barrier Return Auto Fix
-             ********************************/
-
+            // Press and hold the left bumper to raise the rail slightly
+            // The bucket control will automatically straighten the bucket to its zero position
+            // The arm control will automatically straighten the bucket to its zero position
+            // Then release the left bumper to lower the rail
+            // The arm and bucket motor encoders will be reset
             if (button_bumper_left_already_pressed2 == false) {
 
                 if (gamepad2.left_bumper) {
 
-                    //if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
-                    //    BucketMotor.SetTargetPosition(0);
-                    //}
-                    Rail.setTargetPosition(600);
+                    Rail.setTargetPosition(800);
                     Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     Rail.setPower(0.5);
+                    ArmMotor.SetTargetPosition(0, -0.2, 0.2);
+                    BucketMotor.SetTargetPosition(0);
                     button_bumper_left_already_pressed2 = true;
                 }
             } else {
                 if (!gamepad2.left_bumper) {
                     button_bumper_left_already_pressed2 = false;
-                    Rail.setTargetPosition(300);
+                    BucketMotor.Calibrate();
+                    ArmMotor.Calibrate();
+                    Rail.setTargetPosition(0);
                     Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     Rail.setPower(0.5);
                 }
             }
 
-            /********************************
-             * Pick up shipping element
-             ********************************/
+            /***************************************
+             * Dpad Left - Lift shipping element arm
+             ***************************************/
 
             if (button_dpad_left_already_pressed2 == false) {
                 if (gamepad2.dpad_left) {
@@ -560,6 +551,7 @@ public class Meet3Teleop extends LinearOpMode {
                 }
             }
 
+            // SEQUENCE MANAGER FOR LIFTING THE SHIPPING ELEMENT ARM
             switch (servoseqleft) {
 
                 case 1:
@@ -572,6 +564,10 @@ public class Meet3Teleop extends LinearOpMode {
                     break;
 
             }
+
+            /******************************************
+             * Dpad Right - Lower shipping element arm
+             ******************************************/
 
             if (button_dpad_right_already_pressed2 == false) {
                 if (gamepad2.dpad_right) {
@@ -587,6 +583,7 @@ public class Meet3Teleop extends LinearOpMode {
                 }
             }
 
+            // SEQUENCE MANAGER FOR LOWERING THE SHIPPING ELEMENT ARM
             switch (servoseqright) {
 
                 case 1:
@@ -600,65 +597,7 @@ public class Meet3Teleop extends LinearOpMode {
 
             }
 
-            /********************************
-             * Arm position manual movement
-             ********************************/
-
-            //if (button_a_already_pressed2 == false) {
-                //if (gamepad2.a) {
-                    //armorder = 1;
-
-                    //button_a_already_pressed2 = true;
-                //}
-            //} else {
-                //if (!gamepad2.a) {
-                    //armorder = 0;
-                    //button_a_already_pressed2 = false;
-                //}
-            //}
-
-            //switch (armorder) {
-
-                //case 1:
-                    //armposition = armposition - 2;
-                    //Arm.setTargetPosition(armposition);
-                    //Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    //Arm.setPower(0.3);
-                    //break;
-
-                //default:
-                    //break;
-
-            //}
-
-            //if (button_b_already_pressed2 == false) {
-                //if (gamepad2.b) {
-
-                    //armorder = 1;
-
-                    //button_b_already_pressed2 = true;
-                //}
-            //} else {
-                //if (!gamepad2.b) {
-                    //armorder = 0;
-                    //button_b_already_pressed2 = false;
-                //}
-            //}
-
-            //switch (armorder) {
-
-                //case 1:
-                    //armposition = armposition + 2;
-                    //Arm.setTargetPosition(armposition);
-                    //Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    //Arm.setPower(0.3);
-                    //break;
-
-                //default:
-                    //break;
-
-            //}
-
+            // BACKGROUND TASKS FOR THE ARM AND MOTOR CONTROL
             ArmMotor.ArmTask();
             BucketMotor.BucketTask();
 
@@ -710,68 +649,6 @@ public class Meet3Teleop extends LinearOpMode {
         //.setDirection(DcMotor.Direction.FORWARD);
         Rail.setDirection(DcMotor.Direction.FORWARD);
 
-    }
-
-    private class BucketCRServoCtrl_Thread extends Thread {
-
-        ElapsedTime ET;
-        boolean run_state = Boolean.FALSE;
-        double run_duration;
-        DcMotorSimple.Direction run_direction;
-        double run_speed;
-
-        public void run() {
-
-            ET = new ElapsedTime();
-            ET.reset();
-
-            try {
-                while (!isInterrupted()) {
-
-                    if (run_state == Boolean.TRUE) {
-
-                        //BucketServo.setDirection(run_direction);
-                        //BucketServo.setPower(run_speed);
-
-                        if (ET.milliseconds() >= run_duration) {
-                            //BucketServo.setPower(0);
-                            run_state = Boolean.FALSE;
-                            ET.reset();
-                        }
-                    }
-                    else {
-                        ET.reset();
-                    }
-                }
-            } catch (Exception e) {
-                telemetry.addLine("CR Servo Control thread crashed");
-                telemetry.update();
-            }
-        }
-
-        void SetRunState(boolean state) {
-
-            run_state = state;
-        }
-
-        void SetDuration(double duration) {
-
-            run_duration = duration;
-        }
-
-        void SetRunDirection(DcMotorSimple.Direction direction) {
-
-            run_direction = direction;
-        }
-
-        void SetRunSpeed(double speed) {
-
-            run_speed = speed;
-        }
-
-        boolean GetRunState() {
-            return run_state;
-        }
     }
 
     private int WhiteYellowDetector() {
