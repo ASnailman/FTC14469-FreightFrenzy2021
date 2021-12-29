@@ -204,10 +204,10 @@ public class Meet3Teleop extends LinearOpMode {
              Robot Movement (Mecanum Drive)
              ***************************************/
 
-            double y = -gamepad1.left_stick_y * 0.5;
+            double y = -gamepad1.left_stick_y * 0.55;
             //double x = gamepad1.left_stick_x * 0.55;
-            double x = gamepad1.left_stick_x * 0.5;
-            double rx = gamepad1.right_stick_x * 0.5;
+            double x = gamepad1.left_stick_x * 0.55;
+            double rx = gamepad1.right_stick_x * 0.55;
 
             double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
             double FLPower = (y + x + rx) / denominator;
