@@ -142,13 +142,13 @@ public class FarRed_V3 extends LinearOpMode {
 
         orientation = IMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         globalangle = 0;
-        Arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //Arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         Rail.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        Arm.setTargetPosition(0);
-        Rail.setTargetPosition(0);
+        //Arm.setTargetPosition(0);
+        Rail.setTargetPosition(300);
 
-        Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         IntakeServo.scaleRange(0,1);
