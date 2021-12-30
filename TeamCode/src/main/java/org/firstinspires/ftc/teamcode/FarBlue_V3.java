@@ -266,7 +266,7 @@ public class FarBlue_V3 extends LinearOpMode {
                 case 4:
                     if (left) {
                         if (ArmControl.GetTaskState() == Task_State.INIT) {
-                            ArmControl.SetTargetPosition(Low_Arm_Right, -0.6, 0.6);
+                            ArmControl.SetTargetPosition(Low_Arm_Right, -0.6, 0.6, 0.08);
                         }
                         else if (ArmControl.GetTaskState() == Task_State.DONE) {
                             programorder1++;
@@ -274,7 +274,7 @@ public class FarBlue_V3 extends LinearOpMode {
                     }
                     else if (center) {
                         if (ArmControl.GetTaskState() == Task_State.INIT) {
-                            ArmControl.SetTargetPosition(Middle_Arm_Right, -0.6, 0.6);
+                            ArmControl.SetTargetPosition(Middle_Arm_Right, -0.6, 0.6, 0.08);
                         }
                         else if (ArmControl.GetTaskState() == Task_State.DONE) {
                             programorder1++;
@@ -282,7 +282,7 @@ public class FarBlue_V3 extends LinearOpMode {
                     }
                     else if (right) {
                         if (ArmControl.GetTaskState() == Task_State.INIT) {
-                            ArmControl.SetTargetPosition(Top_Arm_Right, -0.6, 0.6);
+                            ArmControl.SetTargetPosition(Top_Arm_Right, -0.6, 0.6, 0.08);
                         }
                         else if (ArmControl.GetTaskState() == Task_State.DONE) {
                             programorder1++;
@@ -363,7 +363,7 @@ public class FarBlue_V3 extends LinearOpMode {
                 case 8:
                     if (left) {
                         if (ArmControl.GetTaskState() == Task_State.READY) {
-                            ArmControl.SetTargetPosition(120, 0.001, 0.001);
+                            ArmControl.SetTargetPosition(0, -0.7, 0.7, 0.04);
                         }
                         else if (ArmControl.GetTaskState() == Task_State.DONE) {
                             programorder1++;
@@ -371,7 +371,7 @@ public class FarBlue_V3 extends LinearOpMode {
                     }
                     else if (center) {
                         if (ArmControl.GetTaskState() == Task_State.READY) {
-                            ArmControl.SetTargetPosition(120, 0.001, 0.001);
+                            ArmControl.SetTargetPosition(0, -0.7, 0.7, 0.04);
                         }
                         else if (ArmControl.GetTaskState() == Task_State.DONE) {
                             programorder1++;
@@ -379,7 +379,7 @@ public class FarBlue_V3 extends LinearOpMode {
                     }
                     else if (right) {
                         if (ArmControl.GetTaskState() == Task_State.READY) {
-                            ArmControl.SetTargetPosition(120, 0.001, 0.001);
+                            ArmControl.SetTargetPosition(0, -0.7, 0.7, 0.04);
                         }
                         else if (ArmControl.GetTaskState() == Task_State.DONE) {
                             programorder1++;
@@ -388,7 +388,7 @@ public class FarBlue_V3 extends LinearOpMode {
                     break;
 
                 case 9:
-                    if (left) {
+                    /*if (left) {
                         if (ArmControl.GetTaskState() == Task_State.READY) {
                             ArmControl.SetTargetPosition(-10, -0.1, 0.1);
                         }
@@ -414,32 +414,31 @@ public class FarBlue_V3 extends LinearOpMode {
                             programorder1++;
                             ET.reset();
                         }
-                    }
+                    }*/
+                    programorder1++;
                     break;
 
                 case 10:
 
-                    if (ET.milliseconds() > 500) {
+                    /*if (ET.milliseconds() > 500) {
                         programorder1++;
-                    }
+                    }*/
+                    programorder1++;
                     break;
 
                 case 11:
-                    if (ArmControl.GetTaskState() == Task_State.READY) {
-                        ArmControl.Override();
-                        Rail.setTargetPosition(300);
-                        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        Rail.setPower(0.5);
-                    }
-                    else if (ArmControl.GetTaskState() == Task_State.DONE) {
-                        programorder1++;
-                    }
+                    ArmControl.Override();
+                    Rail.setTargetPosition(400);
+                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    Rail.setPower(0.5);
+                    programorder1++;
                     break;
 
                 case 12:
-                    if (Rail.getCurrentPosition() > 270 && Rail.getCurrentPosition() < 330) {
+                    if (Rail.getCurrentPosition() > 370 && Rail.getCurrentPosition() < 430) {
                         if (BucketControl.GetTaskState() == Task_State.READY) {
                             BucketControl.SetTargetPosition(OriginalBucketPosition);
+                            ArmControl.SetTargetPosition(0, -0.5, 0.5, 0.04);
                             programorder1++;
                         }
                     }

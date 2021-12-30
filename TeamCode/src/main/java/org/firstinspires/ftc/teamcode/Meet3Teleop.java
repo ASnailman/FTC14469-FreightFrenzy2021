@@ -269,10 +269,10 @@ public class Meet3Teleop extends LinearOpMode {
                             BucketMotor.SetTargetPosition(OriginalBucketPosition);
 
                             if (mirror_event) {
-                                ArmMotor.SetTargetPosition(0, -0.5, 0.5);
+                                ArmMotor.SetTargetPosition(0, -0.5, 0.5, 0.04);
                             }
                             else {
-                                ArmMotor.SetTargetPosition(-5, -0.5, 0.5);
+                                ArmMotor.SetTargetPosition(-5, -0.5, 0.5, 0.04);
                             }
                             triggerresetorder++;
                             mirror_event = false;
@@ -375,14 +375,14 @@ public class Meet3Teleop extends LinearOpMode {
                     if (mirror_event) {
                         if (ArmMotor.GetTaskState() == Task_State.INIT || ArmMotor.GetTaskState() == Task_State.READY) {
 
-                            ArmMotor.SetTargetPosition(430, -0.7, 0.7);
+                            ArmMotor.SetTargetPosition(430, -0.7, 0.7, 0.08);
                         } else if (ArmMotor.GetTaskState() == Task_State.DONE) {
                             tophuborder++;
                         }
                     } else {
                         if (ArmMotor.GetTaskState() == Task_State.INIT || ArmMotor.GetTaskState() == Task_State.READY) {
 
-                            ArmMotor.SetTargetPosition(-430, -0.65, 0.65);
+                            ArmMotor.SetTargetPosition(-430, -0.7, 0.7, 0.08);
                         }
                         else if (ArmMotor.GetTaskState() == Task_State.DONE) {
                             tophuborder++;
@@ -460,20 +460,20 @@ public class Meet3Teleop extends LinearOpMode {
 
                 case 3:
 
-                    // Let gravity bring the arm down
-                    // But use a very small amount of opposite force to ensure the arm's fall is not completely free fall
-                    // We do this by clipping the command from the arm control
+                    // Bring down the arm gradually
                     if (ArmMotor.GetTaskState() == Task_State.INIT ||
                             ArmMotor.GetTaskState() == Task_State.READY) {
 
                         if (mirror_event) {
                             //ArmMotor.SetTargetPosition(120, 0.001, 0.01);
                             //ArmMotor.SetTargetPosition(120, 0.001, 0.001);
-                            ArmMotor.SetTargetPosition(80, 0.00002, 0.00002);
+                            //ArmMotor.SetTargetPosition(80, 0.00002, 0.00002);
+                            ArmMotor.SetTargetPosition(0, -0.7, 0.7, 0.04);
                         }
                         else {
                             //ArmMotor.SetTargetPosition(-120, -0.6, -0.0001);
-                            ArmMotor.SetTargetPosition(-80, -0.00002, -0.00002);
+                            //ArmMotor.SetTargetPosition(-80, -0.00002, -0.00002);
+                            ArmMotor.SetTargetPosition(0, -0.7, 0.7, 0.04);
                         }
 
                     }
@@ -487,7 +487,7 @@ public class Meet3Teleop extends LinearOpMode {
                     // Once the arm drops to a lower position, we will clip the motor command with a larger opposite force
                     // This will allow the motor to "brake" the arm as it continues to drop
                     // The idea here is to catch the arm to prevent it swinging wildly non-stop
-                    if (ArmMotor.GetTaskState() == Task_State.INIT ||
+                    /*if (ArmMotor.GetTaskState() == Task_State.INIT ||
                             ArmMotor.GetTaskState() == Task_State.READY) {
 
                         if (mirror_event) {
@@ -504,7 +504,8 @@ public class Meet3Teleop extends LinearOpMode {
                     }
                     else if (ArmMotor.GetTaskState() == Task_State.DONE) {
                         bucketresetorder++;
-                    }
+                    }*/
+                    bucketresetorder++;
                     break;
 
                 case 5:
@@ -512,7 +513,7 @@ public class Meet3Teleop extends LinearOpMode {
                     // it to bring the arm to its desired position. Since we deliberately angled the bucket earlier,
                     // we may deliberately set a target position to overshoot the arm's zero position so that
                     // when the rail lowers later, the bottom of the bucket won't hit the robot's chassis
-                    if (ArmMotor.GetTaskState() == Task_State.INIT ||
+                    /*if (ArmMotor.GetTaskState() == Task_State.INIT ||
                             ArmMotor.GetTaskState() == Task_State.READY) {
 
                         if (mirror_event) {
@@ -527,7 +528,8 @@ public class Meet3Teleop extends LinearOpMode {
                     }
                     else if (ArmMotor.GetTaskState() == Task_State.DONE) {
                         bucketresetorder++;
-                    }
+                    }*/
+                    bucketresetorder++;
                     break;
                 default:
                     break;
@@ -562,11 +564,19 @@ public class Meet3Teleop extends LinearOpMode {
 
                 if (gamepad2.left_bumper) {
 
+                    ArmMotor.Override();
                     Rail.setTargetPosition(800);
                     Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     Rail.setPower(0.5);
-                    ArmMotor.SetTargetPosition(0, -0.5, 0.5);
-                    BucketMotor.SetTargetPosition(0);
+
+                    /*if (mirror_event) {
+                        ArmMotor.SetTargetPosition(0, -0.5, 0.5, 0.04);
+                    }
+                    else {
+                        ArmMotor.SetTargetPosition(-5, -0.5, 0.5, 0.04);
+                    }*/
+                    BucketMotor.SetTargetPosition(OriginalBucketPosition);
+                    mirror_event = false;
                     button_bumper_left_already_pressed2 = true;
                 }
             } else {

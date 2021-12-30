@@ -10,6 +10,8 @@ public class Arm_Control {
     DcMotor motor_obj;                  // the motor connected to the bucket
     PID pid_obj;
     double target_position;             // Target position for the bucket (in encoder ticks: +ve or -ve)
+    double target_position_final;       // Target position (post ramp)
+    double ramp_rate = 0.04;            // Ramp rate (default 4%)
     double max;
     double min;
     double cmd;                         // Power command for the DC motor
@@ -38,11 +40,12 @@ public class Arm_Control {
     }
 
     // METHOD THAT A STATE MACHINE OPMODE SHOULD CALL WHEN IT IS READY TO LAUNCH THE NEXT TASK IN ITS LIST
-    public void SetTargetPosition(double target, double min_pwr, double max_pwr) {
+    public void SetTargetPosition(double target, double min_pwr, double max_pwr, double rate) {
 
         target_position = target;
         max = max_pwr;
         min = min_pwr;
+        ramp_rate = rate;
 
         run_state = Task_State.RUN;
         pid_obj.Reset_PID();
@@ -71,9 +74,12 @@ public class Arm_Control {
         // Always run this PID control when in RUN, DONE or READY mode
         if (run_state == Task_State.RUN || run_state == Task_State.DONE || run_state == Task_State.READY) {
 
+            target_position_final = target_position_final + ramp_rate * (target_position - motor_obj.getCurrentPosition());
+
             // 0.07, 0.000001, 0.000005 (these are the best gains for accurate position and few jitters
             //cmd = pid_obj.PID_Control(target_position, 0.03, 0.000001, 0.000005, motor_obj.getCurrentPosition() );
-            cmd = pid_obj.PID_Control(target_position, 0.03, 0.0001, 0.0005, motor_obj.getCurrentPosition() );
+            //cmd = pid_obj.PID_Control(target_position_final, 0.03, 0.0001, 0.0005, motor_obj.getCurrentPosition() );
+            cmd = pid_obj.PID_Control(target_position_final, 0.02, 0.0001, 0.0005, motor_obj.getCurrentPosition() );
 
             // Don't let the motor run too fast. Otherwise, it will overshoot
             clipped_cmd = Range.clip(cmd, min, max);
@@ -125,13 +131,13 @@ public class Arm_Control {
         else if (run_state == Task_State.OVERRIDE) {
             motor_obj.setPower(0);
 
-            if (et.milliseconds() >= 1000) {
+            //if (et.milliseconds() >= 1000) {
 
                 // Reset the PID object (otherwise, the PID will still have leftover
                 // memory of what it previously did which may cause bad commands from carrying forward)
                 pid_obj.Reset_PID();
-                run_state = Task_State.DONE;
-            }
+                //run_state = Task_State.DONE;
+            //}
         }
     }
 
