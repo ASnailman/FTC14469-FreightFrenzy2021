@@ -175,10 +175,9 @@ public class Meet3Teleop extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            /****************************************
+            /***********************
              Bucket object sensing
-             ***************************************/
-
+             ***********************/
             WhiteYellowDetector();
 
             if (BucketIsEmpty) {
@@ -206,9 +205,9 @@ public class Meet3Teleop extends LinearOpMode {
                 }
             }
 
-            /****************************************
+            /*******************************
              Robot Movement (Mecanum Drive)
-             ***************************************/
+             *******************************/
 
             double y = -gamepad1.left_stick_y * 0.65;
             //double x = gamepad1.left_stick_x * 0.55;
