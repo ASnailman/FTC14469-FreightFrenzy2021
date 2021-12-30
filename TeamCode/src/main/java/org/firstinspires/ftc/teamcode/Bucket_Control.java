@@ -70,7 +70,7 @@ public class Bucket_Control {
             bucketpower = pid.PID_Control(targetposition, 0.07, 0.000001, 0.000005, bucketmotor.getCurrentPosition() );
 
             // Don't let the motor run too fast. Otherwise, it will overshoot
-            bucketpower_range = Range.clip(bucketpower, -0.35, 0.35);
+            bucketpower_range = Range.clip(bucketpower, -0.4, 0.4);
             bucketmotor.setPower(bucketpower_range);
 
             // If the bucket is within range of the target position, treat the task as done so that the opmode can move on to

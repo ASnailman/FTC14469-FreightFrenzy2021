@@ -13,8 +13,11 @@ public class Arm_Control {
     double max;
     double min;
     double cmd;                         // Power command for the DC motor
+    double p_gain;
+    double i_gain;
+    double d_gain;
     ElapsedTime et;                     // ElapsedTime object (only used during calibration)
-    final double tolerance = 15;        // How close should we be within the target bucket position before saying we're done
+    final double tolerance = 50;        // How close should we be within the target bucket position before saying we're done
     Task_State run_state;               // This is used by the opmode to determine when this task has completed and proceed to the next task
 
     // CONSTRUCTOR
@@ -35,11 +38,12 @@ public class Arm_Control {
     }
 
     // METHOD THAT A STATE MACHINE OPMODE SHOULD CALL WHEN IT IS READY TO LAUNCH THE NEXT TASK IN ITS LIST
-    public void SetTargetPosition(double target, double negpower, double pospower) {
+    public void SetTargetPosition(double target, double min_pwr, double max_pwr) {
 
         target_position = target;
-        max = pospower;
-        min = negpower;
+        max = max_pwr;
+        min = min_pwr;
+
         run_state = Task_State.RUN;
         pid_obj.Reset_PID();
     }
@@ -68,7 +72,8 @@ public class Arm_Control {
         if (run_state == Task_State.RUN || run_state == Task_State.DONE || run_state == Task_State.READY) {
 
             // 0.07, 0.000001, 0.000005 (these are the best gains for accurate position and few jitters
-            cmd = pid_obj.PID_Control(target_position, 0.03, 0.000001, 0.000005, motor_obj.getCurrentPosition() );
+            //cmd = pid_obj.PID_Control(target_position, 0.03, 0.000001, 0.000005, motor_obj.getCurrentPosition() );
+            cmd = pid_obj.PID_Control(target_position, 0.03, 0.0001, 0.0005, motor_obj.getCurrentPosition() );
 
             // Don't let the motor run too fast. Otherwise, it will overshoot
             clipped_cmd = Range.clip(cmd, min, max);
@@ -79,9 +84,30 @@ public class Arm_Control {
             if (run_state == Task_State.DONE) {
                 run_state = Task_State.READY;
             }
-            else if (run_state == Task_State.RUN && motor_obj.getCurrentPosition() > (target_position - tolerance) &&
-                    motor_obj.getCurrentPosition() < (target_position + tolerance)) {
-                run_state = Task_State.DONE;
+            //else if (run_state == Task_State.RUN && motor_obj.getCurrentPosition() > (target_position - tolerance) &&
+            //        motor_obj.getCurrentPosition() < (target_position + tolerance)) {
+            //    run_state = Task_State.DONE;
+            //}
+            else if (run_state == Task_State.RUN) {
+
+                if (target_position > motor_obj.getCurrentPosition()) {
+
+                    if (motor_obj.getCurrentPosition() > (target_position - tolerance)) {
+                        run_state = Task_State.DONE;
+                    }
+                }
+                else if (target_position < motor_obj.getCurrentPosition()) {
+
+                    if (motor_obj.getCurrentPosition() < (target_position + tolerance)) {
+                        run_state = Task_State.DONE;
+                    }
+                }
+                else {
+                    if (motor_obj.getCurrentPosition() > (target_position - tolerance) &&
+                            motor_obj.getCurrentPosition() < (target_position + tolerance)) {
+                        run_state = Task_State.DONE;
+                    }
+                }
             }
         }
         else if (run_state == Task_State.CALIBRATE) {

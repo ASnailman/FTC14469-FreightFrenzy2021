@@ -226,29 +226,84 @@ public class Meet3Teleop extends LinearOpMode {
             FrontRight.setPower(FRPower);
             BackRight.setPower(BRPower);
 
-            /****************************************
-             Run Intake
-             ***************************************/
-
-            if (gamepad1.dpad_up) {
-                // Open the intake gate and turn on the intake
-                BucketMotor.Calibrate();
-                IntakeServo.setPosition(OpenIntakePosition);
-                Intake.setPower(1);
-
-                // Move the rail down and allow the bucket to hang loosely
-                Rail.setTargetPosition(0);
-                Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                Rail.setPower(0.5);
+            /*********************************************************************
+             Dpad Up - Trigger the final bucket reset sequence and run the intake
+             *********************************************************************/
+            if (button_dpad_up_already_pressed == false) {
+                if (gamepad1.dpad_up) {
+                    triggerresetorder = 1;
+                    button_dpad_up_already_pressed = true;
+                }
             }
+            else {
+                if (!gamepad1.dpad_up) {
+                    button_dpad_up_already_pressed = false;
+                }
+            }
+
+            /******************************
+             * Dpad Down - Stop the intake
+             ******************************/
             if (gamepad1.dpad_down) {
-                Intake.setPower(0);
+                 Intake.setPower(0);
             }
+
+            // THIS IS THE SEQUENCE MANAGER TO COMPLETE THE BUCKET RESET PROCEDURE AND START THE INTAKE
+            switch (triggerresetorder) {
+                case 1:
+                    // Let the arm hang loosely while the rail moves down
+                    // This should get the arm back to its zero position
+                    ArmMotor.Override();
+                    Rail.setTargetPosition(400);
+                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    Rail.setPower(0.5);
+                    triggerresetorder++;
+                    break;
+
+                case 2:
+                    // Once the bucket is inside the robot, move it back to its zero position
+                    // We will also move the arm back to it zero position
+                    if (Rail.getCurrentPosition() > 370 && Rail.getCurrentPosition() < 430) {
+
+                        if (BucketMotor.GetTaskState() == Task_State.READY) {
+
+                            BucketMotor.SetTargetPosition(OriginalBucketPosition);
+
+                            if (mirror_event) {
+                                ArmMotor.SetTargetPosition(0, -0.5, 0.5);
+                            }
+                            else {
+                                ArmMotor.SetTargetPosition(-5, -0.5, 0.5);
+                            }
+                            triggerresetorder++;
+                            mirror_event = false;
+                        }
+                    }
+                    break;
+                case 3:
+                    // We will now allow the bucket and arm motors to be calibrated
+                    // At the same time, we will also run the intake
+                    if (BucketMotor.GetTaskState() == Task_State.DONE) {
+                        // Open the intake gate and turn on the intake
+                        BucketMotor.Calibrate();
+                        ArmMotor.Calibrate();
+                        IntakeServo.setPosition(OpenIntakePosition);
+                        Intake.setPower(1);
+
+                        // Move the rail down and allow the bucket to hang loosely
+                        Rail.setTargetPosition(0);
+                        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        Rail.setPower(0.5);
+                        triggerresetorder++;
+                    }
+                default:
+                    break;
+            }
+
 
             /****************************************
              Run CarouselMotor
              ***************************************/
-
             //if (gamepad1.dpad_right) {
                 //CarouselMotor.setPower(1.0);
             //}
@@ -262,9 +317,9 @@ public class Meet3Teleop extends LinearOpMode {
             /***********************************************************
              Button Y - Top Level (For Opposite, press dpad_down first)
              ***********************************************************/
-
             if (button_dpad_down_already_pressed2 == false) {
                 if (gamepad2.dpad_down) {
+                    button_dpad_down_already_pressed2 = true;
                     mirror_event = true;
                 }
             } else {
@@ -273,13 +328,14 @@ public class Meet3Teleop extends LinearOpMode {
                 }
             }
 
-            if (button_y_already_pressed == false) {
+            if (button_y_already_pressed2 == false) {
                 if (gamepad2.y) {
                     tophuborder = 1;
+                    button_y_already_pressed2 = true;
                 }
             } else {
                 if (!gamepad2.y) {
-                    button_y_already_pressed = false;
+                    button_y_already_pressed2 = false;
                 }
             }
 
@@ -320,7 +376,7 @@ public class Meet3Teleop extends LinearOpMode {
                     if (mirror_event) {
                         if (ArmMotor.GetTaskState() == Task_State.INIT || ArmMotor.GetTaskState() == Task_State.READY) {
 
-                            ArmMotor.SetTargetPosition(430, -0.65, 0.65);
+                            ArmMotor.SetTargetPosition(430, -0.7, 0.7);
                         } else if (ArmMotor.GetTaskState() == Task_State.DONE) {
                             tophuborder++;
                         }
@@ -360,25 +416,23 @@ public class Meet3Teleop extends LinearOpMode {
 
                 default:
                     break;
-
             }
 
-            /***********************************************
-             Button X - Reset Position (Not bucket or rail)
-             ***********************************************/
-
-            if (button_x_already_pressed == false) {
+            /***************************************************
+             Button X - Attachment Reset (Intermediate position
+             ***************************************************/
+            if (button_x_already_pressed2 == false) {
                 if (gamepad2.x) {
                     bucketresetorder = 1;
-                    button_x_already_pressed = true;
+                    button_x_already_pressed2 = true;
                 }
             } else {
                 if (!gamepad2.x) {
-                    button_x_already_pressed = false;
+                    button_x_already_pressed2 = false;
                 }
             }
 
-            // SEQUENCE MANAGER TO TUCK THE BUCKET BACK INTO ITS BASE POSITION INSIDE THE ROBOT
+            // SEQUENCE MANAGER TO TUCK THE ARM & BUCKET BACK INTO ITS INTERMEDIATE RESET POSITION
             switch (bucketresetorder) {
 
                 case 1:
@@ -394,10 +448,10 @@ public class Meet3Teleop extends LinearOpMode {
                     if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
 
                         if (mirror_event) {
-                            BucketMotor.SetTargetPosition(15);
+                            BucketMotor.SetTargetPosition(20);
                         }
                         else {
-                            BucketMotor.SetTargetPosition(-15);
+                            BucketMotor.SetTargetPosition(-20);
                         }
                     }
                     else if (BucketMotor.GetTaskState() == Task_State.DONE) {
@@ -407,18 +461,20 @@ public class Meet3Teleop extends LinearOpMode {
 
                 case 3:
 
-                    // Let gravity bring the arm down but use a small amount of opposite force to ensure the arm's fall is gradual
+                    // Let gravity bring the arm down
+                    // But use a very small amount of opposite force to ensure the arm's fall is not completely free fall
                     // We do this by clipping the command from the arm control
                     if (ArmMotor.GetTaskState() == Task_State.INIT ||
                             ArmMotor.GetTaskState() == Task_State.READY) {
 
                         if (mirror_event) {
                             //ArmMotor.SetTargetPosition(120, 0.001, 0.01);
-                            ArmMotor.SetTargetPosition(120, 0.001, 0.001);
+                            //ArmMotor.SetTargetPosition(120, 0.001, 0.001);
+                            ArmMotor.SetTargetPosition(80, 0.00002, 0.00002);
                         }
                         else {
                             //ArmMotor.SetTargetPosition(-120, -0.6, -0.0001);
-                            ArmMotor.SetTargetPosition(-30, -0.00002, -0.00002);
+                            ArmMotor.SetTargetPosition(-80, -0.00002, -0.00002);
                         }
 
                     }
@@ -429,9 +485,33 @@ public class Meet3Teleop extends LinearOpMode {
 
                 case 4:
 
-                    // Once the arm is at a lower position, we will give the arm control a larger power range to allow
+                    // Once the arm drops to a lower position, we will clip the motor command with a larger opposite force
+                    // This will allow the motor to "brake" the arm as it continues to drop
+                    // The idea here is to catch the arm to prevent it swinging wildly non-stop
+                    if (ArmMotor.GetTaskState() == Task_State.INIT ||
+                            ArmMotor.GetTaskState() == Task_State.READY) {
+
+                        if (mirror_event) {
+                            //ArmMotor.SetTargetPosition(-2, -0.105, 0.6);
+                            //ArmMotor.SetTargetPosition(-10, -0.5, 0.5);
+                            ArmMotor.SetTargetPosition(0, 0.1, 0.1);
+                        }
+                        else {
+                            //ArmMotor.SetTargetPosition(2, -0.6, 0.2);
+                            //ArmMotor.SetTargetPosition(10, -0.5, 0.5);
+                            ArmMotor.SetTargetPosition(0, -0.1, -0.1);
+                        }
+
+                    }
+                    else if (ArmMotor.GetTaskState() == Task_State.DONE) {
+                        bucketresetorder++;
+                    }
+                    break;
+
+                case 5:
+                    // Once the arm stabilizes, we will give the arm control a larger power range to allow
                     // it to bring the arm to its desired position. Since we deliberately angled the bucket earlier,
-                    // we will also deliberately set a target position to overshoot the arm's zero position so that
+                    // we may deliberately set a target position to overshoot the arm's zero position so that
                     // when the rail lowers later, the bottom of the bucket won't hit the robot's chassis
                     if (ArmMotor.GetTaskState() == Task_State.INIT ||
                             ArmMotor.GetTaskState() == Task_State.READY) {
@@ -442,69 +522,14 @@ public class Meet3Teleop extends LinearOpMode {
                         }
                         else {
                             //ArmMotor.SetTargetPosition(2, -0.6, 0.2);
-                            ArmMotor.SetTargetPosition(10, -0.5, 0.5);
+                            ArmMotor.SetTargetPosition(0, -0.5, 0.5);
                         }
 
                     }
                     else if (ArmMotor.GetTaskState() == Task_State.DONE) {
                         bucketresetorder++;
-                        ET.reset();
                     }
                     break;
-
-                case 5:
-
-                    // Give some time for the arm control to work
-                    if (ET.milliseconds() > 500) {
-                        bucketresetorder++;
-                    }
-                    break;
-
-                case 6:
-                    bucketresetorder++;
-                    mirror_event = false;
-                    break;
-
-                default:
-                    break;
-            }
-
-            /***********************************************
-             Button Left_Trigger - Reset Bucket and Rail Barrier Passing
-             ***********************************************/
-
-            if (button_left_trigger_already_pressed2 == false) {
-                if (gamepad2.left_trigger > 0) {
-                    triggerresetorder = 1;
-                    button_left_trigger_already_pressed2 = true;
-                }
-            } else {
-                if (gamepad2.left_trigger == 0) {
-                    button_left_trigger_already_pressed2 = false;
-                }
-            }
-
-            switch (triggerresetorder) {
-                case 1:
-                    // Let the arm hang loosely while the rail moves down
-                    // This should get the arm back to its zero position
-                    ArmMotor.Override();
-                    Rail.setTargetPosition(300);
-                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    Rail.setPower(0.5);
-                    triggerresetorder++;
-                    break;
-
-                case 2:
-                    // Once the bucket is inside the robot, move it back to its zero position
-                    if (Rail.getCurrentPosition() > 270 && Rail.getCurrentPosition() < 330) {
-                        if (BucketMotor.GetTaskState() == Task_State.READY) {
-                            BucketMotor.SetTargetPosition(OriginalBucketPosition);
-                            triggerresetorder++;
-                        }
-                    }
-                    break;
-
                 default:
                     break;
             }
@@ -541,7 +566,7 @@ public class Meet3Teleop extends LinearOpMode {
                     Rail.setTargetPosition(800);
                     Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     Rail.setPower(0.5);
-                    ArmMotor.SetTargetPosition(0, -0.2, 0.2);
+                    ArmMotor.SetTargetPosition(0, -0.5, 0.5);
                     BucketMotor.SetTargetPosition(0);
                     button_bumper_left_already_pressed2 = true;
                 }
