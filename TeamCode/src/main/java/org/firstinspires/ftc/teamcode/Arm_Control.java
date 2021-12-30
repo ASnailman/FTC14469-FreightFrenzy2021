@@ -79,15 +79,12 @@ public class Arm_Control {
             clipped_cmd = Range.clip(cmd, min, max);
             motor_obj.setPower(clipped_cmd);
 
-            // If the bucket is within range of the target position, treat the task as done so that the opmode can move on to
-            // the next task in its list
             if (run_state == Task_State.DONE) {
                 run_state = Task_State.READY;
             }
-            //else if (run_state == Task_State.RUN && motor_obj.getCurrentPosition() > (target_position - tolerance) &&
-            //        motor_obj.getCurrentPosition() < (target_position + tolerance)) {
-            //    run_state = Task_State.DONE;
-            //}
+
+            // If the bucket is within range of the target position, treat the task as done so that the opmode can move on to
+            // the next task in its list
             else if (run_state == Task_State.RUN) {
 
                 if (target_position > motor_obj.getCurrentPosition()) {

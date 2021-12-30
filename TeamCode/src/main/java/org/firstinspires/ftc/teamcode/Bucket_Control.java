@@ -9,13 +9,13 @@ import com.qualcomm.robotcore.util.Range;
 
 public class Bucket_Control {
 
-    DcMotor bucketmotor;                  // the motor connected to the bucket
+    DcMotor bucketmotor;                // the motor connected to the bucket
     PID pid;
-    double targetposition;             // Target position for the bucket (in encoder ticks: +ve or -ve)
-    double bucketpower;                         // Power command for the DC motor
+    double targetposition;              // Target position for the bucket (in encoder ticks: +ve or -ve)
+    double bucketpower;                 // Power command for the DC motor
     ElapsedTime et;                     // ElapsedTime object (only used during calibration)
     final double tolerance = 15;        // How close should we be within the target bucket position before saying we're done
-    Task_State state;               // This is used by the opmode to determine when this task has completed and proceed to the next task
+    Task_State state;                   // This is used by the opmode to determine when this task has completed and proceed to the next task
 
     // CONSTRUCTOR
     public Bucket_Control(DcMotor BucketMotor) {
