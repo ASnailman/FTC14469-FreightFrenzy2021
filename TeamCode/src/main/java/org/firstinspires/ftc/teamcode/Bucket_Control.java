@@ -101,7 +101,7 @@ public class Bucket_Control {
         else if (state == Task_State.OVERRIDE) {
             bucketmotor.setPower(0);
 
-            if (et.milliseconds() >= 1000) {
+            if (et.milliseconds() >= 2000) {
 
                 // Reset the PID object (otherwise, the PID will still have leftover
                 // memory of what it previously did which may cause bad commands from carrying forward)

@@ -92,8 +92,8 @@ public class Meet3Teleop extends LinearOpMode {
     static final int Low_Arm_Right = 150;
 
     static final double OriginalBucketPosition = 0;
-    static final double TopBucketPosition = 130;
-    static final double MirrorTopBucketPosition = -130;
+    static final double TopBucketPosition = 140;
+    static final double MirrorTopBucketPosition = -140;
     static final double MiddleBucketPosition = 120;
     static final double MirrorMiddleBucketPosition = -120;
     static final double LowBucketPosition = 100;
@@ -264,7 +264,7 @@ public class Meet3Teleop extends LinearOpMode {
                     // We will also move the arm back to it zero position
                     if (Rail.getCurrentPosition() > 370 && Rail.getCurrentPosition() < 430) {
 
-                        if (BucketMotor.GetTaskState() == Task_State.READY) {
+                        if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
 
                             BucketMotor.SetTargetPosition(OriginalBucketPosition);
 
@@ -293,8 +293,18 @@ public class Meet3Teleop extends LinearOpMode {
                         Rail.setTargetPosition(0);
                         Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                         Rail.setPower(0.5);
+                        ET.reset();
                         triggerresetorder++;
                     }
+                    break;
+                case 4:
+                    if (ET.milliseconds() > 1000) {
+                        Rail.setTargetPosition(150);
+                        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        Rail.setPower(0.5);
+                        triggerresetorder++;
+                    }
+                    break;
                 default:
                     break;
             }
@@ -558,20 +568,20 @@ public class Meet3Teleop extends LinearOpMode {
             // The arm control will automatically straighten the bucket to its zero position
             // Then release the left bumper to lower the rail
             // The arm and bucket motor encoders will be reset
-            if (button_bumper_left_already_pressed2 == false) {
+            if (button_bumper_left_already_pressed == false) {
 
-                if (gamepad2.left_bumper) {
+                if (gamepad1.right_bumper) {
 
                     Rail.setTargetPosition(800);
                     Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     Rail.setPower(0.5);
                     ArmMotor.SetTargetPosition(0, -0.5, 0.5);
                     BucketMotor.SetTargetPosition(0);
-                    button_bumper_left_already_pressed2 = true;
+                    button_bumper_left_already_pressed = true;
                 }
             } else {
-                if (!gamepad2.left_bumper) {
-                    button_bumper_left_already_pressed2 = false;
+                if (!gamepad1.right_bumper) {
+                    button_bumper_left_already_pressed = false;
                     BucketMotor.Calibrate();
                     ArmMotor.Calibrate();
                     Rail.setTargetPosition(0);
@@ -642,6 +652,8 @@ public class Meet3Teleop extends LinearOpMode {
                     break;
 
             }
+
+
 
             // BACKGROUND TASKS FOR THE ARM AND MOTOR CONTROL
             ArmMotor.ArmTask();
