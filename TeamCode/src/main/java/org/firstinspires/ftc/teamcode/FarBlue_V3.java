@@ -428,14 +428,14 @@ public class FarBlue_V3 extends LinearOpMode {
 
                 case 11:
                     ArmControl.Override();
-                    Rail.setTargetPosition(400);
+                    Rail.setTargetPosition(300);
                     Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     Rail.setPower(0.5);
                     programorder1++;
                     break;
 
                 case 12:
-                    if (Rail.getCurrentPosition() > 370 && Rail.getCurrentPosition() < 430) {
+                    if (Rail.getCurrentPosition() > 270 && Rail.getCurrentPosition() < 330) {
                         if (BucketControl.GetTaskState() == Task_State.READY) {
                             BucketControl.SetTargetPosition(OriginalBucketPosition);
                             ArmControl.SetTargetPosition(0, -0.5, 0.5, 0.04);

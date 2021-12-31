@@ -434,7 +434,7 @@ public class SpectatorBlue_V3 extends LinearOpMode {
                     break;
 
                 case 12:
-                    if (Rail.getCurrentPosition() > 370 && Rail.getCurrentPosition() < 430) {
+                    if (Rail.getCurrentPosition() > 270 && Rail.getCurrentPosition() < 330) {
                         if (BucketControl.GetTaskState() == Task_State.READY) {
                             BucketControl.SetTargetPosition(OriginalBucketPosition);
                             ArmControl.SetTargetPosition(0, -0.5, 0.5, 0.04);
