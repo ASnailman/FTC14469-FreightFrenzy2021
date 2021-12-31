@@ -112,6 +112,7 @@ public class Meet3Teleop extends LinearOpMode {
     int lowhuborder = 0;
     int middlehuborder = 0;
     int tophuborder = 0;
+    int sharedhuborder = 0;
 
     int servoseqleft = 0;
     int servoseqright = 0;
@@ -427,8 +428,112 @@ public class Meet3Teleop extends LinearOpMode {
                     break;
             }
 
+            /***********************************************************
+             Button A - Shared Hub (For Opposite, press dpad_down first)
+             ***********************************************************/
+            if (button_dpad_down_already_pressed2 == false) {
+                if (gamepad2.dpad_down) {
+                    button_dpad_down_already_pressed2 = true;
+                    mirror_event = true;
+                }
+            } else {
+                if (!gamepad2.dpad_down) {
+                    button_dpad_down_already_pressed2 = false;
+                }
+            }
+
+            if (button_a_already_pressed2 == false) {
+                if (gamepad2.a) {
+                    sharedhuborder = 1;
+                    button_a_already_pressed2 = true;
+                }
+            } else {
+                if (!gamepad2.a) {
+                    button_a_already_pressed2 = false;
+                }
+            }
+
+            // SEQUENCE MANAGER TO DUMP ONTO THE TOP LEVEL OF THE ALLIANCE HUB
+            switch (sharedhuborder) {
+
+                case 1:
+                    // Always check for INIT OR READY the first time
+                    if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
+
+                        // Lock the bucket in the zero position first before raising the rail or arm to prevent it from falling
+                        BucketMotor.SetTargetPosition(0);
+                    }
+                    else if (BucketMotor.GetTaskState() == Task_State.DONE) {
+                        sharedhuborder++;
+                    }
+
+                    // Close the intake and outtake gates to prevent the object from falling out of the bucket
+                    GateServo.setPosition(ClosingGatePosition);
+                    IntakeServo.setPosition(ClosingIntakePosition);
+                    break;
+
+                case 2:
+
+                    // Move the rail to its highest position
+                    Rail.setTargetPosition(1030);
+                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    Rail.setPower(0.5);
+
+                    if (Rail.getCurrentPosition() >= 1000 && Rail.getCurrentPosition() <= 1060) {
+                        sharedhuborder++;
+                    }
+                    break;
+
+                case 3:
+
+                    // Move the arm to its highest position
+                    if (mirror_event) {
+                        if (ArmMotor.GetTaskState() == Task_State.INIT || ArmMotor.GetTaskState() == Task_State.READY) {
+
+                            ArmMotor.SetTargetPosition(150, -0.5, 0.5);
+                        } else if (ArmMotor.GetTaskState() == Task_State.DONE) {
+                            sharedhuborder++;
+                        }
+                    } else {
+                        if (ArmMotor.GetTaskState() == Task_State.INIT || ArmMotor.GetTaskState() == Task_State.READY) {
+
+                            ArmMotor.SetTargetPosition(-150, -0.45, 0.45);
+                        }
+                        else if (ArmMotor.GetTaskState() == Task_State.DONE) {
+                            sharedhuborder++;
+                        }
+                    }
+                    break;
+
+                case 4:
+
+                    // Tip the bucket to get it ready to dump the object out
+                    if (mirror_event) {
+                        if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
+
+                            BucketMotor.SetTargetPosition(MirrorLowBucketPosition);
+                        }
+                        else if (BucketMotor.GetTaskState() == Task_State.DONE) {
+                            sharedhuborder++;
+                        }
+                    }
+                    else {
+                        if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
+
+                            BucketMotor.SetTargetPosition(LowBucketPosition);
+                        }
+                        else if (BucketMotor.GetTaskState() == Task_State.DONE) {
+                            sharedhuborder++;
+                        }
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+
             /***************************************************
-             Button X - Attachment Reset (Intermediate position
+             Button X - Attachment Reset
              ***************************************************/
             if (button_x_already_pressed2 == false) {
                 if (gamepad2.x) {
