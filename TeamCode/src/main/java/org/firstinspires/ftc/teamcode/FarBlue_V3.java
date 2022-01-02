@@ -216,7 +216,8 @@ public class FarBlue_V3 extends LinearOpMode {
 
                 case 1:
                     if (MechDrive.GetTaskState() == Task_State.INIT) {
-                        MechDrive.SetTargets(180, 1350, 0.5);
+                        //MechDrive.SetTargets(180, 1350, 0.5);
+                        MechDrive.SetTargets(180, 0, 0.5);
                         BucketControl.SetTargetPosition(0);
                         Rail.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                         Rail.setTargetPosition(300);
@@ -229,7 +230,8 @@ public class FarBlue_V3 extends LinearOpMode {
 
                 case 2:
                     if (MechDrive.GetTaskState() == Task_State.READY) {
-                        MechDrive.SetTargets(90, 500, 0.5);
+                        //MechDrive.SetTargets(90, 500, 0.5);
+                        MechDrive.SetTargets(180, 0, 0.5);
                     }
                     else if (MechDrive.GetTaskState() == Task_State.DONE) {
                         programorder1++;
