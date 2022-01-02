@@ -264,16 +264,13 @@ public class Meet3Teleop extends LinearOpMode {
                     // Let the arm hang loosely while the rail moves down
                     // This should get the arm back to its zero position
                     ArmMotor.Override();
-                    Rail.setTargetPosition(400);
-                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    Rail.setPower(0.5);
                     triggerresetorder++;
                     break;
 
                 case 2:
                     // Once the bucket is inside the robot, move it back to its zero position
                     // We will also move the arm back to it zero position
-                    if (Rail.getCurrentPosition() > 370 && Rail.getCurrentPosition() < 430) {
+                    //if (Rail.getCurrentPosition() > 450 && Rail.getCurrentPosition() < 550) {
 
                         if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
 
@@ -287,16 +284,24 @@ public class Meet3Teleop extends LinearOpMode {
                             }
                             triggerresetorder++;
                             mirror_event = false;
+
                             //sharedhub = false;
                             //topalliancehub = false;
                         }
-                    }
+                    //}
                     break;
 
                 case 3:
+                    Rail.setTargetPosition(500);
+                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    Rail.setPower(0.5);
+                    triggerresetorder++;
+                    break;
+
+                case 4:
                     // We will now allow the bucket and arm motors to be calibrated
                     // At the same time, we will also run the intake
-                    if (BucketMotor.GetTaskState() == Task_State.DONE) {
+                    if (BucketMotor.GetTaskState() == Task_State.DONE || BucketMotor.GetTaskState() == Task_State.READY) {
                         // Open the intake gate and turn on the intake
                         BucketMotor.Calibrate();
                         ArmMotor.Calibrate();
@@ -304,7 +309,7 @@ public class Meet3Teleop extends LinearOpMode {
                         Intake.setPower(1);
 
                         // Move the rail down and allow the bucket to hang loosely
-                        Rail.setTargetPosition(180);
+                        Rail.setTargetPosition(170);
                         Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                         Rail.setPower(0.5);
                         //ET.reset();
@@ -385,11 +390,11 @@ public class Meet3Teleop extends LinearOpMode {
 
                 case 2:
                     // Move the rail to its highest position
-                    Rail.setTargetPosition(1030);
+                    Rail.setTargetPosition(900);
                     Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     Rail.setPower(0.5);
 
-                    if (Rail.getCurrentPosition() >= 980 && Rail.getCurrentPosition() <= 1080) {
+                    if (Rail.getCurrentPosition() >= 850 && Rail.getCurrentPosition() <= 950) {
                         tophuborder++;
                     }
                     break;
@@ -486,11 +491,11 @@ public class Meet3Teleop extends LinearOpMode {
 
                 case 2:
                     // Move the rail to its highest position
-                    Rail.setTargetPosition(1030);
+                    Rail.setTargetPosition(900);
                     Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     Rail.setPower(0.5);
 
-                    if (Rail.getCurrentPosition() >= 980 && Rail.getCurrentPosition() <= 1080) {
+                    if (Rail.getCurrentPosition() >= 850 && Rail.getCurrentPosition() <= 950) {
                         sharedhuborder++;
                     }
                     break;
@@ -666,6 +671,23 @@ public class Meet3Teleop extends LinearOpMode {
                     else if (ArmMotor.GetTaskState() == Task_State.DONE) {
                         bucketresetorder++;
                     }
+                    break;
+
+                case 6:
+                    //if (ArmMotor.GetTaskState() == Task_State.INIT ||
+                      //      ArmMotor.GetTaskState() == Task_State.READY) {
+                        //if (mirror_event) {
+                            //ArmMotor.SetTargetPosition(-2, -0.105, 0.6);
+                            //ArmMotor.SetTargetPosition(-10, 0, 0);
+                        //}
+                        //else {
+                            //ArmMotor.SetTargetPosition(2, -0.6, 0.2);
+                            //ArmMotor.SetTargetPosition(0, 0, 0);
+                        //}
+                    //}
+                    //else if (ArmMotor.GetTaskState() == Task_State.DONE) {
+                        bucketresetorder++;
+                    //}
                     sharedhub = false;
                     topalliancehub = false;
                     break;

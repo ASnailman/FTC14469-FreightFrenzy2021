@@ -86,6 +86,10 @@ public class Mech_Drive {
                 //} else {
                 //encoder = BackLeft.getCurrentPosition();
                 //}
+                //encoder = FrontRight.getCurrentPosition();
+                //if (encoder < 0) {
+                    //encoder = -encoder;
+                //}
 
                 denominator = Math.max(Math.abs(power_y_new) + Math.abs(power_x_new), 1);
                 flpower = (power_y_new + 1.1 * power_x_new + steeringoutput) / denominator;

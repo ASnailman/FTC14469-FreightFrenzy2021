@@ -161,7 +161,7 @@ public class SpectatorRed_V3 extends LinearOpMode {
         IntakeServo.setPosition(ClosingIntakePosition);
         GateServo.setPosition(ClosingGatePosition);
 
-        MechDrive = new Mech_Drive(FrontLeft, FrontRight, BackLeft, BackRight, MoveDirection.REVERSE, telemetry);
+        MechDrive = new Mech_Drive(FrontRight, FrontLeft, BackRight, BackLeft, MoveDirection.REVERSE, telemetry);
         BucketControl = new Bucket_Control(BucketMotor);
         ArmControl = new Arm_Control(Arm);
 
