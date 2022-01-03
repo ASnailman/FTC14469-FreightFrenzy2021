@@ -72,6 +72,7 @@ public class Meet3Teleop extends LinearOpMode {
     boolean button_left_trigger_already_pressed = false;
     boolean button_left_trigger_already_pressed2 = false;
     boolean button_right_trigger_already_pressed2 = false;
+    boolean double_trigger_already_pressed = false;
 
     boolean press1 = true;
     boolean press2 = false;
@@ -104,6 +105,8 @@ public class Meet3Teleop extends LinearOpMode {
     static final double ClosingGatePosition = 0.2;
     static final double ClosingIntakePosition = 0.8;
 
+    int bucketposition;
+
     Bucket_Control BucketMotor;
     Arm_Control ArmMotor;
 
@@ -113,6 +116,8 @@ public class Meet3Teleop extends LinearOpMode {
     int middlehuborder = 0;
     int tophuborder = 0;
     int sharedhuborder = 0;
+    int manualcalleft = 0;
+    int manualcalright = 0;
 
     int servoseqleft = 0;
     int servoseqright = 0;
@@ -806,7 +811,92 @@ public class Meet3Teleop extends LinearOpMode {
 
             }
 
+            /******************************************
+             * Trigger (G2) Manual Calibration
+             ******************************************/
 
+            if (button_left_trigger_already_pressed == false) {
+                if (gamepad2.left_trigger > 0 && gamepad2.right_trigger == 0) {
+
+                    bucketposition = bucketposition + 5;
+                    manualcalleft = 1;
+
+                    button_left_trigger_already_pressed = true;
+                }
+            } else {
+                if (gamepad2.left_trigger == 0) {
+                    manualcalleft = 0;
+                    button_left_trigger_already_pressed = false;
+                }
+            }
+
+            if (button_right_trigger_already_pressed == false) {
+                if (gamepad2.right_trigger > 0 && gamepad2.left_trigger == 0) {
+
+                    bucketposition = bucketposition - 5;
+                    manualcalright = 1;
+
+                    button_right_trigger_already_pressed = true;
+                }
+            } else {
+                if (gamepad2.right_trigger == 0) {
+                    manualcalright = 0;
+                    button_right_trigger_already_pressed = false;
+                }
+            }
+
+            if (double_trigger_already_pressed == false) {
+                if (gamepad2.right_trigger > 0 && gamepad2.left_trigger > 0) {
+                    //Rail.setTargetPosition(0);
+                    //Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    Rail.setPower(0);
+                    Bucket.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    Arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    Bucket.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    Arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    double_trigger_already_pressed = true;
+                }
+            } else {
+                if (gamepad2.right_trigger == 0 && gamepad2.left_trigger == 0) {
+                    double_trigger_already_pressed = false;
+                }
+            }
+
+            switch (manualcalleft) {
+
+                case 1:
+                    Rail.setTargetPosition(800);
+                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    Rail.setPower(0.5);
+                    ArmMotor.Override();
+                    manualcalleft++;
+
+                case 2:
+                    if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
+                        BucketMotor.SetTargetPosition(bucketposition);
+                    }
+                    else if (BucketMotor.GetTaskState() == Task_State.DONE) {
+                        manualcalleft++;
+                    }
+            }
+
+            switch (manualcalright) {
+
+                case 1:
+                    Rail.setTargetPosition(800);
+                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    Rail.setPower(0.5);
+                    ArmMotor.Override();
+                    manualcalright++;
+
+                case 2:
+                    if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
+                        BucketMotor.SetTargetPosition(bucketposition);
+                    }
+                    else if (BucketMotor.GetTaskState() == Task_State.DONE) {
+                        manualcalright++;
+                    }
+            }
 
             // BACKGROUND TASKS FOR THE ARM AND MOTOR CONTROL
             ArmMotor.ArmTask();

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -9,6 +10,7 @@ public class Mech_Drive {
     DcMotor FrontLeft, FrontRight, BackLeft, BackRight;     // DC motors for each of the Mecanum wheels
     double flpower, frpower, blpower, brpower;              // Power command for each of the DC motors
 
+    ElapsedTime ET = new ElapsedTime();
     Telemetry telemetry;
     PID pid;
     double targetdistance;
@@ -87,8 +89,8 @@ public class Mech_Drive {
                 //encoder = BackLeft.getCurrentPosition();
                 //}
                 //encoder = FrontRight.getCurrentPosition();
-                //if (encoder < 0) {
-                    //encoder = -encoder;
+                ///if (encoder < 0) {
+                   // encoder = -encoder;
                 //}
 
                 denominator = Math.max(Math.abs(power_y_new) + Math.abs(power_x_new), 1);
@@ -108,6 +110,11 @@ public class Mech_Drive {
                 BackLeft.setPower(0);
                 BackRight.setPower(0);
 
+                while (FrontRight.getCurrentPosition() != 0) {
+                    FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                }
+
+                FrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 state = Task_State.DONE;
             }
         }
@@ -116,8 +123,9 @@ public class Mech_Drive {
         }
 
         telemetry.addData("ActualDistance", encoder);
-        telemetry.addData("Steering", steeringoutput);
-        telemetry.addData("DirectionZ", gyro_Z_reading);
+        //telemetry.addData("Steering", steeringoutput);
+        //telemetry.addData("DirectionZ", gyro_Z_reading);
+        //telemetry.addData("Position", FrontRight.getCurrentPosition());
         telemetry.update();
 
     }

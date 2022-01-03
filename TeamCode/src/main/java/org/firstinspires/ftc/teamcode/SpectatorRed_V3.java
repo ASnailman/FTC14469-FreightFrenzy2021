@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.checkerframework.checker.units.qual.Current;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -70,16 +71,16 @@ public class SpectatorRed_V3 extends LinearOpMode {
     byte AXIS_MAP_SIGN_BYTE = 0x6; //rotates control hub 180 degrees around z axis by negating x and y signs
     byte AXIS_MAP_CONFIG_BYTE = 0x6; //rotates control hub 90 degrees around y axis by swapping x and z axis
 
-    static final int Top_Arm_Left = -390;
-    static final int Top_Arm_Right = 390;
-    static final int Middle_Arm_Left = -290;
-    static final int Middle_Arm_Right = 290;
-    static final int Low_Arm_Left = -150;
-    static final int Low_Arm_Right = 150;
+    static final int Top_Arm_Left = -420;
+    static final int Top_Arm_Right = 420;
+    static final int Middle_Arm_Left = -305;
+    static final int Middle_Arm_Right = 305;
+    static final int Low_Arm_Left = -160;
+    static final int Low_Arm_Right = 160;
 
     static final double OriginalBucketPosition = 0;
-    static final double TopBucketPosition = 130;
-    static final double MirrorTopBucketPosition = -130;
+    static final double TopBucketPosition = 140;
+    static final double MirrorTopBucketPosition = -140;
     static final double MiddleBucketPosition = 120;
     static final double MirrorMiddleBucketPosition = -120;
     static final double LowBucketPosition = 100;
@@ -94,6 +95,9 @@ public class SpectatorRed_V3 extends LinearOpMode {
     boolean white;
     boolean yellow;
     boolean unknown;
+
+    boolean variable1 = false;
+    boolean variable2 = false;
 
     int programorder1 = 0;
     int programorder2 = 0;
@@ -208,22 +212,42 @@ public class SpectatorRed_V3 extends LinearOpMode {
             switch (programorder1) {
 
                 case 0:
-                    left = pipeline.position == BarcodeDeterminationPipeline.ShippingElementPosition.LEFT;
-                    center = pipeline.position == BarcodeDeterminationPipeline.ShippingElementPosition.CENTER;
-                    right = pipeline.position == BarcodeDeterminationPipeline.ShippingElementPosition.RIGHT;
+                    if (pipeline.position == BarcodeDeterminationPipeline.ShippingElementPosition.LEFT) {
+                        left = true;
+                        center = false;
+                        right = false;
+                    }
+                    else if (pipeline.position == BarcodeDeterminationPipeline.ShippingElementPosition.CENTER) {
+                        left = false;
+                        center = true;
+                        right = false;
+                    }
+                    else if (pipeline.position == BarcodeDeterminationPipeline.ShippingElementPosition.RIGHT) {
+                        left = false;
+                        center = false;
+                        right = true;
+                    }
+                    else {
+                        left = false;
+                        center = false;
+                        right = true;
+                    }
+
+                    //Rail.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    Rail.setTargetPosition(500);
+                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    Rail.setPower(0.5);
                     programorder1++;
                     break;
 
                 case 1:
-                    if (MechDrive.GetTaskState() == Task_State.INIT) {
-                        MechDrive.SetTargets(90, 975, 0.5);
-                        BucketControl.SetTargetPosition(0);
-                        Rail.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                        Rail.setTargetPosition(300);
-                        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    }
-                    else if (MechDrive.GetTaskState() == Task_State.DONE) {
-                        programorder1++;
+                    if (Rail.getCurrentPosition() >= 470 && Rail.getCurrentPosition() <= 530) {
+                        if (MechDrive.GetTaskState() == Task_State.INIT) {
+                            BucketControl.SetTargetPosition(0);
+                            MechDrive.SetTargets(90, 575, 0.5);
+                        } else if (MechDrive.GetTaskState() == Task_State.DONE) {
+                            programorder1++;
+                        }
                     }
                     break;
 
@@ -238,26 +262,26 @@ public class SpectatorRed_V3 extends LinearOpMode {
 
                 case 3:
                     if (left) {
-                        Rail.setTargetPosition(750);
+                        Rail.setTargetPosition(780);
                         Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                         Rail.setPower(0.5);
-                        if (Rail.getCurrentPosition() >= 720 && Rail.getCurrentPosition() <= 780) {
+                        if (Rail.getCurrentPosition() >= 750 && Rail.getCurrentPosition() <= 810) {
                             programorder1++;
                         }
                     }
                     else if (center) {
-                        Rail.setTargetPosition(750);
+                        Rail.setTargetPosition(780);
                         Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                         Rail.setPower(0.5);
-                        if (Rail.getCurrentPosition() >= 720 && Rail.getCurrentPosition() <= 780) {
+                        if (Rail.getCurrentPosition() >= 750 && Rail.getCurrentPosition() <= 810) {
                             programorder1++;
                         }
                     }
                     else if (right) {
-                        Rail.setTargetPosition(1000);
+                        Rail.setTargetPosition(900);
                         Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                         Rail.setPower(0.5);
-                        if (Rail.getCurrentPosition() >= 970 && Rail.getCurrentPosition() <= 1030) {
+                        if (Rail.getCurrentPosition() >= 870 && Rail.getCurrentPosition() <= 930) {
                             programorder1++;
                         }
                     }
@@ -292,7 +316,7 @@ public class SpectatorRed_V3 extends LinearOpMode {
 
                 case 5:
                     if (left) {
-                        if (BucketControl.GetTaskState() == Task_State.INIT) {
+                        if (BucketControl.GetTaskState() == Task_State.INIT || BucketControl.GetTaskState() == Task_State.READY) {
                             BucketControl.SetTargetPosition(MirrorLowBucketPosition);
                         }
                         else if (BucketControl.GetTaskState() == Task_State.DONE) {
@@ -300,7 +324,7 @@ public class SpectatorRed_V3 extends LinearOpMode {
                         }
                     }
                     else if (center) {
-                        if (BucketControl.GetTaskState() == Task_State.INIT) {
+                        if (BucketControl.GetTaskState() == Task_State.INIT || BucketControl.GetTaskState() == Task_State.READY) {
                             BucketControl.SetTargetPosition(MirrorMiddleBucketPosition);
                         }
                         else if (BucketControl.GetTaskState() == Task_State.DONE) {
@@ -308,7 +332,7 @@ public class SpectatorRed_V3 extends LinearOpMode {
                         }
                     }
                     else if (right) {
-                        if (BucketControl.GetTaskState() == Task_State.INIT) {
+                        if (BucketControl.GetTaskState() == Task_State.INIT || BucketControl.GetTaskState() == Task_State.READY) {
                             BucketControl.SetTargetPosition(MirrorTopBucketPosition);
                         }
                         else if (BucketControl.GetTaskState() == Task_State.DONE) {
@@ -318,70 +342,63 @@ public class SpectatorRed_V3 extends LinearOpMode {
                     break;
 
                 case 6:
+                    if (MechDrive.GetTaskState() == Task_State.READY) {
+                        if (left) {
+                            MechDrive.SetTargets(90, 100, 0.5);
+                        }
+                        else if (center) {
+                            MechDrive.SetTargets(90, 115, 0.5);
+                        }
+                        else if (right) {
+                            MechDrive.SetTargets(90, 130, 0.5);
+                        }
+                        else {
+                            MechDrive.SetTargets(90, 130, 0.5);
+                        }
+                    }
+                    else if (MechDrive.GetTaskState() == Task_State.DONE) {
+                        programorder1++;
+                    }
+                    break;
+
+                case 7:
 
                     GateServo.setPosition(OpenGatePosition);
                     programorder1++;
                     ET.reset();
                     break;
 
-                case 7:
-                    if (left) {
-                        if (BucketControl.GetTaskState() == Task_State.READY) {
-                            if (ET.milliseconds() > 1500) {
-                                GateServo.setPosition(ClosingGatePosition);
-                                BucketControl.SetTargetPosition(15);
-                            }
-                        }
-                        else if (BucketControl.GetTaskState() == Task_State.DONE) {
-                            programorder1++;
-                        }
-                    }
-                    else if (center) {
-                        if (BucketControl.GetTaskState() == Task_State.READY) {
-                            if (ET.milliseconds() > 1500) {
-                                GateServo.setPosition(ClosingGatePosition);
-                                BucketControl.SetTargetPosition(15);
-                            }
-                        }
-                        else if (BucketControl.GetTaskState() == Task_State.DONE) {
-                            programorder1++;
-                        }
-                    }
-                    else if (right) {
-                        if (BucketControl.GetTaskState() == Task_State.READY) {
-                            if (ET.milliseconds() > 1500) {
-                                GateServo.setPosition(ClosingGatePosition);
-                                BucketControl.SetTargetPosition(15);
-                            }
-                        }
-                        else if (BucketControl.GetTaskState() == Task_State.DONE) {
-                            programorder1++;
-                        }
-                    }
-                    break;
-
                 case 8:
                     if (left) {
-                        if (ArmControl.GetTaskState() == Task_State.READY) {
-                            ArmControl.SetTargetPosition(120, 0.001, 0.001);
+                        if (BucketControl.GetTaskState() == Task_State.READY) {
+                            if (ET.milliseconds() > 1500) {
+                                GateServo.setPosition(ClosingGatePosition);
+                                BucketControl.SetTargetPosition(15);
+                            }
                         }
-                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
+                        else if (BucketControl.GetTaskState() == Task_State.DONE) {
                             programorder1++;
                         }
                     }
                     else if (center) {
-                        if (ArmControl.GetTaskState() == Task_State.READY) {
-                            ArmControl.SetTargetPosition(120, 0.001, 0.001);
+                        if (BucketControl.GetTaskState() == Task_State.READY) {
+                            if (ET.milliseconds() > 1500) {
+                                GateServo.setPosition(ClosingGatePosition);
+                                BucketControl.SetTargetPosition(15);
+                            }
                         }
-                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
+                        else if (BucketControl.GetTaskState() == Task_State.DONE) {
                             programorder1++;
                         }
                     }
                     else if (right) {
-                        if (ArmControl.GetTaskState() == Task_State.READY) {
-                            ArmControl.SetTargetPosition(120, 0.001, 0.001);
+                        if (BucketControl.GetTaskState() == Task_State.READY) {
+                            if (ET.milliseconds() > 1500) {
+                                GateServo.setPosition(ClosingGatePosition);
+                                BucketControl.SetTargetPosition(15);
+                            }
                         }
-                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
+                        else if (BucketControl.GetTaskState() == Task_State.DONE) {
                             programorder1++;
                         }
                     }
@@ -390,6 +407,33 @@ public class SpectatorRed_V3 extends LinearOpMode {
                 case 9:
                     if (left) {
                         if (ArmControl.GetTaskState() == Task_State.READY) {
+                            ArmControl.SetTargetPosition(120, 0.001, 0.001);
+                        }
+                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
+                            programorder1++;
+                        }
+                    }
+                    else if (center) {
+                        if (ArmControl.GetTaskState() == Task_State.READY) {
+                            ArmControl.SetTargetPosition(120, 0.001, 0.001);
+                        }
+                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
+                            programorder1++;
+                        }
+                    }
+                    else if (right) {
+                        if (ArmControl.GetTaskState() == Task_State.READY) {
+                            ArmControl.SetTargetPosition(120, 0.001, 0.001);
+                        }
+                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
+                            programorder1++;
+                        }
+                    }
+                    break;
+
+                case 10:
+                    if (left) {
+                        if (ArmControl.GetTaskState() == Task_State.READY) {
                             ArmControl.SetTargetPosition(-10, -0.1, 0.1);
                         }
                         else if (ArmControl.GetTaskState() == Task_State.DONE) {
@@ -417,17 +461,17 @@ public class SpectatorRed_V3 extends LinearOpMode {
                     }
                     break;
 
-                case 10:
+                case 11:
 
                     if (ET.milliseconds() > 500) {
                         programorder1++;
                     }
                     break;
 
-                case 11:
+                case 12:
                     if (ArmControl.GetTaskState() == Task_State.READY) {
                         ArmControl.Override();
-                        Rail.setTargetPosition(300);
+                        Rail.setTargetPosition(400);
                         Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                         Rail.setPower(0.5);
                     }
@@ -436,8 +480,8 @@ public class SpectatorRed_V3 extends LinearOpMode {
                     }
                     break;
 
-                case 12:
-                    if (Rail.getCurrentPosition() > 270 && Rail.getCurrentPosition() < 330) {
+                case 13:
+                    if (Rail.getCurrentPosition() > 370 && Rail.getCurrentPosition() < 430) {
                         if (BucketControl.GetTaskState() == Task_State.READY) {
                             BucketControl.SetTargetPosition(OriginalBucketPosition);
                             programorder1++;
@@ -445,18 +489,9 @@ public class SpectatorRed_V3 extends LinearOpMode {
                     }
                     break;
 
-                case 13:
-                    if (MechDrive.GetTaskState() == Task_State.READY) {
-                        MechDrive.SetTargets(-90, 610, 0.5);
-                    }
-                    else if (MechDrive.GetTaskState() == Task_State.DONE) {
-                        programorder1++;
-                    }
-                    break;
-
                 case 14:
                     if (MechDrive.GetTaskState() == Task_State.READY) {
-                        MechDrive.SetTargets(0, 1450, 0.5);
+                        MechDrive.SetTargets(-90, 430, 0.5);
                     }
                     else if (MechDrive.GetTaskState() == Task_State.DONE) {
                         programorder1++;
@@ -464,32 +499,41 @@ public class SpectatorRed_V3 extends LinearOpMode {
                     break;
 
                 case 15:
-                    CarouselLeft.setPower(-1);
-                    programorder1++;
-                    ET.reset();
-                    break;
-
-                case 16:
-                    if (ET.milliseconds() > 1550) {
-                        programorder1++;
-                    }
-                    break;
-
-                case 17:
-                    CarouselLeft.setPower(0);
-                    programorder1++;
-                    break;
-
-                case 18:
                     if (MechDrive.GetTaskState() == Task_State.READY) {
-                        MechDrive.SetTargets(90, 990, 0.5);
+                        MechDrive.SetTargets(0, 1600, 0.5);
                     }
                     else if (MechDrive.GetTaskState() == Task_State.DONE) {
                         programorder1++;
                     }
                     break;
 
+                case 16:
+                    CarouselLeft.setPower(-1);
+                    programorder1++;
+                    ET.reset();
+                    break;
+
+                case 17:
+                    if (ET.milliseconds() > 4000) {
+                        programorder1++;
+                    }
+                    break;
+
+                case 18:
+                    CarouselLeft.setPower(0);
+                    programorder1++;
+                    break;
+
                 case 19:
+                    if (MechDrive.GetTaskState() == Task_State.READY) {
+                        MechDrive.SetTargets(90, 1190, 0.5);
+                    }
+                    else if (MechDrive.GetTaskState() == Task_State.DONE) {
+                        programorder1++;
+                    }
+                    break;
+
+                case 20:
                     if (MechDrive.GetTaskState() == Task_State.READY) {
                         MechDrive.SetTargets(0, 200, 0.5);
                     }
@@ -498,7 +542,7 @@ public class SpectatorRed_V3 extends LinearOpMode {
                     }
                     break;
 
-                case 20:
+                case 21:
                     BucketControl.Calibrate();
                     ArmControl.Calibrate();
                     Rail.setTargetPosition(0);
@@ -546,6 +590,10 @@ public class SpectatorRed_V3 extends LinearOpMode {
             MechDrive.Task(GyroContinuity());
             BucketControl.BucketTask();
             ArmControl.ArmTask();
+
+            telemetry.addData("seq", programorder1);
+            telemetry.addData("state", MechDrive.GetTaskState());
+            telemetry.update();
         }
     }
 
@@ -573,13 +621,13 @@ public class SpectatorRed_V3 extends LinearOpMode {
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(115,125);
-        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(600,165);
-        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1100,205);
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(130,115);
+        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(600,115);
+        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1100,115);
         static final int REGION_WIDTH = 75;
         static final int REGION_HEIGHT = 75;
 
-        static final int SHIPPING_ELEMENT_THRESHOLD = 100;
+        static final int SHIPPING_ELEMENT_THRESHOLD = 75;
 
         Telemetry telemetry_vision;
 

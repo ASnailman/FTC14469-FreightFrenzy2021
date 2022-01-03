@@ -70,16 +70,16 @@ public class FarRed_V3 extends LinearOpMode {
     byte AXIS_MAP_SIGN_BYTE = 0x6; //rotates control hub 180 degrees around z axis by negating x and y signs
     byte AXIS_MAP_CONFIG_BYTE = 0x6; //rotates control hub 90 degrees around y axis by swapping x and z axis
 
-    static final int Top_Arm_Left = -390;
-    static final int Top_Arm_Right = 390;
+    static final int Top_Arm_Left = -420;
+    static final int Top_Arm_Right = 420;
     static final int Middle_Arm_Left = -290;
     static final int Middle_Arm_Right = 290;
-    static final int Low_Arm_Left = -150;
-    static final int Low_Arm_Right = 150;
+    static final int Low_Arm_Left = -160;
+    static final int Low_Arm_Right = 160;
 
     static final double OriginalBucketPosition = 0;
-    static final double TopBucketPosition = 130;
-    static final double MirrorTopBucketPosition = -130;
+    static final double TopBucketPosition = 140;
+    static final double MirrorTopBucketPosition = -140;
     static final double MiddleBucketPosition = 120;
     static final double MirrorMiddleBucketPosition = -120;
     static final double LowBucketPosition = 100;
@@ -211,6 +211,10 @@ public class FarRed_V3 extends LinearOpMode {
                     left = pipeline.position == BarcodeDeterminationPipeline.ShippingElementPosition.LEFT;
                     center = pipeline.position == BarcodeDeterminationPipeline.ShippingElementPosition.CENTER;
                     right = pipeline.position == BarcodeDeterminationPipeline.ShippingElementPosition.RIGHT;
+                    //Rail.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    Rail.setTargetPosition(500);
+                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    Rail.setPower(0.5);
                     programorder1++;
                     break;
 
@@ -218,9 +222,6 @@ public class FarRed_V3 extends LinearOpMode {
                     if (MechDrive.GetTaskState() == Task_State.INIT) {
                         MechDrive.SetTargets(180, 1350, 0.5);
                         BucketControl.SetTargetPosition(0);
-                        Rail.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                        Rail.setTargetPosition(300);
-                        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     }
                     else if (MechDrive.GetTaskState() == Task_State.DONE) {
                         programorder1++;
@@ -254,10 +255,10 @@ public class FarRed_V3 extends LinearOpMode {
                         }
                     }
                     else if (right) {
-                        Rail.setTargetPosition(1000);
+                        Rail.setTargetPosition(900);
                         Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                         Rail.setPower(0.5);
-                        if (Rail.getCurrentPosition() >= 970 && Rail.getCurrentPosition() <= 1030) {
+                        if (Rail.getCurrentPosition() >= 870 && Rail.getCurrentPosition() <= 930) {
                             programorder1++;
                         }
                     }
@@ -535,7 +536,7 @@ public class FarRed_V3 extends LinearOpMode {
         static final int REGION_WIDTH = 75;
         static final int REGION_HEIGHT = 75;
 
-        static final int SHIPPING_ELEMENT_THRESHOLD = 100;
+        static final int SHIPPING_ELEMENT_THRESHOLD = 75;
 
         Telemetry telemetry_vision;
 
