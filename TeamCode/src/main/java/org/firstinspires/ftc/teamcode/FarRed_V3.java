@@ -340,13 +340,13 @@ public class FarRed_V3 extends LinearOpMode {
                 case 6:
                     if (MechDrive.GetTaskState() == Task_State.READY) {
                         if (left) {
-                            MechDrive.SetTargets(90, 100, 0.5);
+                            MechDrive.SetTargets(90, 150, 0.5);
                         }
                         else if (center) {
-                            MechDrive.SetTargets(90, 115, 0.5);
+                            MechDrive.SetTargets(90, 200, 0.5);
                         }
                         else if (right) {
-                            MechDrive.SetTargets(90, 130, 0.5);
+                            MechDrive.SetTargets(90, 250, 0.5);
                         }
                     }
                     else if (MechDrive.GetTaskState() == Task_State.DONE) {
@@ -578,10 +578,10 @@ public class FarRed_V3 extends LinearOpMode {
         static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(20,125);
         static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(500,125);
         static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(950,145);
-        static final int REGION_WIDTH = 75;
-        static final int REGION_HEIGHT = 75;
+        static final int REGION_WIDTH = 40;
+        static final int REGION_HEIGHT = 40;
 
-        static final int SHIPPING_ELEMENT_THRESHOLD = 75;
+        static final int SHIPPING_ELEMENT_THRESHOLD = 55;
 
         Telemetry telemetry_vision;
 
@@ -765,7 +765,7 @@ public class FarRed_V3 extends LinearOpMode {
             DifferenceCenter = Avg2() - SHIPPING_ELEMENT_THRESHOLD;
             DifferenceRight = Avg3() - SHIPPING_ELEMENT_THRESHOLD;
 
-            if ((DifferenceLeft > -15) && (DifferenceLeft < 15)) { // Was it from region 1?
+            if ((DifferenceLeft > -30) && (DifferenceLeft < 30)) { // Was it from region 1?
 
                 position = ShippingElementPosition.LEFT; // Record our analysis
 
@@ -781,7 +781,7 @@ public class FarRed_V3 extends LinearOpMode {
                         4); // Negative thickness means solid fill
             }
 
-            else if ((DifferenceCenter > -15) && (DifferenceCenter < 15)) { // Was it from region 2?
+            else if ((DifferenceCenter > -30) && (DifferenceCenter < 30)) { // Was it from region 2?
 
                 position = ShippingElementPosition.CENTER; // Record our analysis
 
@@ -797,7 +797,7 @@ public class FarRed_V3 extends LinearOpMode {
                         4); // Negative thickness means solid fill
             }
 
-            else if ((DifferenceRight > -15) && (DifferenceRight < 15)) { // Was it from region 3?
+            else if ((DifferenceRight > -30) && (DifferenceRight < 30)) { // Was it from region 3?
 
                 position = ShippingElementPosition.RIGHT; // Record our analysis
 

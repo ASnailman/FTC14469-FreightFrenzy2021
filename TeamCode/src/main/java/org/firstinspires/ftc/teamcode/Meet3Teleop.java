@@ -101,7 +101,7 @@ public class Meet3Teleop extends LinearOpMode {
     static final double MirrorLowBucketPosition = -100;
 
     static final double OpenGatePosition = 0.5;
-    static final double OpenIntakePosition = 0.6;
+    static final double OpenIntakePosition = 0.5;
     static final double ClosingGatePosition = 0.2;
     static final double ClosingIntakePosition = 0.8;
 
@@ -194,19 +194,19 @@ public class Meet3Teleop extends LinearOpMode {
                 if (yellow) {
                     Intake.setPower(0);
                     ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
-                    ET.reset();
-                    if (ET.milliseconds() > 500) {
+                    //ET.reset();
+                    //if (ET.milliseconds() > 500) {
                         IntakeServo.setPosition(ClosingIntakePosition);
-                    }
+                    //}
                     BucketIsEmpty = false;
                 }
                 else if (white) {
                     Intake.setPower(0);
                     ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.SKY_BLUE);
-                    ET.reset();
-                    if (ET.milliseconds() > 500) {
+                    //ET.reset();
+                    //if (ET.milliseconds() > 500) {
                         IntakeServo.setPosition(ClosingIntakePosition);
-                    }
+                    //}
                     BucketIsEmpty = false;
                 }
                 else if (unknown) {
@@ -239,6 +239,27 @@ public class Meet3Teleop extends LinearOpMode {
             BackLeft.setPower(BLPower);
             FrontRight.setPower(FRPower);
             BackRight.setPower(BRPower);
+
+            /*********************************************************************
+             Press and hold a button to lift rail up
+             *********************************************************************/
+
+            if (button_x_already_pressed == false) {
+                if (gamepad1.x) {
+                    Rail.setTargetPosition(300);
+                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    Rail.setPower(0.5);
+                    button_x_already_pressed = true;
+                }
+            }
+            else {
+                if (!gamepad1.x) {
+                    Rail.setTargetPosition(0);
+                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    Rail.setPower(0.5);
+                    button_x_already_pressed = false;
+                }
+            }
 
             /*********************************************************************
              Dpad Up - Trigger the final bucket reset sequence and run the intake
@@ -310,11 +331,12 @@ public class Meet3Teleop extends LinearOpMode {
                         // Open the intake gate and turn on the intake
                         BucketMotor.Calibrate();
                         ArmMotor.Calibrate();
+                        ArmMotor.SetTargetPosition(8, -0.1, 0.1);
                         IntakeServo.setPosition(OpenIntakePosition);
                         Intake.setPower(1);
 
                         // Move the rail down and allow the bucket to hang loosely
-                        Rail.setTargetPosition(170);
+                        Rail.setTargetPosition(0);
                         Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                         Rail.setPower(0.5);
                         //ET.reset();

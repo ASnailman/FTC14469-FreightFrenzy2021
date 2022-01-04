@@ -82,8 +82,8 @@ public class SpectatorBlue_V3 extends LinearOpMode {
     static final double MirrorTopBucketPosition = -140;
     static final double MiddleBucketPosition = 120;
     static final double MirrorMiddleBucketPosition = -120;
-    static final double LowBucketPosition = 100;
-    static final double MirrorLowBucketPosition = -100;
+    static final double LowBucketPosition = 95;
+    static final double MirrorLowBucketPosition = -95;
 
     static final double OpenGatePosition = 0.5;
     static final double OpenIntakePosition = 0.6;
@@ -311,7 +311,7 @@ public class SpectatorBlue_V3 extends LinearOpMode {
 
                 case 5:
                     if (left) {
-                        if (BucketControl.GetTaskState() == Task_State.INIT) {
+                        if (BucketControl.GetTaskState() == Task_State.INIT || BucketControl.GetTaskState() == Task_State.READY) {
                             BucketControl.SetTargetPosition(LowBucketPosition);
                         }
                         else if (BucketControl.GetTaskState() == Task_State.DONE) {
@@ -319,7 +319,7 @@ public class SpectatorBlue_V3 extends LinearOpMode {
                         }
                     }
                     else if (center) {
-                        if (BucketControl.GetTaskState() == Task_State.INIT) {
+                        if (BucketControl.GetTaskState() == Task_State.INIT || BucketControl.GetTaskState() == Task_State.READY) {
                             BucketControl.SetTargetPosition(MiddleBucketPosition);
                         }
                         else if (BucketControl.GetTaskState() == Task_State.DONE) {
@@ -327,7 +327,7 @@ public class SpectatorBlue_V3 extends LinearOpMode {
                         }
                     }
                     else if (right) {
-                        if (BucketControl.GetTaskState() == Task_State.INIT) {
+                        if (BucketControl.GetTaskState() == Task_State.INIT || BucketControl.GetTaskState() == Task_State.READY) {
                             BucketControl.SetTargetPosition(TopBucketPosition);
                         }
                         else if (BucketControl.GetTaskState() == Task_State.DONE) {
@@ -339,13 +339,13 @@ public class SpectatorBlue_V3 extends LinearOpMode {
                 case 6:
                     if (MechDrive.GetTaskState() == Task_State.READY) {
                         if (left) {
-                            MechDrive.SetTargets(90, 100, 0.5);
+                            MechDrive.SetTargets(-90, 275, 0.5);
                         }
                         else if (center) {
-                            MechDrive.SetTargets(90, 115, 0.5);
+                            MechDrive.SetTargets(-90, 150, 0.5);
                         }
                         else if (right) {
-                            MechDrive.SetTargets(90, 130, 0.5);
+                            MechDrive.SetTargets(-90, 175, 0.5);
                         }
                     }
                     else if (MechDrive.GetTaskState() == Task_State.DONE) {
@@ -483,7 +483,15 @@ public class SpectatorBlue_V3 extends LinearOpMode {
 
                 case 14:
                     if (MechDrive.GetTaskState() == Task_State.READY) {
-                        MechDrive.SetTargets(90, 430, 0.5);
+                        if (left) {
+                            MechDrive.SetTargets(90, 675, 0.5);
+                        }
+                        else if (center) {
+                            MechDrive.SetTargets(90, 500, 0.5);
+                        }
+                        else if (right) {
+                            MechDrive.SetTargets(90, 500, 0.5);
+                        }
                     }
                     else if (MechDrive.GetTaskState() == Task_State.DONE) {
                         programorder1++;
@@ -492,7 +500,15 @@ public class SpectatorBlue_V3 extends LinearOpMode {
 
                 case 15:
                     if (MechDrive.GetTaskState() == Task_State.READY) {
-                        MechDrive.SetTargets(0, 1600, 0.5);
+                        if (left) {
+                            MechDrive.SetTargets(0, 1760, 0.40);
+                        }
+                        else if (center) {
+                            MechDrive.SetTargets(0, 1650, 0.45);
+                        }
+                        else if (right) {
+                            MechDrive.SetTargets(0, 1650, 0.45);
+                        }
                     }
                     else if (MechDrive.GetTaskState() == Task_State.DONE) {
                         programorder1++;
@@ -518,7 +534,7 @@ public class SpectatorBlue_V3 extends LinearOpMode {
 
                 case 19:
                     if (MechDrive.GetTaskState() == Task_State.READY) {
-                        MechDrive.SetTargets(-90, 1190, 0.5);
+                        MechDrive.SetTargets(-90, 1100, 0.5);
                     }
                     else if (MechDrive.GetTaskState() == Task_State.DONE) {
                         programorder1++;
@@ -609,13 +625,13 @@ public class SpectatorBlue_V3 extends LinearOpMode {
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(40,125);
-        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(550,125);
-        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1050,125);
-        static final int REGION_WIDTH = 75;
-        static final int REGION_HEIGHT = 75;
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(40,200);
+        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(510,95);
+        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1010,95);
+        static final int REGION_WIDTH = 40;
+        static final int REGION_HEIGHT = 40;
 
-        static final int SHIPPING_ELEMENT_THRESHOLD = 75;
+        static final int SHIPPING_ELEMENT_THRESHOLD = 55;
 
         Telemetry telemetry_vision;
 
@@ -799,7 +815,7 @@ public class SpectatorBlue_V3 extends LinearOpMode {
             DifferenceCenter = Avg2() - SHIPPING_ELEMENT_THRESHOLD;
             DifferenceRight = Avg3() - SHIPPING_ELEMENT_THRESHOLD;
 
-            if ((DifferenceLeft > -15) && (DifferenceLeft < 15)) { // Was it from region 1?
+            if ((DifferenceLeft > -30) && (DifferenceLeft < 30)) { // Was it from region 1?
 
                 position = ShippingElementPosition.LEFT; // Record our analysis
 
@@ -815,7 +831,7 @@ public class SpectatorBlue_V3 extends LinearOpMode {
                         4); // Negative thickness means solid fill
             }
 
-            else if ((DifferenceCenter > -15) && (DifferenceCenter < 15)) { // Was it from region 2?
+            else if ((DifferenceCenter > -30) && (DifferenceCenter < 30)) { // Was it from region 2?
 
                 position = ShippingElementPosition.CENTER; // Record our analysis
 
@@ -831,7 +847,7 @@ public class SpectatorBlue_V3 extends LinearOpMode {
                         4); // Negative thickness means solid fill
             }
 
-            else if ((DifferenceRight > -15) && (DifferenceRight < 15)) { // Was it from region 3?
+            else if ((DifferenceRight > -30) && (DifferenceRight < 30)) { // Was it from region 3?
 
                 position = ShippingElementPosition.RIGHT; // Record our analysis
 
