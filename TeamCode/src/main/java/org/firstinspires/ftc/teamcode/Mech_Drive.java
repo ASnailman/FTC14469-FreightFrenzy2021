@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -18,6 +19,8 @@ public class Mech_Drive {
     double targetpower;
     double steeringoutput;
     Task_State state;
+
+    double finalpower;
 
     // CONSTRUCTOR
     public Mech_Drive(DcMotor fr, DcMotor fl, DcMotor br, DcMotor bl, MoveDirection Direction, Telemetry Telemetry) {
@@ -64,14 +67,18 @@ public class Mech_Drive {
         double denominator;
         double encoder;
         double radians = Math.toRadians(-strafingangle); // negate strafing angle for left hand rule
+        double power;
 
         encoder = FrontRight.getCurrentPosition();
 
         // Always run this PID control when in RUN
         if (state == Task_State.RUN) {
 
+            power = ((targetdistance - FrontRight.getCurrentPosition()) / targetdistance) * targetpower;
+            finalpower = Range.clip(power, 0.35, 0.5);
+
             power_x_old = 0;                // make x_old 0 to make the degrees start at the front of the robot
-            power_y_old = targetpower;
+            power_y_old = finalpower;
 
             power_x_new = power_x_old * Math.cos(radians) - power_y_old * Math.sin(radians); // equation for right hand rule
             power_y_new = power_x_old * Math.sin(radians) + power_y_old * Math.cos(radians);

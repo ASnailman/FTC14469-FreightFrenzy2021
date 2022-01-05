@@ -248,7 +248,7 @@ public class SpectatorBlue_V3 extends LinearOpMode {
 
                 case 2:
                     if (MechDrive.GetTaskState() == Task_State.READY) {
-                        MechDrive.SetTargets(180, 775, 0.5);
+                        MechDrive.SetTargets(180, 825, 0.5);
                     }
                     else if (MechDrive.GetTaskState() == Task_State.DONE) {
                         programorder1++;
@@ -339,13 +339,13 @@ public class SpectatorBlue_V3 extends LinearOpMode {
                 case 6:
                     if (MechDrive.GetTaskState() == Task_State.READY) {
                         if (left) {
-                            MechDrive.SetTargets(-90, 275, 0.5);
+                            MechDrive.SetTargets(-90, 300, 0.5);
                         }
                         else if (center) {
-                            MechDrive.SetTargets(-90, 150, 0.5);
+                            MechDrive.SetTargets(-90, 250, 0.5);
                         }
                         else if (right) {
-                            MechDrive.SetTargets(-90, 175, 0.5);
+                            MechDrive.SetTargets(-90, 250, 0.5);
                         }
                     }
                     else if (MechDrive.GetTaskState() == Task_State.DONE) {
@@ -397,35 +397,52 @@ public class SpectatorBlue_V3 extends LinearOpMode {
                     break;
 
                 case 9:
-                    if (left) {
-                        if (ArmControl.GetTaskState() == Task_State.READY) {
-                            ArmControl.SetTargetPosition(-120, -0.0001, -0.0001);
+                    if (MechDrive.GetTaskState() == Task_State.READY) {
+                        if (left) {
+                            MechDrive.SetTargets(90, 675, 0.5);
                         }
-                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
-                            programorder1++;
+                        else if (center) {
+                            MechDrive.SetTargets(90, 625, 0.5);
                         }
-                    }
-                    else if (center) {
-                        if (ArmControl.GetTaskState() == Task_State.READY) {
-                            ArmControl.SetTargetPosition(-120, -0.0001, -0.0001);
-                        }
-                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
-                            programorder1++;
+                        else if (right) {
+                            MechDrive.SetTargets(90, 625, 0.5);
                         }
                     }
-                    else if (right) {
-                        if (ArmControl.GetTaskState() == Task_State.READY) {
-                            ArmControl.SetTargetPosition(-120, -0.0001, -0.0001);
-                        }
-                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
-                            programorder1++;
-                        }
+                    else if (MechDrive.GetTaskState() == Task_State.DONE) {
+                        programorder1++;
                     }
                     break;
 
                 case 10:
                     if (left) {
                         if (ArmControl.GetTaskState() == Task_State.READY) {
+                            ArmControl.SetTargetPosition(-120, -0.0001, -0.0001);
+                        }
+                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
+                            programorder1++;
+                        }
+                    }
+                    else if (center) {
+                        if (ArmControl.GetTaskState() == Task_State.READY) {
+                            ArmControl.SetTargetPosition(-120, -0.0001, -0.0001);
+                        }
+                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
+                            programorder1++;
+                        }
+                    }
+                    else if (right) {
+                        if (ArmControl.GetTaskState() == Task_State.READY) {
+                            ArmControl.SetTargetPosition(-120, -0.0001, -0.0001);
+                        }
+                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
+                            programorder1++;
+                        }
+                    }
+                    break;
+
+                case 11:
+                    if (left) {
+                        if (ArmControl.GetTaskState() == Task_State.READY) {
                             ArmControl.SetTargetPosition(10, -0.1, 0.1);
                         }
                         else if (ArmControl.GetTaskState() == Task_State.DONE) {
@@ -453,14 +470,14 @@ public class SpectatorBlue_V3 extends LinearOpMode {
                     }
                     break;
 
-                case 11:
+                case 12:
 
                     if (ET.milliseconds() > 500) {
                         programorder1++;
                     }
                     break;
 
-                case 12:
+                case 13:
                     if (ArmControl.GetTaskState() == Task_State.READY) {
                         ArmControl.Override();
                         Rail.setTargetPosition(400);
@@ -472,7 +489,7 @@ public class SpectatorBlue_V3 extends LinearOpMode {
                     }
                     break;
 
-                case 13:
+                case 14:
                     if (Rail.getCurrentPosition() > 370 && Rail.getCurrentPosition() < 430) {
                         if (BucketControl.GetTaskState() == Task_State.READY) {
                             BucketControl.SetTargetPosition(OriginalBucketPosition);
@@ -481,33 +498,16 @@ public class SpectatorBlue_V3 extends LinearOpMode {
                     }
                     break;
 
-                case 14:
-                    if (MechDrive.GetTaskState() == Task_State.READY) {
-                        if (left) {
-                            MechDrive.SetTargets(90, 675, 0.5);
-                        }
-                        else if (center) {
-                            MechDrive.SetTargets(90, 500, 0.5);
-                        }
-                        else if (right) {
-                            MechDrive.SetTargets(90, 500, 0.5);
-                        }
-                    }
-                    else if (MechDrive.GetTaskState() == Task_State.DONE) {
-                        programorder1++;
-                    }
-                    break;
-
                 case 15:
                     if (MechDrive.GetTaskState() == Task_State.READY) {
                         if (left) {
-                            MechDrive.SetTargets(0, 1760, 0.40);
+                            MechDrive.SetTargets(0, 1925, 0.40);
                         }
                         else if (center) {
-                            MechDrive.SetTargets(0, 1650, 0.45);
+                            MechDrive.SetTargets(0, 1925, 0.45);
                         }
                         else if (right) {
-                            MechDrive.SetTargets(0, 1650, 0.45);
+                            MechDrive.SetTargets(0, 1925, 0.45);
                         }
                     }
                     else if (MechDrive.GetTaskState() == Task_State.DONE) {
@@ -534,7 +534,7 @@ public class SpectatorBlue_V3 extends LinearOpMode {
 
                 case 19:
                     if (MechDrive.GetTaskState() == Task_State.READY) {
-                        MechDrive.SetTargets(-90, 1100, 0.5);
+                        MechDrive.SetTargets(-90, 1000, 0.5);
                     }
                     else if (MechDrive.GetTaskState() == Task_State.DONE) {
                         programorder1++;
@@ -543,7 +543,7 @@ public class SpectatorBlue_V3 extends LinearOpMode {
 
                 case 20:
                     if (MechDrive.GetTaskState() == Task_State.READY) {
-                        MechDrive.SetTargets(0, 200, 0.5);
+                        MechDrive.SetTargets(0, 400, 0.5);
                     }
                     else if (MechDrive.GetTaskState() == Task_State.DONE) {
                         programorder1++;
@@ -815,7 +815,7 @@ public class SpectatorBlue_V3 extends LinearOpMode {
             DifferenceCenter = Avg2() - SHIPPING_ELEMENT_THRESHOLD;
             DifferenceRight = Avg3() - SHIPPING_ELEMENT_THRESHOLD;
 
-            if ((DifferenceLeft > -30) && (DifferenceLeft < 30)) { // Was it from region 1?
+            if ((DifferenceLeft > -40) && (DifferenceLeft < 40)) { // Was it from region 1?
 
                 position = ShippingElementPosition.LEFT; // Record our analysis
 
@@ -831,7 +831,7 @@ public class SpectatorBlue_V3 extends LinearOpMode {
                         4); // Negative thickness means solid fill
             }
 
-            else if ((DifferenceCenter > -30) && (DifferenceCenter < 30)) { // Was it from region 2?
+            else if ((DifferenceCenter > -40) && (DifferenceCenter < 40)) { // Was it from region 2?
 
                 position = ShippingElementPosition.CENTER; // Record our analysis
 
@@ -847,7 +847,7 @@ public class SpectatorBlue_V3 extends LinearOpMode {
                         4); // Negative thickness means solid fill
             }
 
-            else if ((DifferenceRight > -30) && (DifferenceRight < 30)) { // Was it from region 3?
+            else if ((DifferenceRight > -40) && (DifferenceRight < 40)) { // Was it from region 3?
 
                 position = ShippingElementPosition.RIGHT; // Record our analysis
 

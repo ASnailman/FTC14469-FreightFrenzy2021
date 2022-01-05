@@ -492,10 +492,10 @@ public class SpectatorRed_V3 extends LinearOpMode {
                             MechDrive.SetTargets(-90, 625, 0.5);
                         }
                         else if (center) {
-                            MechDrive.SetTargets(-90, 450, 0.5);
+                            MechDrive.SetTargets(-90, 625, 0.5);
                         }
                         else if (right) {
-                            MechDrive.SetTargets(-90, 450, 0.5);
+                            MechDrive.SetTargets(-90, 625, 0.5);
                         }
                     }
                     else if (MechDrive.GetTaskState() == Task_State.DONE) {
@@ -506,13 +506,13 @@ public class SpectatorRed_V3 extends LinearOpMode {
                 case 15:
                     if (MechDrive.GetTaskState() == Task_State.READY) {
                         if (left) {
-                            MechDrive.SetTargets(0, 1760, 0.40);
+                            MechDrive.SetTargets(0, 1925, 0.40);
                         }
                         else if (center) {
-                            MechDrive.SetTargets(0, 1650, 0.45);
+                            MechDrive.SetTargets(0, 1925, 0.45);
                         }
                         else if (right) {
-                            MechDrive.SetTargets(0, 1650, 0.45);
+                            MechDrive.SetTargets(0, 1925, 0.45);
                         }
                     }
                     else if (MechDrive.GetTaskState() == Task_State.DONE) {
@@ -548,7 +548,7 @@ public class SpectatorRed_V3 extends LinearOpMode {
 
                 case 20:
                     if (MechDrive.GetTaskState() == Task_State.READY) {
-                        MechDrive.SetTargets(0, 200, 0.5);
+                        MechDrive.SetTargets(0, 400, 0.5);
                     }
                     else if (MechDrive.GetTaskState() == Task_State.DONE) {
                         programorder1++;
@@ -634,11 +634,11 @@ public class SpectatorRed_V3 extends LinearOpMode {
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(90,115);
-        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(600,115);
-        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1100,115);
-        static final int REGION_WIDTH = 40;
-        static final int REGION_HEIGHT = 40;
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(140,115);
+        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(620,115);
+        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1110,115);
+        static final int REGION_WIDTH = 80;
+        static final int REGION_HEIGHT = 80;
 
         static final int SHIPPING_ELEMENT_THRESHOLD = 55;
 
@@ -824,7 +824,7 @@ public class SpectatorRed_V3 extends LinearOpMode {
             DifferenceCenter = Avg2() - SHIPPING_ELEMENT_THRESHOLD;
             DifferenceRight = Avg3() - SHIPPING_ELEMENT_THRESHOLD;
 
-            if ((DifferenceLeft > -30) && (DifferenceLeft < 30)) { // Was it from region 1?
+            if ((DifferenceLeft > -40) && (DifferenceLeft < 40)) { // Was it from region 1?
 
                 position = ShippingElementPosition.LEFT; // Record our analysis
 
@@ -840,7 +840,7 @@ public class SpectatorRed_V3 extends LinearOpMode {
                         4); // Negative thickness means solid fill
             }
 
-            else if ((DifferenceCenter > -30) && (DifferenceCenter < 30)) { // Was it from region 2?
+            else if ((DifferenceCenter > -40) && (DifferenceCenter < 40)) { // Was it from region 2?
 
                 position = ShippingElementPosition.CENTER; // Record our analysis
 
@@ -856,7 +856,7 @@ public class SpectatorRed_V3 extends LinearOpMode {
                         4); // Negative thickness means solid fill
             }
 
-            else if ((DifferenceRight > -30) && (DifferenceRight < 30)) { // Was it from region 3?
+            else if ((DifferenceRight > -40) && (DifferenceRight < 40)) { // Was it from region 3?
 
                 position = ShippingElementPosition.RIGHT; // Record our analysis
 

@@ -36,11 +36,11 @@ public class Bucket_Control {
 
     // METHOD THAT A STATE MACHINE OPMODE SHOULD CALL WHEN IT IS READY TO LAUNCH THE NEXT TASK IN ITS LIST
     public void SetTargetPosition(double TargetPosition) {
-
+        if (targetposition != TargetPosition) {
+            pid.Reset_PID();
+        }
         targetposition = TargetPosition;
         state = Task_State.RUN;
-        pid.Reset_PID();
-
     }
 
     // METHOD TO CALIBRATE THE BUCKET POSITION.
@@ -78,7 +78,7 @@ public class Bucket_Control {
             if (state == Task_State.DONE) {
                 state = Task_State.READY;
             }
-            else if (state == Task_State.RUN && bucketmotor.getCurrentPosition() > (targetposition - tolerance) &&
+            else if (state != Task_State.READY && bucketmotor.getCurrentPosition() > (targetposition - tolerance) &&
                     bucketmotor.getCurrentPosition() < (targetposition + tolerance)) {
                 state = Task_State.DONE;
             }

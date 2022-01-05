@@ -100,7 +100,7 @@ public class Arm_Control {
                     }
                 }
                 else {
-                    if (motor_obj.getCurrentPosition() > (target_position - tolerance) &&
+                    if (run_state != Task_State.READY && motor_obj.getCurrentPosition() > (target_position - tolerance) &&
                             motor_obj.getCurrentPosition() < (target_position + tolerance)) {
                         run_state = Task_State.DONE;
                     }

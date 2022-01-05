@@ -82,8 +82,8 @@ public class FarBlue_V3 extends LinearOpMode {
     static final double MirrorTopBucketPosition = -140;
     static final double MiddleBucketPosition = 120;
     static final double MirrorMiddleBucketPosition = -120;
-    static final double LowBucketPosition = 100;
-    static final double MirrorLowBucketPosition = -100;
+    static final double LowBucketPosition = 95;
+    static final double MirrorLowBucketPosition = -95;
 
     static final double OpenGatePosition = 0.5;
     static final double OpenIntakePosition = 0.6;
@@ -166,7 +166,7 @@ public class FarBlue_V3 extends LinearOpMode {
         ArmControl = new Arm_Control(Arm);
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 2"), cameraMonitorViewId);
         pipeline = new BarcodeDeterminationPipeline();
         webcam.setPipeline(pipeline);
         pipeline.InitTelemetry(telemetry);
@@ -238,8 +238,7 @@ public class FarBlue_V3 extends LinearOpMode {
                 case 1:
                     if (Rail.getCurrentPosition() >= 470 && Rail.getCurrentPosition() <= 530) {
                         if (MechDrive.GetTaskState() == Task_State.INIT) {
-                            MechDrive.SetTargets(180, 1350, 0.5);
-                            BucketControl.SetTargetPosition(0);
+                            MechDrive.SetTargets(-90, 500, 0.5);
                         } else if (MechDrive.GetTaskState() == Task_State.DONE) {
                             programorder1++;
                         }
@@ -248,9 +247,9 @@ public class FarBlue_V3 extends LinearOpMode {
 
                 case 2:
                     if (MechDrive.GetTaskState() == Task_State.READY) {
-                        MechDrive.SetTargets(90, 500, 0.5);
-                    }
-                    else if (MechDrive.GetTaskState() == Task_State.DONE) {
+                        MechDrive.SetTargets(0, 900, 0.5);
+                        BucketControl.SetTargetPosition(0);
+                    } else if (MechDrive.GetTaskState() == Task_State.DONE) {
                         programorder1++;
                     }
                     break;
@@ -259,15 +258,15 @@ public class FarBlue_V3 extends LinearOpMode {
                     if (left) {
                         Rail.setTargetPosition(780);
                         Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        Rail.setPower(0.5);
+                        Rail.setPower(0.65);
                         if (Rail.getCurrentPosition() >= 750 && Rail.getCurrentPosition() <= 810) {
                             programorder1++;
                         }
                     }
                     else if (center) {
-                        Rail.setTargetPosition(750);
+                        Rail.setTargetPosition(780);
                         Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        Rail.setPower(0.5);
+                        Rail.setPower(0.65);
                         if (Rail.getCurrentPosition() >= 750 && Rail.getCurrentPosition() <= 810) {
                             programorder1++;
                         }
@@ -275,7 +274,7 @@ public class FarBlue_V3 extends LinearOpMode {
                     else if (right) {
                         Rail.setTargetPosition(900);
                         Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        Rail.setPower(0.5);
+                        Rail.setPower(0.65);
                         if (Rail.getCurrentPosition() >= 870 && Rail.getCurrentPosition() <= 930) {
                             programorder1++;
                         }
@@ -285,7 +284,7 @@ public class FarBlue_V3 extends LinearOpMode {
                 case 4:
                     if (left) {
                         if (ArmControl.GetTaskState() == Task_State.INIT) {
-                            ArmControl.SetTargetPosition(Low_Arm_Right, -0.6, 0.6);
+                            ArmControl.SetTargetPosition(Low_Arm_Left, -0.6, 0.6);
                         }
                         else if (ArmControl.GetTaskState() == Task_State.DONE) {
                             programorder1++;
@@ -293,7 +292,7 @@ public class FarBlue_V3 extends LinearOpMode {
                     }
                     else if (center) {
                         if (ArmControl.GetTaskState() == Task_State.INIT) {
-                            ArmControl.SetTargetPosition(Middle_Arm_Right, -0.6, 0.6);
+                            ArmControl.SetTargetPosition(Middle_Arm_Left, -0.6, 0.6);
                         }
                         else if (ArmControl.GetTaskState() == Task_State.DONE) {
                             programorder1++;
@@ -301,7 +300,7 @@ public class FarBlue_V3 extends LinearOpMode {
                     }
                     else if (right) {
                         if (ArmControl.GetTaskState() == Task_State.INIT) {
-                            ArmControl.SetTargetPosition(Top_Arm_Right, -0.6, 0.6);
+                            ArmControl.SetTargetPosition(Top_Arm_Left, -0.6, 0.6);
                         }
                         else if (ArmControl.GetTaskState() == Task_State.DONE) {
                             programorder1++;
@@ -311,24 +310,24 @@ public class FarBlue_V3 extends LinearOpMode {
 
                 case 5:
                     if (left) {
-                        if (BucketControl.GetTaskState() == Task_State.INIT) {
-                            BucketControl.SetTargetPosition(MirrorLowBucketPosition);
+                        if (BucketControl.GetTaskState() == Task_State.INIT || BucketControl.GetTaskState() == Task_State.READY) {
+                            BucketControl.SetTargetPosition(LowBucketPosition);
                         }
                         else if (BucketControl.GetTaskState() == Task_State.DONE) {
                             programorder1++;
                         }
                     }
                     else if (center) {
-                        if (BucketControl.GetTaskState() == Task_State.INIT) {
-                            BucketControl.SetTargetPosition(MirrorMiddleBucketPosition);
+                        if (BucketControl.GetTaskState() == Task_State.INIT || BucketControl.GetTaskState() == Task_State.READY) {
+                            BucketControl.SetTargetPosition(MiddleBucketPosition);
                         }
                         else if (BucketControl.GetTaskState() == Task_State.DONE) {
                             programorder1++;
                         }
                     }
                     else if (right) {
-                        if (BucketControl.GetTaskState() == Task_State.INIT) {
-                            BucketControl.SetTargetPosition(MirrorTopBucketPosition);
+                        if (BucketControl.GetTaskState() == Task_State.INIT || BucketControl.GetTaskState() == Task_State.READY) {
+                            BucketControl.SetTargetPosition(TopBucketPosition);
                         }
                         else if (BucketControl.GetTaskState() == Task_State.DONE) {
                             programorder1++;
@@ -339,13 +338,13 @@ public class FarBlue_V3 extends LinearOpMode {
                 case 6:
                     if (MechDrive.GetTaskState() == Task_State.READY) {
                         if (left) {
-                            MechDrive.SetTargets(90, 150, 0.5);
+                            MechDrive.SetTargets(-90, 375, 0.5);
                         }
                         else if (center) {
-                            MechDrive.SetTargets(90, 200, 0.5);
+                            MechDrive.SetTargets(-90, 325, 0.5);
                         }
                         else if (right) {
-                            MechDrive.SetTargets(90, 250, 0.5);
+                            MechDrive.SetTargets(-90, 250, 0.5);
                         }
                     }
                     else if (MechDrive.GetTaskState() == Task_State.DONE) {
@@ -399,7 +398,7 @@ public class FarBlue_V3 extends LinearOpMode {
                 case 9:
                     if (left) {
                         if (ArmControl.GetTaskState() == Task_State.READY) {
-                            ArmControl.SetTargetPosition(120, 0.001, 0.001);
+                            ArmControl.SetTargetPosition(-120, -0.0001, -0.0001);
                         }
                         else if (ArmControl.GetTaskState() == Task_State.DONE) {
                             programorder1++;
@@ -407,7 +406,7 @@ public class FarBlue_V3 extends LinearOpMode {
                     }
                     else if (center) {
                         if (ArmControl.GetTaskState() == Task_State.READY) {
-                            ArmControl.SetTargetPosition(120, 0.001, 0.001);
+                            ArmControl.SetTargetPosition(-120, -0.0001, -0.0001);
                         }
                         else if (ArmControl.GetTaskState() == Task_State.DONE) {
                             programorder1++;
@@ -415,7 +414,7 @@ public class FarBlue_V3 extends LinearOpMode {
                     }
                     else if (right) {
                         if (ArmControl.GetTaskState() == Task_State.READY) {
-                            ArmControl.SetTargetPosition(120, 0.001, 0.001);
+                            ArmControl.SetTargetPosition(-120, -0.0001, -0.0001);
                         }
                         else if (ArmControl.GetTaskState() == Task_State.DONE) {
                             programorder1++;
@@ -426,7 +425,7 @@ public class FarBlue_V3 extends LinearOpMode {
                 case 10:
                     if (left) {
                         if (ArmControl.GetTaskState() == Task_State.READY) {
-                            ArmControl.SetTargetPosition(-10, -0.1, 0.1);
+                            ArmControl.SetTargetPosition(10, -0.1, 0.1);
                         }
                         else if (ArmControl.GetTaskState() == Task_State.DONE) {
                             programorder1++;
@@ -435,7 +434,7 @@ public class FarBlue_V3 extends LinearOpMode {
                     }
                     else if (center) {
                         if (ArmControl.GetTaskState() == Task_State.READY) {
-                            ArmControl.SetTargetPosition(-10, -0.1, 0.1);
+                            ArmControl.SetTargetPosition(10, -0.1, 0.1);
                         }
                         else if (ArmControl.GetTaskState() == Task_State.DONE) {
                             programorder1++;
@@ -444,7 +443,7 @@ public class FarBlue_V3 extends LinearOpMode {
                     }
                     else if (right) {
                         if (ArmControl.GetTaskState() == Task_State.READY) {
-                            ArmControl.SetTargetPosition(-10, -0.1, 0.1);
+                            ArmControl.SetTargetPosition(10, -0.1, 0.1);
                         }
                         else if (ArmControl.GetTaskState() == Task_State.DONE) {
                             programorder1++;
@@ -463,7 +462,7 @@ public class FarBlue_V3 extends LinearOpMode {
                 case 12:
                     if (ArmControl.GetTaskState() == Task_State.READY) {
                         ArmControl.Override();
-                        Rail.setTargetPosition(400);
+                        Rail.setTargetPosition(700);
                         Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                         Rail.setPower(0.5);
                     }
@@ -473,7 +472,7 @@ public class FarBlue_V3 extends LinearOpMode {
                     break;
 
                 case 13:
-                    if (Rail.getCurrentPosition() > 370 && Rail.getCurrentPosition() < 430) {
+                    if (Rail.getCurrentPosition() > 670 && Rail.getCurrentPosition() < 730) {
                         if (BucketControl.GetTaskState() == Task_State.READY) {
                             BucketControl.SetTargetPosition(OriginalBucketPosition);
                             programorder1++;
@@ -483,7 +482,7 @@ public class FarBlue_V3 extends LinearOpMode {
 
                 case 14:
                     if (MechDrive.GetTaskState() == Task_State.READY) {
-                        MechDrive.SetTargets(-90, 350, 0.5);
+                        MechDrive.SetTargets(90, 0, 0.5);
                     }
                     else if (MechDrive.GetTaskState() == Task_State.DONE) {
                         programorder1++;
@@ -492,7 +491,7 @@ public class FarBlue_V3 extends LinearOpMode {
 
                 case 15:
                     if (MechDrive.GetTaskState() == Task_State.READY) {
-                        MechDrive.SetTargets(0, 2700, 0.7);
+                        MechDrive.SetTargets(180, 4000, 1);
                     }
                     else if (MechDrive.GetTaskState() == Task_State.DONE) {
                         programorder1++;
@@ -574,11 +573,11 @@ public class FarBlue_V3 extends LinearOpMode {
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(115,125);
-        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(600,165);
-        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1100,205);
-        static final int REGION_WIDTH = 40;
-        static final int REGION_HEIGHT = 40;
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(60,180);
+        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(500,65);
+        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1050,65);
+        static final int REGION_WIDTH = 80;
+        static final int REGION_HEIGHT = 80;
 
         static final int SHIPPING_ELEMENT_THRESHOLD = 55;
 
@@ -764,7 +763,7 @@ public class FarBlue_V3 extends LinearOpMode {
             DifferenceCenter = Avg2() - SHIPPING_ELEMENT_THRESHOLD;
             DifferenceRight = Avg3() - SHIPPING_ELEMENT_THRESHOLD;
 
-            if ((DifferenceLeft > -30) && (DifferenceLeft < 30)) { // Was it from region 1?
+            if ((DifferenceLeft > -40) && (DifferenceLeft < 40)) { // Was it from region 1?
 
                 position = ShippingElementPosition.LEFT; // Record our analysis
 
@@ -780,7 +779,7 @@ public class FarBlue_V3 extends LinearOpMode {
                         4); // Negative thickness means solid fill
             }
 
-            else if ((DifferenceCenter > -30) && (DifferenceCenter < 30)) { // Was it from region 2?
+            else if ((DifferenceCenter > -40) && (DifferenceCenter < 40)) { // Was it from region 2?
 
                 position = ShippingElementPosition.CENTER; // Record our analysis
 
@@ -796,7 +795,7 @@ public class FarBlue_V3 extends LinearOpMode {
                         4); // Negative thickness means solid fill
             }
 
-            else if ((DifferenceRight > -30) && (DifferenceRight < 30)) { // Was it from region 3?
+            else if ((DifferenceRight > -40) && (DifferenceRight < 40)) { // Was it from region 3?
 
                 position = ShippingElementPosition.RIGHT; // Record our analysis
 

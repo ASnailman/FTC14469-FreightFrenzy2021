@@ -262,6 +262,23 @@ public class Meet3Teleop extends LinearOpMode {
             }
 
             /*********************************************************************
+             Reverse Intake Wheel
+             *********************************************************************/
+
+            if (button_bumper_left_already_pressed == false) {
+                if (gamepad1.left_bumper) {
+                    Intake.setPower(-1);
+                    button_bumper_left_already_pressed = true;
+                }
+            }
+            else {
+                if (!gamepad1.left_bumper) {
+                    Intake.setPower(0);
+                    button_bumper_left_already_pressed = false;
+                }
+            }
+
+            /*********************************************************************
              Dpad Up - Trigger the final bucket reset sequence and run the intake
              *********************************************************************/
             if (button_dpad_up_already_pressed == false) {
@@ -532,14 +549,14 @@ public class Meet3Teleop extends LinearOpMode {
                     if (mirror_event) {
                         if (ArmMotor.GetTaskState() == Task_State.INIT || ArmMotor.GetTaskState() == Task_State.READY) {
 
-                            ArmMotor.SetTargetPosition(160, -0.6, 0.6);
+                            ArmMotor.SetTargetPosition(180, -0.6, 0.6);
                         } else if (ArmMotor.GetTaskState() == Task_State.DONE) {
                             sharedhuborder++;
                         }
                     } else {
                         if (ArmMotor.GetTaskState() == Task_State.INIT || ArmMotor.GetTaskState() == Task_State.READY) {
 
-                            ArmMotor.SetTargetPosition(-160, -0.55, 0.55);
+                            ArmMotor.SetTargetPosition(-180, -0.55, 0.55);
                         }
                         else if (ArmMotor.GetTaskState() == Task_State.DONE) {
                             sharedhuborder++;
@@ -731,6 +748,7 @@ public class Meet3Teleop extends LinearOpMode {
             if (button_bumper_right_already_pressed2 == false) {
                 if (gamepad2.right_bumper) {
                     GateServo.setPosition(OpenGatePosition);
+                    IntakeServo.setPosition(OpenIntakePosition);
                     button_bumper_right_already_pressed2 = true;
                 }
             } else {
