@@ -72,8 +72,8 @@ public class FarRed_V3 extends LinearOpMode {
 
     static final int Top_Arm_Left = -420;
     static final int Top_Arm_Right = 420;
-    static final int Middle_Arm_Left = -305;
-    static final int Middle_Arm_Right = 305;
+    static final int Middle_Arm_Left = -315;
+    static final int Middle_Arm_Right = 315;
     static final int Low_Arm_Left = -160;
     static final int Low_Arm_Right = 160;
 
@@ -154,6 +154,11 @@ public class FarRed_V3 extends LinearOpMode {
 
         //Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        BackLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        BackRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        FrontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        FrontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         IntakeServo.scaleRange(0,1);
         GateServo.scaleRange(0,1);
@@ -256,18 +261,18 @@ public class FarRed_V3 extends LinearOpMode {
 
                 case 3:
                     if (left) {
-                        Rail.setTargetPosition(780);
+                        Rail.setTargetPosition(820);
                         Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                         Rail.setPower(0.65);
-                        if (Rail.getCurrentPosition() >= 750 && Rail.getCurrentPosition() <= 810) {
+                        if (Rail.getCurrentPosition() >= 790 && Rail.getCurrentPosition() <= 850) {
                             programorder1++;
                         }
                     }
                     else if (center) {
-                        Rail.setTargetPosition(780);
+                        Rail.setTargetPosition(820);
                         Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                         Rail.setPower(0.65);
-                        if (Rail.getCurrentPosition() >= 750 && Rail.getCurrentPosition() <= 810) {
+                        if (Rail.getCurrentPosition() >= 790 && Rail.getCurrentPosition() <= 850) {
                             programorder1++;
                         }
                     }
@@ -338,13 +343,13 @@ public class FarRed_V3 extends LinearOpMode {
                 case 6:
                     if (MechDrive.GetTaskState() == Task_State.READY) {
                         if (left) {
-                            MechDrive.SetTargets(90, 375, 0.5);
+                            MechDrive.SetTargets(90, 575, 0.5);
                         }
                         else if (center) {
                             MechDrive.SetTargets(90, 325, 0.5);
                         }
                         else if (right) {
-                            MechDrive.SetTargets(90, 250, 0.5);
+                            MechDrive.SetTargets(90, 375, 0.5);
                         }
                     }
                     else if (MechDrive.GetTaskState() == Task_State.DONE) {
@@ -482,7 +487,15 @@ public class FarRed_V3 extends LinearOpMode {
 
                 case 14:
                     if (MechDrive.GetTaskState() == Task_State.READY) {
-                        MechDrive.SetTargets(-90, 0, 0.5);
+                        if (left) {
+                            MechDrive.SetTargets(-90, 1200, 0.4);
+                        }
+                        else if (center) {
+                            MechDrive.SetTargets(-90, 950, 0.4);
+                        }
+                        else if (right) {
+                            MechDrive.SetTargets(-90, 950, 0.4);
+                        }
                     }
                     else if (MechDrive.GetTaskState() == Task_State.DONE) {
                         programorder1++;
@@ -491,7 +504,7 @@ public class FarRed_V3 extends LinearOpMode {
 
                 case 15:
                     if (MechDrive.GetTaskState() == Task_State.READY) {
-                        MechDrive.SetTargets(180, 4000, 1);
+                        MechDrive.SetTargets(180, 2500, 0.5);
                     }
                     else if (MechDrive.GetTaskState() == Task_State.DONE) {
                         programorder1++;
@@ -573,9 +586,9 @@ public class FarRed_V3 extends LinearOpMode {
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(20,125);
-        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(500,125);
-        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(950,125);
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(110,115);
+        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(590,115);
+        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1080,115);
         static final int REGION_WIDTH = 80;
         static final int REGION_HEIGHT = 80;
 

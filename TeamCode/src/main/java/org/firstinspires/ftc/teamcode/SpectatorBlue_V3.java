@@ -74,8 +74,8 @@ public class SpectatorBlue_V3 extends LinearOpMode {
     static final int Top_Arm_Right = 420;
     static final int Middle_Arm_Left = -305;
     static final int Middle_Arm_Right = 305;
-    static final int Low_Arm_Left = -160;
-    static final int Low_Arm_Right = 160;
+    static final int Low_Arm_Left = -150;
+    static final int Low_Arm_Right = 150;
 
     static final double OriginalBucketPosition = 0;
     static final double TopBucketPosition = 140;
@@ -625,11 +625,11 @@ public class SpectatorBlue_V3 extends LinearOpMode {
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(40,200);
-        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(510,95);
-        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1010,95);
-        static final int REGION_WIDTH = 40;
-        static final int REGION_HEIGHT = 40;
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(40,75);
+        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(510,75);
+        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1010,75);
+        static final int REGION_WIDTH = 80;
+        static final int REGION_HEIGHT = 80;
 
         static final int SHIPPING_ELEMENT_THRESHOLD = 55;
 
