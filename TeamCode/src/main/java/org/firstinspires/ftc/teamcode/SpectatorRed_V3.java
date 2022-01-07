@@ -506,13 +506,13 @@ public class SpectatorRed_V3 extends LinearOpMode {
                 case 15:
                     if (MechDrive.GetTaskState() == Task_State.READY) {
                         if (left) {
-                            MechDrive.SetTargets(0, 1925, 0.40);
+                            MechDrive.SetTargets(0, 1925, 0.4);
                         }
                         else if (center) {
-                            MechDrive.SetTargets(0, 1925, 0.45);
+                            MechDrive.SetTargets(0, 1925, 0.4);
                         }
                         else if (right) {
-                            MechDrive.SetTargets(0, 1925, 0.45);
+                            MechDrive.SetTargets(0, 1925, 0.4);
                         }
                     }
                     else if (MechDrive.GetTaskState() == Task_State.DONE) {

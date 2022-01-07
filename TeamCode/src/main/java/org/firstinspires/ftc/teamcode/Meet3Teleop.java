@@ -554,14 +554,14 @@ public class Meet3Teleop extends LinearOpMode {
                     if (mirror_event) {
                         if (ArmMotor.GetTaskState() == Task_State.INIT || ArmMotor.GetTaskState() == Task_State.READY) {
 
-                            ArmMotor.SetTargetPosition(200, -0.6, 0.6);
+                            ArmMotor.SetTargetPosition(230, -0.6, 0.6);
                         } else if (ArmMotor.GetTaskState() == Task_State.DONE) {
                             sharedhuborder++;
                         }
                     } else {
                         if (ArmMotor.GetTaskState() == Task_State.INIT || ArmMotor.GetTaskState() == Task_State.READY) {
 
-                            ArmMotor.SetTargetPosition(-200, -0.55, 0.55);
+                            ArmMotor.SetTargetPosition(-230, -0.55, 0.55);
                         }
                         else if (ArmMotor.GetTaskState() == Task_State.DONE) {
                             sharedhuborder++;

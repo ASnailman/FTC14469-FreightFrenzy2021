@@ -130,6 +130,7 @@ public class Mech_Drive {
         }
 
         telemetry.addData("ActualDistance", encoder);
+        telemetry.addData("steering output", steeringoutput);
         //telemetry.addData("Steering", steeringoutput);
         //telemetry.addData("DirectionZ", gyro_Z_reading);
         //telemetry.addData("Position", FrontRight.getCurrentPosition());

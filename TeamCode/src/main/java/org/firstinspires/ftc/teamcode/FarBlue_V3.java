@@ -144,6 +144,11 @@ public class FarBlue_V3 extends LinearOpMode {
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
         IMU.initialize(parameters);
 
+        /*while (!isStopRequested() && !IMU.isGyroCalibrated()) {
+            sleep(50);
+            idle();
+        }*/
+
         orientation = IMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         globalangle = 0;
         //Arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -244,6 +249,7 @@ public class FarBlue_V3 extends LinearOpMode {
                     if (Rail.getCurrentPosition() >= 470 && Rail.getCurrentPosition() <= 530) {
                         if (MechDrive.GetTaskState() == Task_State.INIT) {
                             MechDrive.SetTargets(-90, 500, 0.5);
+                            //MechDrive.SetTargets(90, 100000, 0.5);
                         } else if (MechDrive.GetTaskState() == Task_State.DONE) {
                             programorder1++;
                         }
@@ -559,6 +565,7 @@ public class FarBlue_V3 extends LinearOpMode {
             MechDrive.Task(GyroContinuity());
             BucketControl.BucketTask();
             ArmControl.ArmTask();
+            telemetry.addData("gyro", GyroContinuity());
         }
     }
 
