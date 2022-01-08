@@ -382,15 +382,16 @@ public class Meet3Teleop extends LinearOpMode {
             /****************************************
              Run CarouselMotor
              ***************************************/
-            //if (gamepad1.dpad_right) {
-                //CarouselMotor.setPower(1.0);
-            //}
-            //if (gamepad1.dpad_left) {
-                //CarouselMotor.setPower(-1.0);
-            //}
-            //if (gamepad1.a) {
-                //CarouselMotor.setPower(0);
-            //}
+            if (gamepad1.dpad_right) {
+                CarouselRight.setPower(1.0);
+            }
+            if (gamepad1.dpad_left) {
+                CarouselLeft.setPower(-1.0);
+            }
+            if (gamepad1.a) {
+                CarouselRight.setPower(0);
+                CarouselLeft.setPower(0);
+            }
 
             /***********************************************************
              Button Y - Top Level (For Opposite, press dpad_down first)
@@ -554,14 +555,14 @@ public class Meet3Teleop extends LinearOpMode {
                     if (mirror_event) {
                         if (ArmMotor.GetTaskState() == Task_State.INIT || ArmMotor.GetTaskState() == Task_State.READY) {
 
-                            ArmMotor.SetTargetPosition(230, -0.6, 0.6);
+                            ArmMotor.SetTargetPosition(215, -0.6, 0.6);
                         } else if (ArmMotor.GetTaskState() == Task_State.DONE) {
                             sharedhuborder++;
                         }
                     } else {
                         if (ArmMotor.GetTaskState() == Task_State.INIT || ArmMotor.GetTaskState() == Task_State.READY) {
 
-                            ArmMotor.SetTargetPosition(-230, -0.55, 0.55);
+                            ArmMotor.SetTargetPosition(-215, -0.55, 0.55);
                         }
                         else if (ArmMotor.GetTaskState() == Task_State.DONE) {
                             sharedhuborder++;

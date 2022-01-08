@@ -85,7 +85,7 @@ public class FarRed_V3 extends LinearOpMode {
     static final double LowBucketPosition = 95;
     static final double MirrorLowBucketPosition = -95;
 
-    static final double OpenGatePosition = 0.5;
+    static final double OpenGatePosition = 0.8;
     static final double OpenIntakePosition = 0.6;
     static final double ClosingGatePosition = 0.2;
     static final double ClosingIntakePosition = 0.8;
@@ -104,6 +104,9 @@ public class FarRed_V3 extends LinearOpMode {
     boolean left;
     boolean center;
     boolean right;
+
+    boolean turnright = false;
+    boolean turnleft = false;
 
     @Override
     public void runOpMode() {
@@ -488,7 +491,7 @@ public class FarRed_V3 extends LinearOpMode {
                 case 14:
                     if (MechDrive.GetTaskState() == Task_State.READY) {
                         if (left) {
-                            MechDrive.SetTargets(-90, 1200, 0.4);
+                            MechDrive.SetTargets(-90, 1175, 0.42);
                         }
                         else if (center) {
                             MechDrive.SetTargets(-90, 950, 0.4);
@@ -504,7 +507,7 @@ public class FarRed_V3 extends LinearOpMode {
 
                 case 15:
                     if (MechDrive.GetTaskState() == Task_State.READY) {
-                        MechDrive.SetTargets(180, 2500, 0.5);
+                        MechDrive.SetTargets(180, 2300, 0.5);
                     }
                     else if (MechDrive.GetTaskState() == Task_State.DONE) {
                         programorder1++;
@@ -512,6 +515,19 @@ public class FarRed_V3 extends LinearOpMode {
                     break;
 
                 case 16:
+                    if (MechDrive.GetTaskState() == Task_State.READY) {
+                        MechDrive.SetTargets(90, 1000, 0.5);
+                    }
+                    else if (MechDrive.GetTaskState() == Task_State.DONE) {
+                        programorder1++;
+                    }
+                    break;
+
+                case 17:
+                    GyroTurn(-150, 0.5);
+                    break;
+
+                case 18:
                     BucketControl.Calibrate();
                     ArmControl.Calibrate();
                     Rail.setTargetPosition(0);
@@ -966,43 +982,46 @@ public class FarRed_V3 extends LinearOpMode {
 
     }
 
-    private void TopArmPosition () {
-
-        Rail.setTargetPosition(1000);
-        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        Rail.setPower(0.5);
-
-        if (Rail.getCurrentPosition() >= 970 && Rail.getCurrentPosition() <= 1030) {
-            Arm.setTargetPosition(Top_Arm_Right);
-            Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            Arm.setPower(0.3);
-        }
+    private void MotorTurn(double FR, double FL, double BR, double BL) {
+        FrontRight.setPower(FR);
+        FrontLeft.setPower(FL);
+        BackRight.setPower(BR);
+        BackLeft.setPower(BL);
     }
 
-    private void MiddleArmPosition () {
+    private void GyroTurn (double angledegree, double power) {
 
-        Rail.setTargetPosition(750);
-        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        Rail.setPower(0.5);
 
-        if (Rail.getCurrentPosition() >= 720 && Rail.getCurrentPosition() <= 780) {
-            Arm.setTargetPosition(Middle_Arm_Right);
-            Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            Arm.setPower(0.3);
+        if (angledegree > GyroContinuity() || turnright) {
+
+            turnright = true;
+
+            if (GyroContinuity() < angledegree) {
+                MotorTurn(-power, power, -power, power);
+                telemetry.addData("Gyro", GyroContinuity());
+                telemetry.update();
+            } else {
+                programorder1++;
+                SetMotorPower(0);
+                turnright = false;
+            }
+
         }
-    }
+        else if (angledegree < GyroContinuity() || turnleft) {
 
-    private void LowArmPosition () {
+            turnleft = true;
 
-        Rail.setTargetPosition(750);
-        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        Rail.setPower(0.5);
-
-        if (Rail.getCurrentPosition() >= 720 && Rail.getCurrentPosition() <= 780) {
-            Arm.setTargetPosition(Low_Arm_Right);
-            Arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            Arm.setPower(0.3);
+            if (GyroContinuity() > angledegree) {
+                MotorTurn(power, -power, power, -power);
+                telemetry.addData("Gyro", GyroContinuity());
+                telemetry.update();
+            } else {
+                programorder1++;
+                SetMotorPower(0);
+                turnleft = false;
+            }
         }
+
     }
 
 }
