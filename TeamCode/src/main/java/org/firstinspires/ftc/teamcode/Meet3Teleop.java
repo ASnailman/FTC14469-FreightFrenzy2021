@@ -118,6 +118,8 @@ public class Meet3Teleop extends LinearOpMode {
     int sharedhuborder = 0;
     int manualcalleft = 0;
     int manualcalright = 0;
+    int shippingelementorder1 = 0;
+    int shippingelementorder2 = 0;
 
     int servoseqleft = 0;
     int servoseqright = 0;
@@ -795,66 +797,176 @@ public class Meet3Teleop extends LinearOpMode {
             }
 
             /***************************************
-             * Dpad Left - Lift shipping element arm
+             * Dpad Left - Automatic lift shipping element arm for picking up
              ***************************************/
 
             if (button_dpad_left_already_pressed2 == false) {
                 if (gamepad2.dpad_left) {
-                    servoseqleft = 1;
-
+                    shippingelementorder1 = 1;
                     button_dpad_left_already_pressed2 = true;
                 }
             } else {
                 if (!gamepad2.dpad_left) {
                     button_dpad_left_already_pressed2 = false;
-                    servoseqleft = 0;
                 }
             }
 
-            // SEQUENCE MANAGER FOR LIFTING THE SHIPPING ELEMENT ARM
-            switch (servoseqleft) {
+            // SEQUENCE MANAGER TO DUMP ONTO THE TOP LEVEL OF THE ALLIANCE HUB
+            switch (shippingelementorder1) {
 
                 case 1:
-                    servoposition = servoposition - 0.003;
-                    servoposition = Range.clip(servoposition, 0, 1);
-                    ElementServo.setPosition(servoposition);
+                    // Always check for INIT OR READY the first time
+                    if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
+
+                        // Lock the bucket in the zero position first before raising the rail or arm to prevent it from falling
+                        BucketMotor.SetTargetPosition(0);
+                    }
+                    else if (BucketMotor.GetTaskState() == Task_State.DONE) {
+                        shippingelementorder1++;
+                    }
+
+                    // Close the intake and outtake gates to prevent the object from falling out of the bucket
+                    GateServo.setPosition(OpenGatePosition);
+                    IntakeServo.setPosition(ClosingIntakePosition);
+                    break;
+
+                case 2:
+                    // Move the rail to its highest position
+                    //Rail.setTargetPosition(620);
+                    Rail.setTargetPosition(800);
+                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    Rail.setPower(0.5);
+
+                    if (Rail.getCurrentPosition() >= 750 && Rail.getCurrentPosition() <= 850) {
+                        shippingelementorder1++;
+                    }
+                    break;
+
+                case 3:
+                    if (ArmMotor.GetTaskState() == Task_State.INIT || ArmMotor.GetTaskState() == Task_State.READY) {
+
+                        ArmMotor.SetTargetPosition(-230, -0.65, 0.65);
+                    }
+                    else if (ArmMotor.GetTaskState() == Task_State.DONE) {
+                        shippingelementorder1++;
+                    }
+                    break;
+
+                case 4:
+                    if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
+
+                        BucketMotor.SetTargetPosition(150);
+                        //BucketMotor.SetTargetPosition(125);
+                        BucketMotor.Override();
+                    }
+                    else if (BucketMotor.GetTaskState() == Task_State.DONE) {
+                        shippingelementorder1++;
+                    }
+                    break;
+
+                case 5:
+                    // Move the rail to its highest position
+                    //Rail.setTargetPosition(750);
+                    //Rail.setTargetPosition(400);
+                    //Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    //Rail.setPower(0.5);
+
+                    //if (Rail.getCurrentPosition() >= 650 && Rail.getCurrentPosition() <= 750) {
+                        shippingelementorder1++;
+                    //}
                     break;
 
                 default:
                     break;
-
             }
 
-            /******************************************
-             * Dpad Right - Lower shipping element arm
-             ******************************************/
+            /***************************************
+             * Dpad Right - Automatic lift shipping element arm for placing
+             ***************************************/
 
             if (button_dpad_right_already_pressed2 == false) {
                 if (gamepad2.dpad_right) {
-
-                    servoseqright = 1;
-
+                    shippingelementorder2 = 1;
                     button_dpad_right_already_pressed2 = true;
                 }
             } else {
                 if (!gamepad2.dpad_right) {
-                    servoseqright = 0;
                     button_dpad_right_already_pressed2 = false;
                 }
             }
 
-            // SEQUENCE MANAGER FOR LOWERING THE SHIPPING ELEMENT ARM
-            switch (servoseqright) {
+            // SEQUENCE MANAGER TO DUMP ONTO THE TOP LEVEL OF THE ALLIANCE HUB
+            switch (shippingelementorder2) {
 
                 case 1:
-                    servoposition = servoposition + 0.003;
-                    servoposition = Range.clip(servoposition, 0, 1);
-                    ElementServo.setPosition(servoposition);
+                    // Move the rail to its highest position
+                    Rail.setTargetPosition(100);
+                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    Rail.setPower(0.5);
+
+                    if (Rail.getCurrentPosition() >= 50 && Rail.getCurrentPosition() <= 150) {
+                        shippingelementorder2++;
+                    }
+                    break;
+
+                case 2:
+                    if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
+
+                        BucketMotor.SetTargetPosition(150);
+                    }
+                    else if (BucketMotor.GetTaskState() == Task_State.DONE) {
+                        shippingelementorder2++;
+                    }
+                    break;
+
+                case 3:
+                    GateServo.setPosition(0);
+                    shippingelementorder2++;
+                    ET.reset();
+                    break;
+
+                case 4:
+                    if (ET.milliseconds() > 1000) {
+                        shippingelementorder2++;
+                    }
+                    break;
+
+                case 5:
+                    // Move the rail to its highest position
+                    Rail.setTargetPosition(920);
+                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    Rail.setPower(0.5);
+
+                    if (Rail.getCurrentPosition() >= 870 && Rail.getCurrentPosition() <= 970) {
+                        shippingelementorder2++;
+                        ET.reset();
+                    }
+                    break;
+
+                case 6:
+                    if (ArmMotor.GetTaskState() == Task_State.INIT || ArmMotor.GetTaskState() == Task_State.READY) {
+
+                        //ArmMotor.SetTargetPosition(-480, -0.65, 0.65);
+                        ArmMotor.SetTargetPosition(-495, -0.65, 0.65);
+                    }
+                    else if (ArmMotor.GetTaskState() == Task_State.DONE) {
+                        shippingelementorder2++;
+                    }
+                    break;
+
+                case 7:
+                    if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
+
+                        //BucketMotor.SetTargetPosition(160);
+                        BucketMotor.SetTargetPosition(185);
+                    }
+                    else if (BucketMotor.GetTaskState() == Task_State.DONE) {
+                        shippingelementorder2++;
+                    }
                     break;
 
                 default:
                     break;
-
             }
 
             /******************************************
