@@ -61,6 +61,8 @@ public class Meet3Teleop extends LinearOpMode {
     boolean button_dpad_down_already_pressed = false;
     boolean button_bumper_left_already_pressed = false;
     boolean button_bumper_right_already_pressed = false;
+    boolean button_dpad_left_already_pressed = false;
+    boolean button_dpad_right_already_pressed = false;
     boolean button_right_trigger_already_pressed = false;
     boolean button_bumper_left_already_pressed2 = false;
     boolean button_bumper_right_already_pressed2 = false;
@@ -84,6 +86,9 @@ public class Meet3Teleop extends LinearOpMode {
     boolean unknown;
 
     boolean BucketIsEmpty = true;
+
+    boolean PowerMode = true;
+    int number;
 
     static final int Top_Arm_Left = -390;
     static final int Top_Arm_Right = 390;
@@ -130,6 +135,8 @@ public class Meet3Teleop extends LinearOpMode {
 
     int armorder = 0;
     int armposition;
+
+    double movement;
 
     @Override
     public void runOpMode() {
@@ -231,10 +238,32 @@ public class Meet3Teleop extends LinearOpMode {
              Robot Movement (Mecanum Drive)
              *******************************/
 
-            double y = -gamepad1.left_stick_y * 0.65;
+            if (PowerMode) {
+                movement = 0.75;
+            } else {
+                movement = 0.35;
+            }
+
+            if (button_bumper_left_already_pressed == false) {
+                if (gamepad1.left_bumper) {
+                    if (PowerMode) {
+                        PowerMode = false;
+                    }
+                    else {
+                        PowerMode = true;
+                    }
+                    button_bumper_left_already_pressed = true;
+                }
+            } else {
+                if (!gamepad1.left_bumper) {
+                    button_bumper_left_already_pressed = false;
+                }
+            }
+
+            double y = -gamepad1.left_stick_y * movement;
             //double x = gamepad1.left_stick_x * 0.55;
-            double x = gamepad1.left_stick_x * 0.65;
-            double rx = gamepad1.right_stick_x * 0.65;
+            double x = gamepad1.left_stick_x * movement;
+            double rx = gamepad1.right_stick_x * movement;
 
             double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
             double FLPower = (y + x + rx) / denominator;
@@ -272,16 +301,16 @@ public class Meet3Teleop extends LinearOpMode {
              Reverse Intake Wheel
              *********************************************************************/
 
-            if (button_bumper_left_already_pressed == false) {
-                if (gamepad1.left_bumper) {
+            if (button_b_already_pressed == false) {
+                if (gamepad1.b) {
                     Intake.setPower(-1);
-                    button_bumper_left_already_pressed = true;
+                    button_b_already_pressed = true;
                 }
             }
             else {
-                if (!gamepad1.left_bumper) {
+                if (!gamepad1.b) {
                     Intake.setPower(0);
-                    button_bumper_left_already_pressed = false;
+                    button_b_already_pressed = false;
                 }
             }
 
@@ -384,16 +413,33 @@ public class Meet3Teleop extends LinearOpMode {
             /****************************************
              Run CarouselMotor
              ***************************************/
-            if (gamepad1.dpad_right) {
-                CarouselRight.setPower(1.0);
+            if (button_dpad_right_already_pressed == false) {
+                if (gamepad1.dpad_right) {
+                    CarouselRight.setPower(1.0);
+                    button_dpad_right_already_pressed = true;
+                }
+            } else {
+                if (!gamepad1.dpad_right) {
+                    CarouselRight.setPower(0);
+                    button_dpad_right_already_pressed = false;
+                }
             }
-            if (gamepad1.dpad_left) {
-                CarouselLeft.setPower(-1.0);
+
+            if (button_dpad_left_already_pressed == false) {
+                if (gamepad1.dpad_left) {
+                    CarouselLeft.setPower(-1.0);
+                    button_dpad_left_already_pressed = true;
+                }
+            } else {
+                if (!gamepad1.dpad_left) {
+                    CarouselLeft.setPower(0);
+                    button_dpad_left_already_pressed = false;
+                }
             }
-            if (gamepad1.a) {
-                CarouselRight.setPower(0);
-                CarouselLeft.setPower(0);
-            }
+            //if (gamepad1.a) {
+                //CarouselRight.setPower(0);
+                //CarouselLeft.setPower(0);
+            //}
 
             /***********************************************************
              Button Y - Top Level (For Opposite, press dpad_down first)
@@ -833,11 +879,11 @@ public class Meet3Teleop extends LinearOpMode {
                 case 2:
                     // Move the rail to its highest position
                     //Rail.setTargetPosition(620);
-                    Rail.setTargetPosition(800);
+                    Rail.setTargetPosition(880);
                     Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     Rail.setPower(0.5);
 
-                    if (Rail.getCurrentPosition() >= 750 && Rail.getCurrentPosition() <= 850) {
+                    if (Rail.getCurrentPosition() >= 830 && Rail.getCurrentPosition() <= 930) {
                         shippingelementorder1++;
                     }
                     break;
@@ -845,7 +891,7 @@ public class Meet3Teleop extends LinearOpMode {
                 case 3:
                     if (ArmMotor.GetTaskState() == Task_State.INIT || ArmMotor.GetTaskState() == Task_State.READY) {
 
-                        ArmMotor.SetTargetPosition(-230, -0.65, 0.65);
+                        ArmMotor.SetTargetPosition(-230, -0.3, 0.3);
                     }
                     else if (ArmMotor.GetTaskState() == Task_State.DONE) {
                         shippingelementorder1++;
@@ -947,7 +993,7 @@ public class Meet3Teleop extends LinearOpMode {
                     if (ArmMotor.GetTaskState() == Task_State.INIT || ArmMotor.GetTaskState() == Task_State.READY) {
 
                         //ArmMotor.SetTargetPosition(-480, -0.65, 0.65);
-                        ArmMotor.SetTargetPosition(-495, -0.65, 0.65);
+                        ArmMotor.SetTargetPosition(-505, -0.65, 0.65);
                     }
                     else if (ArmMotor.GetTaskState() == Task_State.DONE) {
                         shippingelementorder2++;
@@ -958,7 +1004,7 @@ public class Meet3Teleop extends LinearOpMode {
                     if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
 
                         //BucketMotor.SetTargetPosition(160);
-                        BucketMotor.SetTargetPosition(185);
+                        BucketMotor.SetTargetPosition(180);
                     }
                     else if (BucketMotor.GetTaskState() == Task_State.DONE) {
                         shippingelementorder2++;
@@ -1074,6 +1120,7 @@ public class Meet3Teleop extends LinearOpMode {
             telemetry.addData("bucket position", Bucket.getCurrentPosition());
             telemetry.addData("rail", Rail.getCurrentPosition());
             telemetry.addData("reset order", triggerresetorder);
+            //telemetry.addData("PowerMode", PowerMode);
             //telemetry.addData("mirror event", mirror_event);
             //telemetry.addData("task state", ArmMotor.GetTaskState());
             //telemetry.addData("vibration Y", IMU.getLinearAcceleration().yAccel);
