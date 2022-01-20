@@ -88,6 +88,9 @@ public class Meet3Teleop extends LinearOpMode {
     boolean BucketIsEmpty = true;
 
     boolean PowerMode = true;
+    double movement;
+
+    boolean ResetMode = true;
     int number;
 
     static final int Top_Arm_Left = -390;
@@ -125,6 +128,7 @@ public class Meet3Teleop extends LinearOpMode {
     int manualcalright = 0;
     int shippingelementorder1 = 0;
     int shippingelementorder2 = 0;
+    int resetshippingelement = 0;
 
     int servoseqleft = 0;
     int servoseqright = 0;
@@ -135,8 +139,6 @@ public class Meet3Teleop extends LinearOpMode {
 
     int armorder = 0;
     int armposition;
-
-    double movement;
 
     @Override
     public void runOpMode() {
@@ -302,13 +304,13 @@ public class Meet3Teleop extends LinearOpMode {
              *********************************************************************/
 
             if (button_b_already_pressed == false) {
-                if (gamepad1.b) {
+                if (gamepad2.left_bumper) {
                     Intake.setPower(-1);
                     button_b_already_pressed = true;
                 }
             }
             else {
-                if (!gamepad1.b) {
+                if (!gamepad2.left_bumper) {
                     Intake.setPower(0);
                     button_b_already_pressed = false;
                 }
@@ -1013,6 +1015,59 @@ public class Meet3Teleop extends LinearOpMode {
 
                 default:
                     break;
+            }
+
+            /***************************************
+             * Button B - Automatic lift shipping element arm for placing
+             ***************************************/
+
+            //if (ResetMode) {
+              //  number = 200;
+            //} else {
+              //  number = 880;
+            //}
+
+            if (button_b_already_pressed2 == false) {
+                if (gamepad2.b) {
+
+                    if (ResetMode) {
+                        ResetMode = false;
+                    }
+                    else {
+                        ResetMode = true;
+                    }
+                    button_b_already_pressed2 = true;
+                    resetshippingelement = 1;
+                }
+            } else {
+                if (!gamepad2.b) {
+                    button_b_already_pressed2 = false;
+                }
+            }
+
+            switch (resetshippingelement) {
+
+                case 1:
+                    if (ResetMode) {
+                        Rail.setTargetPosition(150);
+                        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        Rail.setPower(0.5);
+
+                        if (Rail.getCurrentPosition() >= 100 && Rail.getCurrentPosition() <= 200) {
+                            resetshippingelement++;
+                        }
+                    } else {
+                        Rail.setTargetPosition(880);
+                        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        Rail.setPower(0.5);
+
+                        if (Rail.getCurrentPosition() >= 830 && Rail.getCurrentPosition() <= 930) {
+                            resetshippingelement++;
+                        }
+                    }
+
+                    break;
+
             }
 
             /******************************************
