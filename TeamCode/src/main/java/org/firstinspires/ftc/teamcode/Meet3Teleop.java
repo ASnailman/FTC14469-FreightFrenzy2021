@@ -243,7 +243,7 @@ public class Meet3Teleop extends LinearOpMode {
             if (PowerMode) {
                 movement = 0.75;
             } else {
-                movement = 0.35;
+                movement = 0.45;
             }
 
             if (button_bumper_left_already_pressed == false) {
@@ -995,7 +995,7 @@ public class Meet3Teleop extends LinearOpMode {
                     if (ArmMotor.GetTaskState() == Task_State.INIT || ArmMotor.GetTaskState() == Task_State.READY) {
 
                         //ArmMotor.SetTargetPosition(-480, -0.65, 0.65);
-                        ArmMotor.SetTargetPosition(-505, -0.65, 0.65);
+                        ArmMotor.SetTargetPosition(-505, -0.7, 0.7);
                     }
                     else if (ArmMotor.GetTaskState() == Task_State.DONE) {
                         shippingelementorder2++;
