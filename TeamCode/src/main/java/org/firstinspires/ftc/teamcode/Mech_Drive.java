@@ -16,6 +16,7 @@ public class Mech_Drive {
     PID pid;
     double targetdistance;
     double strafingangle;
+    double headingangle = 0;
     double targetpower;
     double steeringoutput;
     Task_State state;
@@ -82,7 +83,7 @@ public class Mech_Drive {
 
             power_x_new = power_x_old * Math.cos(radians) - power_y_old * Math.sin(radians); // equation for right hand rule
             power_y_new = power_x_old * Math.sin(radians) + power_y_old * Math.cos(radians);
-            steeringoutput = pid.PID_Control(strafingangle, 0.00002, 0, 0, gyro_Z_reading);
+            steeringoutput = pid.PID_Control(headingangle, 0.00002, 0, 0, gyro_Z_reading);
 
             if (encoder < 0) {
                 encoder = -encoder;
