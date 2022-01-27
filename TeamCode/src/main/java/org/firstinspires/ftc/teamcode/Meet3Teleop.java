@@ -948,11 +948,11 @@ public class Meet3Teleop extends LinearOpMode {
 
                 case 1:
                     // Move the rail to its highest position
-                    Rail.setTargetPosition(100);
+                    Rail.setTargetPosition(25);
                     Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     Rail.setPower(0.5);
 
-                    if (Rail.getCurrentPosition() >= 50 && Rail.getCurrentPosition() <= 150) {
+                    if (Rail.getCurrentPosition() >= 0 && Rail.getCurrentPosition() <= 50) {
                         shippingelementorder2++;
                     }
                     break;
