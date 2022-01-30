@@ -218,7 +218,7 @@ public class FarRed_V4 extends LinearOpMode {
             switch (programorder1) {
 
                 case 0:
-                /*    if (pipeline.position == FarRed_V4.BarcodeDeterminationPipeline.ShippingElementPosition.LEFT) {
+                    if (pipeline.position == FarRed_V4.BarcodeDeterminationPipeline.ShippingElementPosition.LEFT) {
                         left = true;
                         center = false;
                         right = false;
@@ -243,17 +243,11 @@ public class FarRed_V4 extends LinearOpMode {
                     Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     Rail.setPower(0.5);
                     ET.reset();
-                    programorder1++;*/
-
-                    //MechDrive.headingangle = 180;
-                    //GyroTurn(176, 0.4);
                     programorder1++;
+
                     break;
 
                 case 1:
-                    if (MechDrive.GetTaskState() == Task_State.INIT) {
-                        MechDrive.SetTargets(90, 1620, 0.42);
-                    }
                     //if (ET.milliseconds() > 11000) {
                         programorder1++;
                     //}
@@ -1151,10 +1145,14 @@ public class FarRed_V4 extends LinearOpMode {
                 telemetry.addData("Gyro", GyroContinuity());
                 telemetry.update();
             } else {
-                FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 programorder1++;
                 SetMotorPower(0);
                 turnright = false;
+
+                while (FrontRight.getCurrentPosition() != 0) {
+                    FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                }
+                FrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             }
 
         }
@@ -1167,13 +1165,14 @@ public class FarRed_V4 extends LinearOpMode {
                 telemetry.addData("Gyro", GyroContinuity());
                 telemetry.update();
             } else {
-                FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                //FrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                //BackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                //BackLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 programorder1++;
                 SetMotorPower(0);
                 turnleft = false;
+
+                while (FrontRight.getCurrentPosition() != 0) {
+                    FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                }
+                FrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             }
         }
 
