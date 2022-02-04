@@ -32,8 +32,8 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-@Autonomous(name="FarRed_V4", group="MecanumDrive")
-public class FarRed_V4 extends LinearOpMode {
+@Autonomous(name="FarRed_TEST", group="MecanumDrive")
+public class FarRed_TEST_autosequencing extends LinearOpMode {
 
     OpenCvWebcam webcam;
     BarcodeDeterminationPipeline pipeline;
@@ -101,6 +101,7 @@ public class FarRed_V4 extends LinearOpMode {
     Mech_Drive MechDrive;
     Bucket_Control BucketControl;
     Arm_Control ArmControl;
+    Auto_Sequences Sequences;
 
     boolean left;
     boolean center;
@@ -218,474 +219,16 @@ public class FarRed_V4 extends LinearOpMode {
             switch (programorder1) {
 
                 case 0:
-                    if (pipeline.position == FarRed_V4.BarcodeDeterminationPipeline.ShippingElementPosition.LEFT) {
-                        left = true;
-                        center = false;
-                        right = false;
+                    if (MechDrive.GetTaskState() == Task_State.INIT) {
+                        MechDrive.SetTargets(0, 3000, 0.5);
+                        Sequences.SetSequence(1, false);
                     }
-                    else if (pipeline.position == FarRed_V4.BarcodeDeterminationPipeline.ShippingElementPosition.CENTER) {
-                        left = false;
-                        center = true;
-                        right = false;
+                    else if (MechDrive.GetTaskState() == Task_State.DONE) {
+                        programorder1++;
                     }
-                    else if (pipeline.position == FarRed_V4.BarcodeDeterminationPipeline.ShippingElementPosition.RIGHT) {
-                        left = false;
-                        center = false;
-                        right = true;
-                    }
-                    else {
-                        left = false;
-                        center = false;
-                        right = true;
-                    }
-                    //Rail.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    Rail.setTargetPosition(500);
-                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    Rail.setPower(0.5);
-                    ET.reset();
-                    programorder1++;
-
                     break;
 
                 case 1:
-                    //if (ET.milliseconds() > 11000) {
-                        programorder1++;
-                    //}
-                    break;
-
-                case 2:
-                    if (Rail.getCurrentPosition() >= 470 && Rail.getCurrentPosition() <= 530) {
-                        if (MechDrive.GetTaskState() == Task_State.INIT) {
-                            MechDrive.SetTargets(90, 500, 0.5);
-                        } else if (MechDrive.GetTaskState() == Task_State.DONE) {
-                            programorder1++;
-                        }
-                    }
-                    break;
-
-                case 3:
-                    if (MechDrive.GetTaskState() == Task_State.READY) {
-                        MechDrive.SetTargets(0, 900, 0.5);
-                        BucketControl.SetTargetPosition(0);
-                    } else if (MechDrive.GetTaskState() == Task_State.DONE) {
-                        programorder1++;
-                    }
-                    break;
-
-                case 4:
-                    if (left) {
-                        Rail.setTargetPosition(820);
-                        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        Rail.setPower(0.65);
-                        if (Rail.getCurrentPosition() >= 790 && Rail.getCurrentPosition() <= 850) {
-                            programorder1++;
-                        }
-                    }
-                    else if (center) {
-                        Rail.setTargetPosition(820);
-                        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        Rail.setPower(0.65);
-                        if (Rail.getCurrentPosition() >= 790 && Rail.getCurrentPosition() <= 850) {
-                            programorder1++;
-                        }
-                    }
-                    else if (right) {
-                        Rail.setTargetPosition(900);
-                        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        Rail.setPower(0.65);
-                        if (Rail.getCurrentPosition() >= 870 && Rail.getCurrentPosition() <= 930) {
-                            programorder1++;
-                        }
-                    }
-                    break;
-
-                case 5:
-                    if (left) {
-                        if (ArmControl.GetTaskState() == Task_State.INIT) {
-                            ArmControl.SetTargetPosition(Low_Arm_Right, -0.6, 0.6);
-                        }
-                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
-                            programorder1++;
-                        }
-                    }
-                    else if (center) {
-                        if (ArmControl.GetTaskState() == Task_State.INIT) {
-                            ArmControl.SetTargetPosition(Middle_Arm_Right, -0.6, 0.6);
-                        }
-                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
-                            programorder1++;
-                        }
-                    }
-                    else if (right) {
-                        if (ArmControl.GetTaskState() == Task_State.INIT) {
-                            ArmControl.SetTargetPosition(Top_Arm_Right, -0.6, 0.6);
-                        }
-                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
-                            programorder1++;
-                        }
-                    }
-                    break;
-
-                case 6:
-                    if (left) {
-                        if (BucketControl.GetTaskState() == Task_State.INIT || BucketControl.GetTaskState() == Task_State.READY) {
-                            BucketControl.SetTargetPosition(MirrorLowBucketPosition);
-                        }
-                        else if (BucketControl.GetTaskState() == Task_State.DONE) {
-                            programorder1++;
-                        }
-                    }
-                    else if (center) {
-                        if (BucketControl.GetTaskState() == Task_State.INIT || BucketControl.GetTaskState() == Task_State.READY) {
-                            BucketControl.SetTargetPosition(MirrorMiddleBucketPosition);
-                        }
-                        else if (BucketControl.GetTaskState() == Task_State.DONE) {
-                            programorder1++;
-                        }
-                    }
-                    else if (right) {
-                        if (BucketControl.GetTaskState() == Task_State.INIT || BucketControl.GetTaskState() == Task_State.READY) {
-                            BucketControl.SetTargetPosition(MirrorTopBucketPosition);
-                        }
-                        else if (BucketControl.GetTaskState() == Task_State.DONE) {
-                            programorder1++;
-                        }
-                    }
-                    break;
-
-                case 7:
-                    if (MechDrive.GetTaskState() == Task_State.READY) {
-                        if (left) {
-                            MechDrive.SetTargets(90, 575, 0.5);
-                        }
-                        else if (center) {
-                            MechDrive.SetTargets(90, 325, 0.5);
-                        }
-                        else if (right) {
-                            MechDrive.SetTargets(90, 375, 0.5);
-                        }
-                    }
-                    else if (MechDrive.GetTaskState() == Task_State.DONE) {
-                        programorder1++;
-                    }
-                    break;
-
-                case 8:
-
-                    GateServo.setPosition(OpenGatePosition);
-                    programorder1++;
-                    ET.reset();
-                    break;
-
-                case 9:
-                    if (left) {
-                        if (BucketControl.GetTaskState() == Task_State.READY) {
-                            if (ET.milliseconds() > 1500) {
-                                GateServo.setPosition(ClosingGatePosition);
-                                BucketControl.SetTargetPosition(-15);
-                            }
-                        }
-                        else if (BucketControl.GetTaskState() == Task_State.DONE) {
-                            programorder1++;
-                        }
-                    }
-                    else if (center) {
-                        if (BucketControl.GetTaskState() == Task_State.READY) {
-                            if (ET.milliseconds() > 1500) {
-                                GateServo.setPosition(ClosingGatePosition);
-                                BucketControl.SetTargetPosition(-15);
-                            }
-                        }
-                        else if (BucketControl.GetTaskState() == Task_State.DONE) {
-                            programorder1++;
-                        }
-                    }
-                    else if (right) {
-                        if (BucketControl.GetTaskState() == Task_State.READY) {
-                            if (ET.milliseconds() > 1500) {
-                                GateServo.setPosition(ClosingGatePosition);
-                                BucketControl.SetTargetPosition(-15);
-                            }
-                        }
-                        else if (BucketControl.GetTaskState() == Task_State.DONE) {
-                            programorder1++;
-                        }
-                    }
-                    break;
-
-                case 10:
-                    if (left) {
-                        if (ArmControl.GetTaskState() == Task_State.READY) {
-                            ArmControl.SetTargetPosition(120, 0.001, 0.001);
-                        }
-                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
-                            programorder1++;
-                        }
-                    }
-                    else if (center) {
-                        if (ArmControl.GetTaskState() == Task_State.READY) {
-                            ArmControl.SetTargetPosition(120, 0.001, 0.001);
-                        }
-                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
-                            programorder1++;
-                        }
-                    }
-                    else if (right) {
-                        if (ArmControl.GetTaskState() == Task_State.READY) {
-                            ArmControl.SetTargetPosition(120, 0.001, 0.001);
-                        }
-                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
-                            programorder1++;
-                        }
-                    }
-                    break;
-
-                case 11:
-                    if (left) {
-                        if (ArmControl.GetTaskState() == Task_State.READY) {
-                            ArmControl.SetTargetPosition(-10, -0.1, 0.1);
-                        }
-                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
-                            programorder1++;
-                            ET.reset();
-                        }
-                    }
-                    else if (center) {
-                        if (ArmControl.GetTaskState() == Task_State.READY) {
-                            ArmControl.SetTargetPosition(-10, -0.1, 0.1);
-                        }
-                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
-                            programorder1++;
-                            ET.reset();
-                        }
-                    }
-                    else if (right) {
-                        if (ArmControl.GetTaskState() == Task_State.READY) {
-                            ArmControl.SetTargetPosition(-10, -0.1, 0.1);
-                        }
-                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
-                            programorder1++;
-                            ET.reset();
-                        }
-                    }
-                    break;
-
-                case 12:
-
-                    if (ET.milliseconds() > 500) {
-                        programorder1++;
-                    }
-                    break;
-
-                case 13:
-                    if (ArmControl.GetTaskState() == Task_State.READY) {
-                        ArmControl.Override();
-                        Rail.setTargetPosition(700);
-                        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        Rail.setPower(0.5);
-                    }
-                    else if (ArmControl.GetTaskState() == Task_State.DONE) {
-                        programorder1++;
-                    }
-                    break;
-
-                case 14:
-                    if (Rail.getCurrentPosition() > 670 && Rail.getCurrentPosition() < 730) {
-                        if (BucketControl.GetTaskState() == Task_State.READY) {
-                            BucketControl.SetTargetPosition(OriginalBucketPosition);
-                            programorder1++;
-                            ET.reset();
-                        }
-                    }
-                    break;
-
-                case 15:
-                    MechDrive.headingangle = 180;
-                    GyroTurn(178, 0.4);
-                    //if (ET.milliseconds() > 2500) {
-                    //    programorder1++;
-                    //}
-                    break;
-
-                case 16:
-                    if (MechDrive.GetTaskState() == Task_State.READY) {
-
-                        MechDrive.SetTargets(90, 500, 0.42);
-
-                    }
-                    else if (MechDrive.GetTaskState() == Task_State.DONE) {
-                        programorder1++;
-                    }
-                    break;
-
-                case 17:
-
-                    if (MechDrive.GetTaskState() == Task_State.READY) {
-
-                        MechDrive.SetTargets(80, 300, 0.42);
-
-                    }
-                    else if (MechDrive.GetTaskState() == Task_State.DONE) {
-                        programorder1++;
-                    }
-                    break;
-
-                case 18:
-                    if (MechDrive.GetTaskState() == Task_State.READY) {
-                        MechDrive.SetTargets(5, 1700, 0.5);
-                    }
-                    else if (MechDrive.GetTaskState() == Task_State.DONE) {
-                        programorder1++;
-                    }
-                    break;
-
-                case 19:
-                    Intake.setPower(1);
-                    IntakeServo.setPosition(OpenIntakePosition);
-                    Rail.setTargetPosition(80);
-                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    Rail.setPower(0.65);
-                    if (Rail.getCurrentPosition() >= 30 && Rail.getCurrentPosition() <= 130) {
-                        programorder1++;
-                        ET.reset();
-                    }
-                    break;
-
-                case 20:
-                    if (white || yellow || ET.milliseconds() > 1200) {
-                        if (MechDrive.GetTaskState() == Task_State.READY) {
-                            MechDrive.SetTargets(0, 0, 0);
-                        }
-                        else if (MechDrive.GetTaskState() == Task_State.DONE) {
-                            programorder1++;
-                        }
-                    } else if (unknown) {
-                        FrontRight.setPower(0.5);
-                        FrontLeft.setPower(0.5);
-                        BackLeft.setPower(0.5);
-                        BackRight.setPower(0.5);
-                    }
-                    break;
-
-                case 21:
-                    if (MechDrive.GetTaskState() == Task_State.READY) {
-                        MechDrive.SetTargets(180, 200, 0.7);
-                    }
-                    else if (MechDrive.GetTaskState() == Task_State.DONE) {
-                        programorder1++;
-                    }
-                    break;
-
-                case 22:
-                    if (MechDrive.GetTaskState() == Task_State.READY) {
-                        MechDrive.SetTargets(0, 200, 0.7);
-                    }
-                    else if (MechDrive.GetTaskState() == Task_State.DONE) {
-                        programorder1++;
-                    }
-                    break;
-
-                case 23:
-                    if (white || yellow) {
-                        //if (MechDrive.GetTaskState() == Task_State.READY) {
-                        //    MechDrive.SetTargets(180, 500, 0.5);
-                        //}
-                        //else if (MechDrive.GetTaskState() == Task_State.DONE) {
-                        programorder1++;
-                        //}
-                    } else if (unknown) {
-                        FrontRight.setPower(0);
-                        FrontLeft.setPower(0);
-                        BackLeft.setPower(0);
-                        BackRight.setPower(0);
-                    }
-                    break;
-
-                case 24:
-
-                    programorder1++;
-                    break;
-
-                case 25:
-                    if (MechDrive.GetTaskState() == Task_State.READY) {
-                        MechDrive.SetTargets(180, 1700, 0.5);
-                    }
-                    else if (MechDrive.GetTaskState() == Task_State.DONE) {
-                        programorder1++;
-                    }
-                    break;
-
-                case 26:
-                    if (MechDrive.GetTaskState() == Task_State.READY) {
-
-                        MechDrive.SetTargets(-90, 920, 0.4);
-
-                    }
-                    else if (MechDrive.GetTaskState() == Task_State.DONE) {
-                        programorder1++;
-                    }
-                    break;
-
-                case 27:
-
-                    Rail.setTargetPosition(900);
-                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    Rail.setPower(0.66);
-                    if (Rail.getCurrentPosition() >= 870 && Rail.getCurrentPosition() <= 930) {
-                        programorder1++;
-                    }
-
-                    break;
-
-                case 28:
-
-                    if (ArmControl.GetTaskState() == Task_State.READY) {
-                        ArmControl.SetTargetPosition(Top_Arm_Left, -0.6, 0.6);
-                    }
-                    else if (ArmControl.GetTaskState() == Task_State.DONE) {
-                        programorder1++;
-                    }
-
-                    break;
-
-                case 29:
-
-                    if (BucketControl.GetTaskState() == Task_State.INIT || BucketControl.GetTaskState() == Task_State.READY) {
-                        BucketControl.SetTargetPosition(TopBucketPosition);
-                    }
-                    else if (BucketControl.GetTaskState() == Task_State.DONE) {
-                        programorder1++;
-                    }
-
-                    break;
-
-                case 30:
-                    if (MechDrive.GetTaskState() == Task_State.READY) {
-                        if (left) {
-                            MechDrive.SetTargets(90, 1170, 0.4);
-                        }
-                        else if (center) {
-                            MechDrive.SetTargets(90, 920, 0.4);
-                        }
-                        else if (right) {
-                            MechDrive.SetTargets(90, 920, 0.4);
-                        }
-                    }
-                    else if (MechDrive.GetTaskState() == Task_State.DONE) {
-                        programorder1++;
-                    }
-                    break;
-
-                case 31:
-                    if (MechDrive.GetTaskState() == Task_State.READY) {
-                        MechDrive.SetTargets(0, 2300, 0.5);
-                    }
-                    else if (MechDrive.GetTaskState() == Task_State.DONE) {
-                        programorder1++;
-                    }
-                    break;
-
-                case 32:
                     BucketControl.Calibrate();
                     ArmControl.Calibrate();
                     Rail.setTargetPosition(0);
@@ -698,6 +241,9 @@ public class FarRed_V4 extends LinearOpMode {
                     break;
 
             }
+
+            telemetry.addData("case", programorder1);
+            telemetry.update();
 
             // THIS IS THE PART OF THE PROGRAM THAT IS REPETITIVE
             // THEY ARE CALLED 'BACKGROUND TASKS" BUT FOR SIMPLICITY, WE SHALL CALL THEM 'TASKS'
@@ -730,10 +276,12 @@ public class FarRed_V4 extends LinearOpMode {
                 }
             }
 
-            WhiteDetector();
+            //WhiteDetector();
             MechDrive.Task(GyroContinuity());
             BucketControl.BucketTask();
             ArmControl.ArmTask();
+            Sequences.Task();
+
         }
     }
 
