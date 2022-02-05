@@ -101,6 +101,7 @@ public class FarRed_V4 extends LinearOpMode {
     Mech_Drive MechDrive;
     Bucket_Control BucketControl;
     Arm_Control ArmControl;
+    Auto_Sequences Sequences;
 
     boolean left;
     boolean center;
@@ -174,6 +175,7 @@ public class FarRed_V4 extends LinearOpMode {
         MechDrive = new Mech_Drive(FrontRight, FrontLeft, BackRight, BackLeft, MoveDirection.REVERSE, telemetry);
         BucketControl = new Bucket_Control(BucketMotor);
         ArmControl = new Arm_Control(Arm);
+        Sequences = new Auto_Sequences(BucketControl,  ArmControl, Rail, telemetry);
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
@@ -254,103 +256,114 @@ public class FarRed_V4 extends LinearOpMode {
                     break;
 
                 case 2:
-                    if (Rail.getCurrentPosition() >= 470 && Rail.getCurrentPosition() <= 530) {
                         if (MechDrive.GetTaskState() == Task_State.INIT) {
                             MechDrive.SetTargets(90, 500, 0.5);
+                            if (left) {
+                                    Sequences.SetSequence(3, true);
+                            }
+                            else if (center) {
+                                    Sequences.SetSequence(2, true);
+                            }
+                            else if (right) {
+                                    Sequences.SetSequence(1, true);
+                            }
                         } else if (MechDrive.GetTaskState() == Task_State.DONE) {
                             programorder1++;
                         }
-                    }
+
                     break;
 
                 case 3:
-                    if (MechDrive.GetTaskState() == Task_State.READY) {
+                    //if (MechDrive.GetTaskState() == Task_State.READY) {
                         MechDrive.SetTargets(0, 900, 0.5);
-                        BucketControl.SetTargetPosition(0);
-                    } else if (MechDrive.GetTaskState() == Task_State.DONE) {
+                        //BucketControl.SetTargetPosition(0);
+                    //} else if (MechDrive.GetTaskState() == Task_State.DONE) {
+
+                    if (MechDrive.GetTaskState() == Task_State.DONE) {
                         programorder1++;
                     }
+                    //}
                     break;
 
                 case 4:
-                    if (left) {
-                        Rail.setTargetPosition(820);
-                        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        Rail.setPower(0.65);
-                        if (Rail.getCurrentPosition() >= 790 && Rail.getCurrentPosition() <= 850) {
+                    //if (left) {
+                        //Rail.setTargetPosition(820);
+                        //Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        //Rail.setPower(0.65);
+                        //if (Rail.getCurrentPosition() >= 790 && Rail.getCurrentPosition() <= 850) {
+                            //programorder1++;
+                        //}
+                    //}
+                    //else if (center) {
+                        //Rail.setTargetPosition(820);
+                        //Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        //Rail.setPower(0.65);
+                        //if (Rail.getCurrentPosition() >= 790 && Rail.getCurrentPosition() <= 850) {
+                            //programorder1++;
+                        //}
+                    //}
+                    //else if (right) {
+                        //Rail.setTargetPosition(900);
+                        //Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        //Rail.setPower(0.65);
+                        //if (Rail.getCurrentPosition() >= 870 && Rail.getCurrentPosition() <= 930) {
                             programorder1++;
-                        }
-                    }
-                    else if (center) {
-                        Rail.setTargetPosition(820);
-                        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        Rail.setPower(0.65);
-                        if (Rail.getCurrentPosition() >= 790 && Rail.getCurrentPosition() <= 850) {
-                            programorder1++;
-                        }
-                    }
-                    else if (right) {
-                        Rail.setTargetPosition(900);
-                        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        Rail.setPower(0.65);
-                        if (Rail.getCurrentPosition() >= 870 && Rail.getCurrentPosition() <= 930) {
-                            programorder1++;
-                        }
-                    }
+                        //}
+                    //}
                     break;
 
                 case 5:
-                    if (left) {
-                        if (ArmControl.GetTaskState() == Task_State.INIT) {
-                            ArmControl.SetTargetPosition(Low_Arm_Right, -0.6, 0.6);
-                        }
-                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
+                    //if (left) {
+                        //if (ArmControl.GetTaskState() == Task_State.INIT) {
+                            //ArmControl.SetTargetPosition(Low_Arm_Right, -0.6, 0.6);
+                        //}
+                        //else if (ArmControl.GetTaskState() == Task_State.DONE) {
+                        //    programorder1++;
+                        //}
+                    //}
+                    //else if (center) {
+                      //  if (ArmControl.GetTaskState() == Task_State.INIT) {
+                        //    ArmControl.SetTargetPosition(Middle_Arm_Right, -0.6, 0.6);
+                        //}
+                        //else if (ArmControl.GetTaskState() == Task_State.DONE) {
+                         //   programorder1++;
+                        //}
+                    //}
+                    //else if (right) {
+                      //  if (ArmControl.GetTaskState() == Task_State.INIT) {
+                        //    ArmControl.SetTargetPosition(Top_Arm_Right, -0.6, 0.6);
+                        //}
+                        //else if (ArmControl.GetTaskState() == Task_State.DONE) {
                             programorder1++;
-                        }
-                    }
-                    else if (center) {
-                        if (ArmControl.GetTaskState() == Task_State.INIT) {
-                            ArmControl.SetTargetPosition(Middle_Arm_Right, -0.6, 0.6);
-                        }
-                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
-                            programorder1++;
-                        }
-                    }
-                    else if (right) {
-                        if (ArmControl.GetTaskState() == Task_State.INIT) {
-                            ArmControl.SetTargetPosition(Top_Arm_Right, -0.6, 0.6);
-                        }
-                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
-                            programorder1++;
-                        }
-                    }
+                        //}
+                    //}
                     break;
 
                 case 6:
-                    if (left) {
-                        if (BucketControl.GetTaskState() == Task_State.INIT || BucketControl.GetTaskState() == Task_State.READY) {
-                            BucketControl.SetTargetPosition(MirrorLowBucketPosition);
-                        }
-                        else if (BucketControl.GetTaskState() == Task_State.DONE) {
+                    //if (left) {
+                     ///   if (BucketControl.GetTaskState() == Task_State.INIT || BucketControl.GetTaskState() == Task_State.READY) {
+                        //    BucketControl.SetTargetPosition(MirrorLowBucketPosition);
+                        //}
+                        //else if (BucketControl.GetTaskState() == Task_State.DONE) {
+                        //    programorder1++;
+                        //}
+                    //}
+                    //else if (center) {
+                      //  if (BucketControl.GetTaskState() == Task_State.INIT || BucketControl.GetTaskState() == Task_State.READY) {
+                        //    BucketControl.SetTargetPosition(MirrorMiddleBucketPosition);
+                        //}
+                        //else if (BucketControl.GetTaskState() == Task_State.DONE) {
+                         //   programorder1++;
+                        //}
+                    //}
+                    //else if (right) {
+                     //   if (BucketControl.GetTaskState() == Task_State.INIT || BucketControl.GetTaskState() == Task_State.READY) {
+                       //     BucketControl.SetTargetPosition(MirrorTopBucketPosition);
+                        //}
+                        //else if (BucketControl.GetTaskState() == Task_State.DONE) {
                             programorder1++;
-                        }
-                    }
-                    else if (center) {
-                        if (BucketControl.GetTaskState() == Task_State.INIT || BucketControl.GetTaskState() == Task_State.READY) {
-                            BucketControl.SetTargetPosition(MirrorMiddleBucketPosition);
-                        }
-                        else if (BucketControl.GetTaskState() == Task_State.DONE) {
-                            programorder1++;
-                        }
-                    }
-                    else if (right) {
-                        if (BucketControl.GetTaskState() == Task_State.INIT || BucketControl.GetTaskState() == Task_State.READY) {
-                            BucketControl.SetTargetPosition(MirrorTopBucketPosition);
-                        }
-                        else if (BucketControl.GetTaskState() == Task_State.DONE) {
-                            programorder1++;
-                        }
-                    }
+                        //}
+                    //}
                     break;
 
                 case 7:
@@ -378,125 +391,127 @@ public class FarRed_V4 extends LinearOpMode {
                     break;
 
                 case 9:
-                    if (left) {
-                        if (BucketControl.GetTaskState() == Task_State.READY) {
-                            if (ET.milliseconds() > 1500) {
-                                GateServo.setPosition(ClosingGatePosition);
-                                BucketControl.SetTargetPosition(-15);
-                            }
-                        }
-                        else if (BucketControl.GetTaskState() == Task_State.DONE) {
+                   // if (left) {
+                     //   if (BucketControl.GetTaskState() == Task_State.READY) {
+                       //     if (ET.milliseconds() > 1500) {
+                         //       GateServo.setPosition(ClosingGatePosition);
+                                //BucketControl.SetTargetPosition(-15);
+                         //   }
+                        //}
+                        //else if (BucketControl.GetTaskState() == Task_State.DONE) {
+                         //   programorder1++;
+                        //}
+                   // }
+                    //else if (center) {
+                      //  if (BucketControl.GetTaskState() == Task_State.READY) {
+                        //    if (ET.milliseconds() > 1500) {
+                          //      GateServo.setPosition(ClosingGatePosition);
+                                //BucketControl.SetTargetPosition(-15);
+                           // }
+                        //}
+                        //else if (BucketControl.GetTaskState() == Task_State.DONE) {
+                          //  programorder1++;
+                        //}
+                   // }
+                    //else if (right) {
+                     //   if (BucketControl.GetTaskState() == Task_State.READY) {
+                       //     if (ET.milliseconds() > 1500) {
+                         //       GateServo.setPosition(ClosingGatePosition);
+                                //BucketControl.SetTargetPosition(-15);
+                       //     }
+                     //   }
+                        //else if (BucketControl.GetTaskState() == Task_State.DONE) {
+                    GateServo.setPosition(ClosingGatePosition);
+                    Sequences.SetSequence(4, true);
                             programorder1++;
-                        }
-                    }
-                    else if (center) {
-                        if (BucketControl.GetTaskState() == Task_State.READY) {
-                            if (ET.milliseconds() > 1500) {
-                                GateServo.setPosition(ClosingGatePosition);
-                                BucketControl.SetTargetPosition(-15);
-                            }
-                        }
-                        else if (BucketControl.GetTaskState() == Task_State.DONE) {
-                            programorder1++;
-                        }
-                    }
-                    else if (right) {
-                        if (BucketControl.GetTaskState() == Task_State.READY) {
-                            if (ET.milliseconds() > 1500) {
-                                GateServo.setPosition(ClosingGatePosition);
-                                BucketControl.SetTargetPosition(-15);
-                            }
-                        }
-                        else if (BucketControl.GetTaskState() == Task_State.DONE) {
-                            programorder1++;
-                        }
-                    }
+                        //}
+                   // }
                     break;
 
                 case 10:
-                    if (left) {
-                        if (ArmControl.GetTaskState() == Task_State.READY) {
-                            ArmControl.SetTargetPosition(120, 0.001, 0.001);
-                        }
-                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
+                   // if (left) {
+                    //    if (ArmControl.GetTaskState() == Task_State.READY) {
+                     //       ArmControl.SetTargetPosition(120, 0.001, 0.001);
+                      //  }
+                       // else if (ArmControl.GetTaskState() == Task_State.DONE) {
+                        //    programorder1++;
+                        //}
+                   // }
+                    //else if (center) {
+                     //   if (ArmControl.GetTaskState() == Task_State.READY) {
+                       //     ArmControl.SetTargetPosition(120, 0.001, 0.001);
+                        //}
+                        //else if (ArmControl.GetTaskState() == Task_State.DONE) {
+                         //   programorder1++;
+                        //}
+                    //}
+                    //else if (right) {
+                      //  if (ArmControl.GetTaskState() == Task_State.READY) {
+                        //    ArmControl.SetTargetPosition(120, 0.001, 0.001);
+                        //}
+                        //else if (ArmControl.GetTaskState() == Task_State.DONE) {
                             programorder1++;
-                        }
-                    }
-                    else if (center) {
-                        if (ArmControl.GetTaskState() == Task_State.READY) {
-                            ArmControl.SetTargetPosition(120, 0.001, 0.001);
-                        }
-                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
-                            programorder1++;
-                        }
-                    }
-                    else if (right) {
-                        if (ArmControl.GetTaskState() == Task_State.READY) {
-                            ArmControl.SetTargetPosition(120, 0.001, 0.001);
-                        }
-                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
-                            programorder1++;
-                        }
-                    }
+                        //}
+                    //}
                     break;
 
                 case 11:
-                    if (left) {
-                        if (ArmControl.GetTaskState() == Task_State.READY) {
-                            ArmControl.SetTargetPosition(-10, -0.1, 0.1);
-                        }
-                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
+               //     if (left) {
+                //        if (ArmControl.GetTaskState() == Task_State.READY) {
+                 //           ArmControl.SetTargetPosition(-10, -0.1, 0.1);
+                  //      }
+                   //     else if (ArmControl.GetTaskState() == Task_State.DONE) {
+                    //        programorder1++;
+                     //       ET.reset();
+                      //  }
+                    //}
+                    //else if (center) {
+                     //   if (ArmControl.GetTaskState() == Task_State.READY) {
+                       //     ArmControl.SetTargetPosition(-10, -0.1, 0.1);
+                        //}
+                        //else if (ArmControl.GetTaskState() == Task_State.DONE) {
+                         //   programorder1++;
+                        //    ET.reset();
+                        //}
+                   // }
+                    //else if (right) {
+                      //  if (ArmControl.GetTaskState() == Task_State.READY) {
+                       //     ArmControl.SetTargetPosition(-10, -0.1, 0.1);
+                        //}
+                        //else if (ArmControl.GetTaskState() == Task_State.DONE) {
                             programorder1++;
-                            ET.reset();
-                        }
-                    }
-                    else if (center) {
-                        if (ArmControl.GetTaskState() == Task_State.READY) {
-                            ArmControl.SetTargetPosition(-10, -0.1, 0.1);
-                        }
-                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
-                            programorder1++;
-                            ET.reset();
-                        }
-                    }
-                    else if (right) {
-                        if (ArmControl.GetTaskState() == Task_State.READY) {
-                            ArmControl.SetTargetPosition(-10, -0.1, 0.1);
-                        }
-                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
-                            programorder1++;
-                            ET.reset();
-                        }
-                    }
+                          //  ET.reset();
+                        //}
+                   // }
                     break;
 
                 case 12:
 
-                    if (ET.milliseconds() > 500) {
+                   // if (ET.milliseconds() > 500) {
                         programorder1++;
-                    }
+                   // }
                     break;
 
                 case 13:
-                    if (ArmControl.GetTaskState() == Task_State.READY) {
-                        ArmControl.Override();
-                        Rail.setTargetPosition(700);
-                        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        Rail.setPower(0.5);
-                    }
-                    else if (ArmControl.GetTaskState() == Task_State.DONE) {
+            //        if (ArmControl.GetTaskState() == Task_State.READY) {
+             //           ArmControl.Override();
+               //         Rail.setTargetPosition(700);
+                 //       Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                   //     Rail.setPower(0.5);
+                   // }
+                    //else if (ArmControl.GetTaskState() == Task_State.DONE) {
                         programorder1++;
-                    }
+                    //}
                     break;
 
                 case 14:
-                    if (Rail.getCurrentPosition() > 670 && Rail.getCurrentPosition() < 730) {
-                        if (BucketControl.GetTaskState() == Task_State.READY) {
-                            BucketControl.SetTargetPosition(OriginalBucketPosition);
+                 //   if (Rail.getCurrentPosition() > 670 && Rail.getCurrentPosition() < 730) {
+                  //      if (BucketControl.GetTaskState() == Task_State.READY) {
+                   //         BucketControl.SetTargetPosition(OriginalBucketPosition);
                             programorder1++;
-                            ET.reset();
-                        }
-                    }
+                   //         ET.reset();
+                    //    }
+                    //}
                     break;
 
                 case 15:
@@ -608,7 +623,7 @@ public class FarRed_V4 extends LinearOpMode {
 
                 case 25:
                     if (MechDrive.GetTaskState() == Task_State.READY) {
-                        MechDrive.SetTargets(180, 1700, 0.5);
+                        MechDrive.SetTargets(180, 3000, 0.5);
                     }
                     else if (MechDrive.GetTaskState() == Task_State.DONE) {
                         programorder1++;
@@ -660,6 +675,134 @@ public class FarRed_V4 extends LinearOpMode {
                     break;
 
                 case 30:
+
+                    GateServo.setPosition(OpenGatePosition);
+                    programorder1++;
+                    ET.reset();
+                    break;
+
+                case 31:
+                    if (left) {
+                        if (BucketControl.GetTaskState() == Task_State.READY) {
+                            if (ET.milliseconds() > 1501) {
+                                GateServo.setPosition(ClosingGatePosition);
+                                BucketControl.SetTargetPosition(-15);
+                            }
+                        }
+                        else if (BucketControl.GetTaskState() == Task_State.DONE) {
+                            programorder1++;
+                        }
+                    }
+                    else if (center) {
+                        if (BucketControl.GetTaskState() == Task_State.READY) {
+                            if (ET.milliseconds() > 1500) {
+                                GateServo.setPosition(ClosingGatePosition);
+                                BucketControl.SetTargetPosition(-15);
+                            }
+                        }
+                        else if (BucketControl.GetTaskState() == Task_State.DONE) {
+                            programorder1++;
+                        }
+                    }
+                    else if (right) {
+                        if (BucketControl.GetTaskState() == Task_State.READY) {
+                            if (ET.milliseconds() > 1500) {
+                                GateServo.setPosition(ClosingGatePosition);
+                                BucketControl.SetTargetPosition(-15);
+                            }
+                        }
+                        else if (BucketControl.GetTaskState() == Task_State.DONE) {
+                            programorder1++;
+                        }
+                    }
+                    break;
+
+                case 32:
+                    if (left) {
+                        if (ArmControl.GetTaskState() == Task_State.READY) {
+                            ArmControl.SetTargetPosition(120.1, 0.001, 0.001);
+                        }
+                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
+                            programorder1++;
+                        }
+                    }
+                    else if (center) {
+                        if (ArmControl.GetTaskState() == Task_State.READY) {
+                            ArmControl.SetTargetPosition(120, 0.001, 0.001);
+                        }
+                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
+                            programorder1++;
+                        }
+                    }
+                    else if (right) {
+                        if (ArmControl.GetTaskState() == Task_State.READY) {
+                            ArmControl.SetTargetPosition(120, 0.001, 0.001);
+                        }
+                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
+                            programorder1++;
+                        }
+                    }
+                    break;
+
+                case 33:
+                    if (left) {
+                        if (ArmControl.GetTaskState() == Task_State.READY) {
+                            ArmControl.SetTargetPosition(-10.01, -0.1, 0.1);
+                        }
+                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
+                            programorder1++;
+                            ET.reset();
+                        }
+                    }
+                    else if (center) {
+                        if (ArmControl.GetTaskState() == Task_State.READY) {
+                            ArmControl.SetTargetPosition(-10, -0.1, 0.1);
+                        }
+                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
+                            programorder1++;
+                            ET.reset();
+                        }
+                    }
+                    else if (right) {
+                        if (ArmControl.GetTaskState() == Task_State.READY) {
+                            ArmControl.SetTargetPosition(-10, -0.1, 0.1);
+                        }
+                        else if (ArmControl.GetTaskState() == Task_State.DONE) {
+                            programorder1++;
+                            ET.reset();
+                        }
+                    }
+                    break;
+
+                case 34:
+
+                    if (ET.milliseconds() > 500) {
+                        programorder1++;
+                    }
+                    break;
+
+                case 35:
+                    if (ArmControl.GetTaskState() == Task_State.READY) {
+                        ArmControl.Override();
+                        Rail.setTargetPosition(701);
+                        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        Rail.setPower(0.5);
+                    }
+                    else if (ArmControl.GetTaskState() == Task_State.DONE) {
+                        programorder1++;
+                    }
+                    break;
+
+                case 36:
+                    if (Rail.getCurrentPosition() > 670 && Rail.getCurrentPosition() < 730) {
+                        if (BucketControl.GetTaskState() == Task_State.READY) {
+                            BucketControl.SetTargetPosition(OriginalBucketPosition);
+                            programorder1++;
+                        }
+                    }
+                    break;
+
+                case 37:
                     if (MechDrive.GetTaskState() == Task_State.READY) {
                         if (left) {
                             MechDrive.SetTargets(90, 1170, 0.4);
@@ -676,7 +819,7 @@ public class FarRed_V4 extends LinearOpMode {
                     }
                     break;
 
-                case 31:
+                case 38:
                     if (MechDrive.GetTaskState() == Task_State.READY) {
                         MechDrive.SetTargets(0, 2300, 0.5);
                     }
@@ -685,7 +828,7 @@ public class FarRed_V4 extends LinearOpMode {
                     }
                     break;
 
-                case 32:
+                case 39:
                     BucketControl.Calibrate();
                     ArmControl.Calibrate();
                     Rail.setTargetPosition(0);
@@ -734,6 +877,7 @@ public class FarRed_V4 extends LinearOpMode {
             MechDrive.Task(GyroContinuity());
             BucketControl.BucketTask();
             ArmControl.ArmTask();
+            Sequences.Task();
         }
     }
 

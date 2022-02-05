@@ -32,7 +32,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-@Autonomous(name="FarRed_TEST", group="MecanumDrive")
+@Autonomous(name="FarRed_AutoSequencingTest", group="MecanumDrive")
 public class FarRed_TEST_autosequencing extends LinearOpMode {
 
     OpenCvWebcam webcam;
@@ -175,6 +175,7 @@ public class FarRed_TEST_autosequencing extends LinearOpMode {
         MechDrive = new Mech_Drive(FrontRight, FrontLeft, BackRight, BackLeft, MoveDirection.REVERSE, telemetry);
         BucketControl = new Bucket_Control(BucketMotor);
         ArmControl = new Arm_Control(Arm);
+        Sequences = new Auto_Sequences(BucketControl, ArmControl, Rail, telemetry);
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
@@ -221,20 +222,34 @@ public class FarRed_TEST_autosequencing extends LinearOpMode {
                 case 0:
                     if (MechDrive.GetTaskState() == Task_State.INIT) {
                         MechDrive.SetTargets(0, 3000, 0.5);
-                        Sequences.SetSequence(1, false);
+                        Sequences.SetSequence(3, false);
                     }
-                    else if (MechDrive.GetTaskState() == Task_State.DONE) {
+                    else if (Sequences.GetTaskState() == Task_State.DONE) {
                         programorder1++;
                     }
                     break;
 
                 case 1:
-                    BucketControl.Calibrate();
-                    ArmControl.Calibrate();
-                    Rail.setTargetPosition(0);
-                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    Rail.setPower(0.5);
-                    programorder1++;
+
+                    if (MechDrive.GetTaskState() == Task_State.DONE) {
+                        MechDrive.SetTargets(180, 3000, 0.5);
+                        Sequences.SetSequence(4, false);
+                    }
+                    break;
+
+                case 2:
+                        programorder1++;
+                    break;
+
+                case 3:
+                    if (Sequences.GetTaskState() == Task_State.DONE) {
+                        BucketControl.Calibrate();
+                        ArmControl.Calibrate();
+                        Rail.setTargetPosition(0);
+                        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        Rail.setPower(0.5);
+                        programorder1++;
+                    }
                     break;
 
                 default:
