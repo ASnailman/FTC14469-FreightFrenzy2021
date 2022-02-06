@@ -126,8 +126,7 @@ public class Auto_Sequences {
 
                     case 3:
                         if (topalliancehub == true || middlealliancehub == true) {
-                            if (ArmCtrl.GetTaskState() == Task_State.INIT ||
-                                    ArmCtrl.GetTaskState() == Task_State.READY) {
+                            if (ArmCtrl.GetTaskState() == Task_State.INIT || ArmCtrl.GetTaskState() == Task_State.READY) {
                                 if (mirror_event) {
                                     ArmCtrl.SetTargetPosition(80, 0.00002, 0.00002);
                                 }
@@ -142,8 +141,7 @@ public class Auto_Sequences {
                         }
                         else if (lowalliancehub == true) {
 
-                            if (ArmCtrl.GetTaskState() == Task_State.INIT ||
-                                    ArmCtrl.GetTaskState() == Task_State.READY) {
+                            if (ArmCtrl.GetTaskState() == Task_State.INIT || ArmCtrl.GetTaskState() == Task_State.READY) {
                                 if (mirror_event) {
                                     ArmCtrl.SetTargetPosition(30, 0.00001, 0.00001);
                                 }
@@ -159,8 +157,7 @@ public class Auto_Sequences {
                         break;
 
                     case 4:
-                        if (ArmCtrl.GetTaskState() == Task_State.INIT ||
-                                ArmCtrl.GetTaskState() == Task_State.READY) {
+                        if (ArmCtrl.GetTaskState() == Task_State.INIT || ArmCtrl.GetTaskState() == Task_State.READY) {
                             if (mirror_event) {
                                 ArmCtrl.SetTargetPosition(-10, -0.1, 0.1);
                             }
@@ -207,7 +204,7 @@ public class Auto_Sequences {
                         break;
 
                     case 2:
-                        if (ArmCtrl.GetTaskState() == Task_State.INIT) {
+                        if (ArmCtrl.GetTaskState() == Task_State.INIT || ArmCtrl.GetTaskState() == Task_State.READY) {
                             if (mirror_event) {
                                 ArmCtrl.SetTargetPosition(Top_Arm_Right, -0.6, 0.6);
                             } else {
@@ -250,7 +247,7 @@ public class Auto_Sequences {
                         break;
 
                     case 2:
-                        if (ArmCtrl.GetTaskState() == Task_State.INIT) {
+                        if (ArmCtrl.GetTaskState() == Task_State.INIT || ArmCtrl.GetTaskState() == Task_State.READY) {
                             if (mirror_event) {
                                 ArmCtrl.SetTargetPosition(Middle_Arm_Right, -0.6, 0.6);
                             } else {
@@ -293,7 +290,7 @@ public class Auto_Sequences {
                         break;
 
                     case 2:
-                        if (ArmCtrl.GetTaskState() == Task_State.INIT) {
+                        if (ArmCtrl.GetTaskState() == Task_State.INIT || ArmCtrl.GetTaskState() == Task_State.READY) {
                             if (mirror_event) {
                                 ArmCtrl.SetTargetPosition(Low_Arm_Right, -0.6, 0.6);
                             } else {
