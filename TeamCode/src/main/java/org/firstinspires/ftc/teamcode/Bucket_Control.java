@@ -23,6 +23,7 @@ public class Bucket_Control {
         // Assign the motor connected to the bucket and initialize it
         bucketmotor = BucketMotor;
         bucketmotor.setDirection(DcMotorSimple.Direction.FORWARD);
+
         bucketmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         bucketmotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 

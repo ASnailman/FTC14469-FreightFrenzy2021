@@ -32,8 +32,8 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-@Autonomous(name="FarRed_V4", group="MecanumDrive")
-public class FarRed_V4 extends LinearOpMode {
+@Autonomous(name="FarRed_FINAL", group="MecanumDrive")
+public class FarRed_FINAL extends LinearOpMode {
 
     OpenCvWebcam webcam;
     BarcodeDeterminationPipeline pipeline;
@@ -225,17 +225,17 @@ public class FarRed_V4 extends LinearOpMode {
             switch (programorder1) {
 
                 case 0:
-                    if (pipeline.position == FarRed_V4.BarcodeDeterminationPipeline.ShippingElementPosition.LEFT) {
+                    if (pipeline.position == FarRed_FINAL.BarcodeDeterminationPipeline.ShippingElementPosition.LEFT) {
                         left = true;
                         center = false;
                         right = false;
                     }
-                    else if (pipeline.position == FarRed_V4.BarcodeDeterminationPipeline.ShippingElementPosition.CENTER) {
+                    else if (pipeline.position == FarRed_FINAL.BarcodeDeterminationPipeline.ShippingElementPosition.CENTER) {
                         left = false;
                         center = true;
                         right = false;
                     }
-                    else if (pipeline.position == FarRed_V4.BarcodeDeterminationPipeline.ShippingElementPosition.RIGHT) {
+                    else if (pipeline.position == FarRed_FINAL.BarcodeDeterminationPipeline.ShippingElementPosition.RIGHT) {
                         left = false;
                         center = false;
                         right = true;
@@ -289,14 +289,14 @@ public class FarRed_V4 extends LinearOpMode {
                 case 3:
                     //if (MechDrive.GetTaskState() == Task_State.READY) {
                     //if (MechDrive.GetTaskState() == Task_State.DONE) {
-                        MechDrive.SetTargets(0, 900, 0.8);
-                        programorder1++;
+
                         //BucketControl.SetTargetPosition(0);
                     //}
                     //else if (MechDrive.GetTaskState() == Task_State.DONE) {
                     //    programorder1++;
                     //}
-
+                    MechDrive.headingangle = -30;
+                    GyroTurn(-30, 0.6);
                     break;
 
                 case 4:
@@ -324,7 +324,7 @@ public class FarRed_V4 extends LinearOpMode {
                             //programorder1++;
                         //}
                     //}
-                    spare_case = 1;
+                    MechDrive.SetTargets(90, 450, 0.8);
                     programorder1++;
                     break;
 
@@ -399,7 +399,7 @@ public class FarRed_V4 extends LinearOpMode {
                         if (left) {
                             MechDrive.SetTargets(90, 575, 0.6);
                         } else if (center) {
-                            MechDrive.SetTargets(90, 375, 0.6);
+                            MechDrive.SetTargets(90, 325, 0.6);
                         } else if (right) {
                             MechDrive.SetTargets(90, 375, 0.6);
                         }
@@ -553,7 +553,7 @@ public class FarRed_V4 extends LinearOpMode {
 
                 case 15:
                     MechDrive.headingangle = 180;
-                    GyroTurn(174, 0.5);
+                    GyroTurn(178, 0.5);
                     //if (ET.milliseconds() > 2500) {
                     //    programorder1++;
                     //}
@@ -561,14 +561,8 @@ public class FarRed_V4 extends LinearOpMode {
 
                 case 16:
                     //if (MechDrive.GetTaskState() == Task_State.READY) {
-                    if (left) {
-                        MechDrive.SetTargets(90, 1000, 0.42);
-                    } else if (center) {
                         MechDrive.SetTargets(90, 800, 0.42);
-                    } else if (right) {
-                        MechDrive.SetTargets(90, 815, 0.42);
-                    }
-                    programorder1++;
+                        programorder1++;
                     //}
                     //else if (MechDrive.GetTaskState() == Task_State.DONE) {
                     //    programorder1++;
@@ -590,7 +584,7 @@ public class FarRed_V4 extends LinearOpMode {
                 case 18:
                     //if (MechDrive.GetTaskState() == Task_State.READY) {
                     if (MechDrive.GetTaskState() == Task_State.DONE) {
-                        MechDrive.SetTargets(1, 1725, 0.6);
+                        MechDrive.SetTargets(7, 1200, 0.6);
                         ET.reset();
                         programorder1++;
                     }
@@ -635,7 +629,7 @@ public class FarRed_V4 extends LinearOpMode {
 
                 case 21:
                     if (MechDrive.GetTaskState() == Task_State.READY) {
-                        MechDrive.SetTargets(180, 200, 0.7);
+                        MechDrive.SetTargets(180, 200, 0.4);
                     }
                     else if (MechDrive.GetTaskState() == Task_State.DONE) {
                         programorder1++;
@@ -644,11 +638,10 @@ public class FarRed_V4 extends LinearOpMode {
 
                 case 22:
                     if (MechDrive.GetTaskState() == Task_State.READY) {
-                        MechDrive.SetTargets(0, 200, 0.3);
+                        MechDrive.SetTargets(0, 200, 0.7);
                     }
                     else if (MechDrive.GetTaskState() == Task_State.DONE) {
                         programorder1++;
-                        GateServo.setPosition(0.1);
                         ET.reset();
                     }
 
@@ -675,8 +668,7 @@ public class FarRed_V4 extends LinearOpMode {
                     //    Intake.setPower(0);
                     //}
 
-                    if (ET.milliseconds() > 100) {
-                        GateServo.setPosition(0.1);
+                    if (ET.milliseconds() > 500) {
                         FrontRight.setPower(0);
                         FrontLeft.setPower(0);
                         BackLeft.setPower(0);
@@ -701,7 +693,6 @@ public class FarRed_V4 extends LinearOpMode {
                         //    MechDrive.SetTargets(180, 500, 0.5);
                         //}
                         //else if (MechDrive.GetTaskState() == Task_State.DONE) {
-                        GateServo.setPosition(0.1);
                         FrontRight.setPower(0);
                         FrontLeft.setPower(0);
                         BackLeft.setPower(0);
@@ -710,11 +701,10 @@ public class FarRed_V4 extends LinearOpMode {
                         programorder1++;
                         //}
                     } else if (Unknown) {
-                        GateServo.setPosition(0.1);
-                        FrontRight.setPower(-0.36);
-                        FrontLeft.setPower(-0.36);
-                        BackLeft.setPower(-0.36);
-                        BackRight.setPower(-0.36);
+                        FrontRight.setPower(-0.4);
+                        FrontLeft.setPower(-0.4);
+                        BackLeft.setPower(-0.4);
+                        BackRight.setPower(-0.4);
                     }
                     break;
 
@@ -737,7 +727,6 @@ public class FarRed_V4 extends LinearOpMode {
                         }
                         else if (MechDrive.GetTaskState() == Task_State.DONE) {
                             programorder1++;
-                            ET.reset();
                         }
                     }
                     break;
@@ -777,11 +766,9 @@ public class FarRed_V4 extends LinearOpMode {
 
                 case 31:
 
-                    if (ET.milliseconds() > 100) {
-                        GateServo.setPosition(OpenGatePosition);
-                        programorder1++;
-                        ET.reset();
-                    }
+                    GateServo.setPosition(OpenGatePosition);
+                    programorder1++;
+                    ET.reset();
                     break;
 
                 case 32:
@@ -822,7 +809,6 @@ public class FarRed_V4 extends LinearOpMode {
                     if (ET.milliseconds() > 500) {
                         GateServo.setPosition(ClosingGatePosition);
                         Sequences.SetSequence(4, false);
-                        ET.reset();
                         programorder1++;
                     }
                     break;
@@ -893,40 +879,34 @@ public class FarRed_V4 extends LinearOpMode {
                     break;
 
                 case 38:
-                    if (Sequences.GetTaskState() == Task_State.DONE) {
-                    //if (ET.milliseconds() > 100) {
+                    if (Sequences.GetTaskState() == Task_State.READY) {
+                        if (MechDrive.GetTaskState() == Task_State.READY) {
                             if (left) {
-                                MechDrive.headingangle = 180;
-                                MechDrive.SetTargets(90, 880, 0.7);
-                            } else if (center) {
-                                MechDrive.headingangle = 180;
-                                MechDrive.SetTargets(90, 880, 0.7);
-                            } else if (right) {
-                                MechDrive.headingangle = 180;
-                                MechDrive.SetTargets(90, 880, 0.7);
+                                MechDrive.SetTargets(90, 900, 0.7);
                             }
+                            else if (center) {
+                                MechDrive.SetTargets(90, 900, 0.7);
+                            }
+                            else if (right) {
+                                MechDrive.SetTargets(90, 900, 0.7);
+                            }
+                        }
+                        else if (MechDrive.GetTaskState() == Task_State.DONE) {
                             programorder1++;
-                    //}
+                        }
                     }
                     break;
 
                 case 39:
-                    if (MechDrive.GetTaskState() == Task_State.DONE) {
-                        MechDrive.SetTargets(10, 2700, 1);
+                    if (MechDrive.GetTaskState() == Task_State.READY) {
+                        MechDrive.SetTargets(10, 2300, 1);
+                    }
+                    else if (MechDrive.GetTaskState() == Task_State.DONE) {
                         programorder1++;
                     }
-
                     break;
 
                 case 40:
-                    if (MechDrive.GetTaskState() == Task_State.DONE) {
-                        MechDrive.SetTargets(-90, 700, 0.7);
-                        programorder1++;
-                    }
-
-                    break;
-
-                case 41:
                     BucketControl.Calibrate();
                     ArmControl.Calibrate();
                     Rail.setTargetPosition(0);

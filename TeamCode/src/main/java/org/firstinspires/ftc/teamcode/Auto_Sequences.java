@@ -18,6 +18,8 @@ public class Auto_Sequences {
     static Servo GateServo;
     static Servo ElementServo;
 
+    ElapsedTime ET = new ElapsedTime();
+
     Bucket_Control BucketCtrl;
     Arm_Control ArmCtrl;
 
@@ -113,10 +115,10 @@ public class Auto_Sequences {
                     case 2:
                         if (BucketCtrl.GetTaskState() == Task_State.INIT || BucketCtrl.GetTaskState() == Task_State.READY) {
                             if (mirror_event) {
-                                BucketCtrl.SetTargetPosition(15);
+                                BucketCtrl.SetTargetPosition(20);
                             }
                             else {
-                                BucketCtrl.SetTargetPosition(-15);
+                                BucketCtrl.SetTargetPosition(-20);
                             }
                         }
                         else if (BucketCtrl.GetTaskState() == Task_State.DONE) {
@@ -172,8 +174,10 @@ public class Auto_Sequences {
 
                     case 5:
                         if (ArmCtrl.GetTaskState() == Task_State.READY) {
+                            //ArmCtrl.SetTargetPosition(0, -0.1, 0.1);
                             ArmCtrl.Override();
-                            Rail.setTargetPosition(700);
+                            //BucketCtrl.Override();
+                            Rail.setTargetPosition(750);
                             Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                             Rail.setPower(0.5);
                         }
@@ -281,6 +285,7 @@ public class Auto_Sequences {
             else if (lowalliancehub) {
                 switch (DeliverySequenceLOW) {
                     case 1:
+                        BucketCtrl.SetTargetPosition(1);
                         Rail.setTargetPosition(820);
                         Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                         Rail.setPower(0.65);
@@ -299,10 +304,17 @@ public class Auto_Sequences {
                         }
                         else if (ArmCtrl.GetTaskState() == Task_State.DONE) {
                             DeliverySequenceLOW++;
+                            ET.reset();
                         }
                         break;
 
                     case 3:
+                        if (ET.milliseconds() > 100) {
+                            DeliverySequenceLOW++;
+                        }
+                        break;
+
+                    case 4:
                         if (BucketCtrl.GetTaskState() == Task_State.INIT || BucketCtrl.GetTaskState() == Task_State.READY) {
                             if (mirror_event) {
                                 BucketCtrl.SetTargetPosition(MirrorLowBucketPosition);

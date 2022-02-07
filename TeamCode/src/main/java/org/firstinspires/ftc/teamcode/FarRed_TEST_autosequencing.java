@@ -96,6 +96,10 @@ public class FarRed_TEST_autosequencing extends LinearOpMode {
     boolean yellow;
     boolean unknown;
 
+    boolean White;
+    boolean Yellow;
+    boolean Unknown;
+
     int programorder1 = 0;
     int programorder2 = 0;
     Mech_Drive MechDrive;
@@ -220,36 +224,8 @@ public class FarRed_TEST_autosequencing extends LinearOpMode {
             switch (programorder1) {
 
                 case 0:
-                    if (MechDrive.GetTaskState() == Task_State.INIT) {
-                        MechDrive.SetTargets(0, 3000, 0.5);
-                        Sequences.SetSequence(3, false);
-                    }
-                    else if (Sequences.GetTaskState() == Task_State.DONE) {
-                        programorder1++;
-                    }
-                    break;
 
-                case 1:
-
-                    if (MechDrive.GetTaskState() == Task_State.DONE) {
-                        MechDrive.SetTargets(180, 3000, 0.5);
-                        Sequences.SetSequence(4, false);
-                    }
-                    break;
-
-                case 2:
-                        programorder1++;
-                    break;
-
-                case 3:
-                    if (Sequences.GetTaskState() == Task_State.DONE) {
-                        BucketControl.Calibrate();
-                        ArmControl.Calibrate();
-                        Rail.setTargetPosition(0);
-                        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        Rail.setPower(0.5);
-                        programorder1++;
-                    }
+                    //programorder1++;
                     break;
 
                 default:
@@ -265,6 +241,7 @@ public class FarRed_TEST_autosequencing extends LinearOpMode {
 
             // Detect for objects in the bucket
             BucketObjectColorDetector();
+            WhiteColorDetector();
 
             if (BucketIsEmpty) {
 
@@ -624,9 +601,9 @@ public class FarRed_TEST_autosequencing extends LinearOpMode {
         colorsensor.setGain(30);
 
         Color.colorToHSV(RGBA.toColor(), HSV);
-        telemetry.addData("H:", HSV[0]);
-        telemetry.addData("S:", HSV[1]);
-        telemetry.addData("V:", HSV[2]);
+        //telemetry.addData("H:", HSV[0]);
+        //telemetry.addData("S:", HSV[1]);
+        //telemetry.addData("V:", HSV[2]);
 
         int Yellow = 2;
         int White = 1;
@@ -634,15 +611,15 @@ public class FarRed_TEST_autosequencing extends LinearOpMode {
 
         if (HSV[1] >= 0 && HSV[1] <= 0.45) {
             if (HSV[2] >= 0.3 && HSV[2] <= 1) {
-                telemetry.addData("Color:", "White");
-                telemetry.update();
+                //telemetry.addData("Color:", "White");
+                //telemetry.update();
                 white = true;
                 yellow = false;
                 unknown = false;
                 return White;
             } else {
-                telemetry.addData("Color:", "Unknown");
-                telemetry.update();
+                //telemetry.addData("Color:", "Unknown");
+                //telemetry.update();
                 unknown = true;
                 yellow = false;
                 white = false;
@@ -650,27 +627,57 @@ public class FarRed_TEST_autosequencing extends LinearOpMode {
             }
         } else if (HSV[1] >= 0.5 && HSV[1] <= 0.8) {
             if (HSV[2] >= 0.6 && HSV[2] <= 1) {
-                telemetry.addData("Color:", "Yellow");
-                telemetry.update();
+                //telemetry.addData("Color:", "Yellow");
+                //telemetry.update();
                 yellow = true;
                 white = false;
                 unknown = false;
                 return Yellow;
             } else {
-                telemetry.addData("Color:", "Unknown");
-                telemetry.update();
+                //telemetry.addData("Color:", "Unknown");
+                //telemetry.update();
                 unknown = true;
                 yellow = false;
                 white = false;
                 return Unkwown;
             }
         } else {
-            telemetry.addData("Color:", "Unknown");
-            telemetry.update();
+            //telemetry.addData("Color:", "Unknown");
+            //telemetry.update();
             unknown = true;
             yellow = false;
             white = false;
             return Unkwown;
+        }
+    }
+
+    private int WhiteColorDetector() {
+
+        float[] HSV = new float[3];
+        NormalizedRGBA RGBA = whitecolorsensor.getNormalizedColors();
+        whitecolorsensor.setGain(30);
+
+        Color.colorToHSV(RGBA.toColor(), HSV);
+        telemetry.addData("H:", HSV[0]);
+        telemetry.addData("S:", HSV[1]);
+        telemetry.addData("V:", HSV[2]);
+
+        int white = 1;
+        int unkwown = 0;
+
+        if (HSV[1] >= 0.4 && HSV[1] <= 0.6) {
+            telemetry.addData("Color:", "White");
+            telemetry.update();
+            White = true;
+            Unknown = false;
+            return white;
+        } else {
+            telemetry.addData("Color:", "Unknown");
+            telemetry.update();
+            Unknown = true;
+            Yellow = false;
+            White = false;
+            return unkwown;
         }
     }
 

@@ -893,7 +893,7 @@ public class Meet3Teleop extends LinearOpMode {
                 case 3:
                     if (ArmMotor.GetTaskState() == Task_State.INIT || ArmMotor.GetTaskState() == Task_State.READY) {
 
-                        ArmMotor.SetTargetPosition(-230, -0.3, 0.3);
+                        ArmMotor.SetTargetPosition(-230, -0.4, 0.4);
                     }
                     else if (ArmMotor.GetTaskState() == Task_State.DONE) {
                         shippingelementorder1++;
@@ -947,12 +947,11 @@ public class Meet3Teleop extends LinearOpMode {
             switch (shippingelementorder2) {
 
                 case 1:
-                    // Move the rail to its highest position
-                    Rail.setTargetPosition(25);
+                    Rail.setTargetPosition(100);
                     Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     Rail.setPower(0.5);
 
-                    if (Rail.getCurrentPosition() >= 0 && Rail.getCurrentPosition() <= 50) {
+                    if (Rail.getCurrentPosition() >= 50 && Rail.getCurrentPosition() <= 150) {
                         shippingelementorder2++;
                     }
                     break;
