@@ -3,11 +3,10 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
-import com.vuforia.ImageTargetBuilder;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-public class Mech_Drive {
+public class Mech_Drive_FAST {
 
     DcMotor FrontLeft, FrontRight, BackLeft, BackRight;     // DC motors for each of the Mecanum wheels
     double flpower, frpower, blpower, brpower;              // Power command for each of the DC motors
@@ -21,11 +20,12 @@ public class Mech_Drive {
     double targetpower;
     double steeringoutput;
     Task_State state;
+    int encoderselect; //0 is frontright, 1 is backright
 
     double finalpower;
 
     // CONSTRUCTOR
-    public Mech_Drive(DcMotor fr, DcMotor fl, DcMotor br, DcMotor bl, MoveDirection Direction, Telemetry Telemetry) {
+    public Mech_Drive_FAST(DcMotor fr, DcMotor fl, DcMotor br, DcMotor bl, MoveDirection Direction, Telemetry Telemetry) {
 
         // Assign the motor connected to the bucket and initialize it
         FrontRight = fr;
@@ -52,13 +52,21 @@ public class Mech_Drive {
     }
 
     // METHOD THAT A STATE MACHINE OPMODE SHOULD CALL WHEN IT IS READY TO LAUNCH THE NEXT TASK IN ITS LIST
-    public void SetTargets(double StrafingAngle, double TargetDistance, double TargetPower) {
+    public void SetTargets(double StrafingAngle, double TargetDistance, double TargetPower, int EncoderSelect) {
 
+
+        encoderselect = EncoderSelect;
         strafingangle = StrafingAngle;
+
         targetdistance = TargetDistance;
+
         targetpower = TargetPower;
         state = Task_State.RUN;
 
+    }
+
+    public void Override() {
+        state = Task_State.OVERRIDE;
     }
 
     // THIS IS THE TASK THAT A STATE MACHINE OPMODE SHOULD CALL REPEATEDLY IN ITS LOOP
@@ -71,12 +79,21 @@ public class Mech_Drive {
         double radians = Math.toRadians(-strafingangle); // negate strafing angle for left hand rule
         double power;
 
-        encoder = FrontRight.getCurrentPosition();
+        if (encoderselect == 0) {
+            encoder = FrontRight.getCurrentPosition();
+        }
+        else {
+            encoder = BackRight.getCurrentPosition();
+        }
 
         // Always run this PID control when in RUN
         if (state == Task_State.RUN) {
 
-            power = ((targetdistance - FrontRight.getCurrentPosition()) / targetdistance) * targetpower;
+            if (encoderselect == 0) {
+                power = ((targetdistance - FrontRight.getCurrentPosition()) / targetdistance) * targetpower;
+            } else {
+                power = ((targetdistance - BackRight.getCurrentPosition()) / targetdistance) * targetpower;
+            }
             finalpower = Range.clip(power, 0.35, targetpower);
 
             power_x_old = 0;                // make x_old 0 to make the degrees start at the front of the robot
@@ -119,16 +136,18 @@ public class Mech_Drive {
                 BackLeft.setPower(0);
                 BackRight.setPower(0);
 
-                while (FrontRight.getCurrentPosition() != 0) {
-                    FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                }
-
+                FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                BackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 FrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                BackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 state = Task_State.DONE;
             }
         }
         else if (state == Task_State.DONE){
             state = Task_State.READY;
+        }
+        else if (state == Task_State.OVERRIDE) {
+
         }
 
         telemetry.addData("ActualDistance", encoder);
