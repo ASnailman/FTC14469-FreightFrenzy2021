@@ -415,7 +415,7 @@ public class Meet3Teleop extends LinearOpMode {
             /****************************************
              Run CarouselMotor
              ***************************************/
-            if (button_dpad_right_already_pressed == false) {
+            if (!button_dpad_right_already_pressed) {
                 if (gamepad1.dpad_right) {
                     CarouselRight.setPower(1.0);
                     button_dpad_right_already_pressed = true;
@@ -427,7 +427,7 @@ public class Meet3Teleop extends LinearOpMode {
                 }
             }
 
-            if (button_dpad_left_already_pressed == false) {
+            if (!button_dpad_left_already_pressed) {
                 if (gamepad1.dpad_left) {
                     CarouselLeft.setPower(-1.0);
                     button_dpad_left_already_pressed = true;
@@ -804,7 +804,7 @@ public class Meet3Teleop extends LinearOpMode {
             if (button_bumper_right_already_pressed2 == false) {
                 if (gamepad2.right_bumper) {
                     GateServo.setPosition(OpenGatePosition);
-                    IntakeServo.setPosition(OpenIntakePosition);
+                    //IntakeServo.setPosition(OpenIntakePosition);
                     button_bumper_right_already_pressed2 = true;
                 }
             } else {
@@ -1005,7 +1005,7 @@ public class Meet3Teleop extends LinearOpMode {
                     if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
 
                         //BucketMotor.SetTargetPosition(160);
-                        BucketMotor.SetTargetPosition(187);
+                        BucketMotor.SetTargetPosition(183);
                     }
                     else if (BucketMotor.GetTaskState() == Task_State.DONE) {
                         shippingelementorder2++;
@@ -1227,8 +1227,8 @@ public class Meet3Teleop extends LinearOpMode {
         int White = 1;
         int Unkwown = 0;
 
-        if (HSV[1] >= 0 && HSV[1] <= 0.45) {
-            if (HSV[2] >= 0.3 && HSV[2] <= 1) {
+        if (HSV[1] >= 0 && HSV[1] <= 0.5) {
+            if (HSV[2] >= 0.1 && HSV[2] <= 1) {
                 telemetry.addData("Color:", "White");
                 telemetry.update();
                 white = true;
@@ -1243,8 +1243,8 @@ public class Meet3Teleop extends LinearOpMode {
                 white = false;
                 return Unkwown;
             }
-        } else if (HSV[1] >= 0.5 && HSV[1] <= 0.8) {
-            if (HSV[2] >= 0.6 && HSV[2] <= 1) {
+        } else if (HSV[1] >= 0.5 && HSV[1] <= 1) {
+            if (HSV[2] >= 0.1 && HSV[2] <= 1) {
                 telemetry.addData("Color:", "Yellow");
                 telemetry.update();
                 yellow = true;

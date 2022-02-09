@@ -125,10 +125,10 @@ public class Auto_Sequences_FAST {
                         if (topalliancehub == true || middlealliancehub == true) {
                             if (ArmCtrl.GetTaskState() == Task_State.INIT || ArmCtrl.GetTaskState() == Task_State.READY) {
                                 if (mirror_event) {
-                                    ArmCtrl.SetTargetPosition(80, 0.00002, 0.00002);
+                                    ArmCtrl.SetTargetPosition(80, 0.00003, 0.00003);
                                 }
                                 else {
-                                    ArmCtrl.SetTargetPosition(-80, -0.00002, -0.00002);
+                                    ArmCtrl.SetTargetPosition(-80, -0.00003, -0.00003);
                                 }
 
                             }
@@ -140,10 +140,10 @@ public class Auto_Sequences_FAST {
 
                             if (ArmCtrl.GetTaskState() == Task_State.INIT || ArmCtrl.GetTaskState() == Task_State.READY) {
                                 if (mirror_event) {
-                                    ArmCtrl.SetTargetPosition(30, 0.00001, 0.00001);
+                                    ArmCtrl.SetTargetPosition(30, 0.00002, 0.00002);
                                 }
                                 else {
-                                    ArmCtrl.SetTargetPosition(-30, -0.00001, -0.00001);
+                                    ArmCtrl.SetTargetPosition(-30, -0.00002, -0.00002);
                                 }
 
                             }
@@ -156,10 +156,10 @@ public class Auto_Sequences_FAST {
                     case 4:
                         if (ArmCtrl.GetTaskState() == Task_State.INIT || ArmCtrl.GetTaskState() == Task_State.READY) {
                             if (mirror_event) {
-                                ArmCtrl.SetTargetPosition(-10, -0.1, 0.1);
+                                ArmCtrl.SetTargetPosition(0, -0.1, 0.1);
                             }
                             else {
-                                ArmCtrl.SetTargetPosition(10, -0.1, 0.1);
+                                ArmCtrl.SetTargetPosition(0, -0.1, 0.1);
                             }
                         }
                         else if (ArmCtrl.GetTaskState() == Task_State.DONE) {

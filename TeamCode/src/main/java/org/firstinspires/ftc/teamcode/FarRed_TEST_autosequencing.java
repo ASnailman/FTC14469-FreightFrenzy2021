@@ -224,7 +224,7 @@ public class FarRed_TEST_autosequencing extends LinearOpMode {
             switch (programorder1) {
 
                 case 0:
-
+                    BucketObjectColorDetector();
                     //programorder1++;
                     break;
 
@@ -233,15 +233,15 @@ public class FarRed_TEST_autosequencing extends LinearOpMode {
 
             }
 
-            telemetry.addData("case", programorder1);
-            telemetry.update();
-
+            //telemetry.addData("case", programorder1);
+            //telemetry.update();
+            BucketObjectColorDetector();
             // THIS IS THE PART OF THE PROGRAM THAT IS REPETITIVE
             // THEY ARE CALLED 'BACKGROUND TASKS" BUT FOR SIMPLICITY, WE SHALL CALL THEM 'TASKS'
 
             // Detect for objects in the bucket
-            BucketObjectColorDetector();
-            WhiteColorDetector();
+
+            //WhiteColorDetector();
 
             if (BucketIsEmpty) {
 
@@ -601,9 +601,9 @@ public class FarRed_TEST_autosequencing extends LinearOpMode {
         colorsensor.setGain(30);
 
         Color.colorToHSV(RGBA.toColor(), HSV);
-        //telemetry.addData("H:", HSV[0]);
-        //telemetry.addData("S:", HSV[1]);
-        //telemetry.addData("V:", HSV[2]);
+        telemetry.addData("H:", HSV[0]);
+        telemetry.addData("S:", HSV[1]);
+        telemetry.addData("V:", HSV[2]);
 
         int Yellow = 2;
         int White = 1;
@@ -611,15 +611,15 @@ public class FarRed_TEST_autosequencing extends LinearOpMode {
 
         if (HSV[1] >= 0 && HSV[1] <= 0.45) {
             if (HSV[2] >= 0.3 && HSV[2] <= 1) {
-                //telemetry.addData("Color:", "White");
-                //telemetry.update();
+                telemetry.addData("Color:", "White");
+                telemetry.update();
                 white = true;
                 yellow = false;
                 unknown = false;
                 return White;
             } else {
-                //telemetry.addData("Color:", "Unknown");
-                //telemetry.update();
+                telemetry.addData("Color:", "Unknown");
+                telemetry.update();
                 unknown = true;
                 yellow = false;
                 white = false;
@@ -627,23 +627,23 @@ public class FarRed_TEST_autosequencing extends LinearOpMode {
             }
         } else if (HSV[1] >= 0.5 && HSV[1] <= 0.8) {
             if (HSV[2] >= 0.6 && HSV[2] <= 1) {
-                //telemetry.addData("Color:", "Yellow");
-                //telemetry.update();
+                telemetry.addData("Color:", "Yellow");
+                telemetry.update();
                 yellow = true;
                 white = false;
                 unknown = false;
                 return Yellow;
             } else {
-                //telemetry.addData("Color:", "Unknown");
-                //telemetry.update();
+                telemetry.addData("Color:", "Unknown");
+                telemetry.update();
                 unknown = true;
                 yellow = false;
                 white = false;
                 return Unkwown;
             }
         } else {
-            //telemetry.addData("Color:", "Unknown");
-            //telemetry.update();
+            telemetry.addData("Color:", "Unknown");
+            telemetry.update();
             unknown = true;
             yellow = false;
             white = false;
