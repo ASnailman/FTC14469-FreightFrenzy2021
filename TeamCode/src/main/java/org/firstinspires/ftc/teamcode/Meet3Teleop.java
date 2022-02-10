@@ -48,6 +48,7 @@ public class Meet3Teleop extends LinearOpMode {
     boolean servo_default_event;
     boolean servo_power;
     ElapsedTime ET = new ElapsedTime();
+    ElapsedTime ET1 = new ElapsedTime();
 
     boolean button_a_already_pressed = false;
     boolean button_b_already_pressed = false;
@@ -210,19 +211,13 @@ public class Meet3Teleop extends LinearOpMode {
                 if (yellow) {
                     Intake.setPower(0);
                     ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
-                    //ET.reset();
-                    //if (ET.milliseconds() > 500) {
-                        IntakeServo.setPosition(ClosingIntakePosition);
-                    //}
+                    IntakeServo.setPosition(ClosingIntakePosition);
                     BucketIsEmpty = false;
                 }
                 else if (white) {
                     Intake.setPower(0);
                     ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.SKY_BLUE);
-                    //ET.reset();
-                    //if (ET.milliseconds() > 500) {
-                        IntakeServo.setPosition(ClosingIntakePosition);
-                    //}
+                    IntakeServo.setPosition(ClosingIntakePosition);
                     BucketIsEmpty = false;
                 }
                 else if (unknown) {
@@ -233,6 +228,7 @@ public class Meet3Teleop extends LinearOpMode {
                 /* If intake is enabled, just assume bucket is empty */
                 if (Intake.getPower() >= 0.9) {
                     BucketIsEmpty = true;
+                    ET1.reset();
                 }
             }
 
@@ -417,12 +413,12 @@ public class Meet3Teleop extends LinearOpMode {
              ***************************************/
             if (!button_dpad_right_already_pressed) {
                 if (gamepad1.dpad_right) {
-                    CarouselRight.setPower(1.0);
+                    CarouselLeft.setPower(1.0);
                     button_dpad_right_already_pressed = true;
                 }
             } else {
                 if (!gamepad1.dpad_right) {
-                    CarouselRight.setPower(0);
+                    CarouselLeft.setPower(0);
                     button_dpad_right_already_pressed = false;
                 }
             }
@@ -430,11 +426,13 @@ public class Meet3Teleop extends LinearOpMode {
             if (!button_dpad_left_already_pressed) {
                 if (gamepad1.dpad_left) {
                     CarouselLeft.setPower(-1.0);
+                    //CarouselRight.setPower(1.0);
                     button_dpad_left_already_pressed = true;
                 }
             } else {
                 if (!gamepad1.dpad_left) {
                     CarouselLeft.setPower(0);
+                    //CarouselRight.setPower(0);
                     button_dpad_left_already_pressed = false;
                 }
             }
@@ -804,6 +802,7 @@ public class Meet3Teleop extends LinearOpMode {
             if (button_bumper_right_already_pressed2 == false) {
                 if (gamepad2.right_bumper) {
                     GateServo.setPosition(OpenGatePosition);
+                    IntakeServo.setPosition(OpenIntakePosition);
                     //IntakeServo.setPosition(OpenIntakePosition);
                     button_bumper_right_already_pressed2 = true;
                 }
@@ -994,7 +993,7 @@ public class Meet3Teleop extends LinearOpMode {
                     if (ArmMotor.GetTaskState() == Task_State.INIT || ArmMotor.GetTaskState() == Task_State.READY) {
 
                         //ArmMotor.SetTargetPosition(-480, -0.65, 0.65);
-                        ArmMotor.SetTargetPosition(-520, -0.7, 0.7);
+                        ArmMotor.SetTargetPosition(-510, -0.7, 0.7);
                     }
                     else if (ArmMotor.GetTaskState() == Task_State.DONE) {
                         shippingelementorder2++;
@@ -1005,7 +1004,7 @@ public class Meet3Teleop extends LinearOpMode {
                     if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
 
                         //BucketMotor.SetTargetPosition(160);
-                        BucketMotor.SetTargetPosition(183);
+                        BucketMotor.SetTargetPosition(181);
                     }
                     else if (BucketMotor.GetTaskState() == Task_State.DONE) {
                         shippingelementorder2++;
@@ -1228,7 +1227,7 @@ public class Meet3Teleop extends LinearOpMode {
         int Unkwown = 0;
 
         if (HSV[1] >= 0 && HSV[1] <= 0.5) {
-            if (HSV[2] >= 0.1 && HSV[2] <= 1) {
+            if (HSV[2] >= 0.17 && HSV[2] <= 1) {
                 telemetry.addData("Color:", "White");
                 telemetry.update();
                 white = true;
@@ -1244,7 +1243,7 @@ public class Meet3Teleop extends LinearOpMode {
                 return Unkwown;
             }
         } else if (HSV[1] >= 0.5 && HSV[1] <= 1) {
-            if (HSV[2] >= 0.1 && HSV[2] <= 1) {
+            if (HSV[2] >= 0.17 && HSV[2] <= 1) {
                 telemetry.addData("Color:", "Yellow");
                 telemetry.update();
                 yellow = true;

@@ -18,10 +18,10 @@ public class Auto_Sequences_FAST {
     Bucket_Control BucketCtrl;
     Arm_Control ArmCtrl;
 
-    int HIGH = 1;
-    int MIDDLE = 2;
-    int LOW = 3;
-    int RETURN = 4;
+    final int HIGH = 1;
+    final int MIDDLE = 2;
+    final int LOW = 3;
+    final int RETURN = 4;
 
     static final int Top_Arm_Left = -420;
     static final int Top_Arm_Right = 420;
@@ -125,10 +125,10 @@ public class Auto_Sequences_FAST {
                         if (topalliancehub == true || middlealliancehub == true) {
                             if (ArmCtrl.GetTaskState() == Task_State.INIT || ArmCtrl.GetTaskState() == Task_State.READY) {
                                 if (mirror_event) {
-                                    ArmCtrl.SetTargetPosition(80, 0.00003, 0.00003);
+                                    ArmCtrl.SetTargetPosition(80, 0.00004, 0.00004); // 0.00003
                                 }
                                 else {
-                                    ArmCtrl.SetTargetPosition(-80, -0.00003, -0.00003);
+                                    ArmCtrl.SetTargetPosition(-80, -0.00004, -0.00004); // -0.00003
                                 }
 
                             }
@@ -168,22 +168,22 @@ public class Auto_Sequences_FAST {
                         break;
 
                     case 5:
-                        if (ArmCtrl.GetTaskState() == Task_State.READY) {
+                        //if (ArmCtrl.GetTaskState() == Task_State.READY) {
                             //ArmCtrl.SetTargetPosition(0, -0.1, 0.1);
                             //ArmCtrl.Override();
                             //BucketCtrl.Override();
-                            Rail.setTargetPosition(750);
-                            Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                            Rail.setPower(0.5);
-                        }
-                        else if (ArmCtrl.GetTaskState() == Task_State.DONE) {
+                            //Rail.setTargetPosition(750);
+                            //Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                            //Rail.setPower(0.5);
+                        //}
+                        //else if (ArmCtrl.GetTaskState() == Task_State.DONE) {
                             lowalliancehub = false;
                             middlealliancehub = false;
                             topalliancehub = false;
                             returntobase = false;
                             state = Task_State.DONE;
                             ReturnSequence++;
-                        }
+                        //}
                         break;
 
                     default:
@@ -204,20 +204,18 @@ public class Auto_Sequences_FAST {
                         break;
 
                     case 2:
-                        if (ArmCtrl.GetTaskState() == Task_State.INIT || ArmCtrl.GetTaskState() == Task_State.READY) {
+                        //if (ArmCtrl.GetTaskState() == Task_State.INIT || ArmCtrl.GetTaskState() == Task_State.READY) {
                             if (mirror_event) {
                                 ArmCtrl.SetTargetPosition(Top_Arm_Right, -0.6, 0.6);
                             } else {
                                 ArmCtrl.SetTargetPosition(Top_Arm_Left, -0.6, 0.6);
                             }
-                        }
-                        else if (ArmCtrl.GetTaskState() == Task_State.DONE) {
                             DeliverySequenceHIGH++;
-                        }
+                        //}
                         break;
 
                     case 3:
-                        if (BucketCtrl.GetTaskState() == Task_State.INIT || BucketCtrl.GetTaskState() == Task_State.READY) {
+                        if (ArmCtrl.GetTaskState() == Task_State.DONE && (BucketCtrl.GetTaskState() == Task_State.INIT || BucketCtrl.GetTaskState() == Task_State.READY)) {
                             if (mirror_event) {
                                 BucketCtrl.SetTargetPosition(MirrorTopBucketPosition);
                             } else {
