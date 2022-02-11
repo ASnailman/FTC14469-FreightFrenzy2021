@@ -118,11 +118,7 @@ public class FarRed_FINAL extends LinearOpMode {
 
     boolean turnright = false;
     boolean turnleft = false;
-
-    float[] S_Sample = {0, 0, 0, 0, 0};
-    float S_Avg;
-    float S_Total;
-    char cnt = 0;
+    boolean E_Stop = false;         // Emergency stop to indicate robot has lost where it's at on the field
 
     @Override
     public void runOpMode() {
@@ -372,15 +368,13 @@ public class FarRed_FINAL extends LinearOpMode {
                 case 8:
 
                    if (MechDrive.GetTaskState() == Task_State.DONE) {
-                       if (laps == 3) {
+
+                       // If this is the last lap or E_Stop fail safe was previously enabled, then just park in the warehouse
+                       if (laps == 3 || E_Stop) {
                            programorder1 = 14;
                        } else {
+                           // Start driving toward the warehouse
                            MechDrive.SetTargets(0, 800, 0.7, 0);
-                           //MechDrive.Override();
-                           //FrontRight.setPower(0.3);
-                           //FrontLeft.setPower(0.3);
-                           //BackLeft.setPower(0.3);
-                           //BackRight.setPower(0.3);
                            programorder1++;
                        }
                    }
@@ -451,7 +445,7 @@ public class FarRed_FINAL extends LinearOpMode {
 
                     if (White) {
 
-                        // Override mech drive and stop the robot
+                        // Override MechDrive task and stop the robot
                         MechDrive.Override();
                         FrontRight.setPower(0);
                         FrontLeft.setPower(0);
@@ -478,13 +472,30 @@ public class FarRed_FINAL extends LinearOpMode {
 
                     } else if (Unknown) {
                         if (MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.READY) {
-                            MechDrive.Override();
+
+                            // Lock bucket in place first
                             BucketControl.SetTargetPosition(0.5);
-                            //Intake.setPower(-1);
-                            FrontRight.setPower(-0.3);
-                            FrontLeft.setPower(-0.3);
-                            BackLeft.setPower(-0.3);
-                            BackRight.setPower(-0.3);
+
+                            // If E-stop fail safe is inactive, keep reversing slowly to look for the white line
+                            if (!E_Stop) {
+                                MechDrive.Override();
+                                FrontRight.setPower(-0.3);
+                                FrontLeft.setPower(-0.3);
+                                BackLeft.setPower(-0.3);
+                                BackRight.setPower(-0.3);
+                            }
+
+                            // If this condition is true, that means we have overshot the white line
+                            if (Math.abs(FrontRight.getCurrentPosition()) > 1200) {
+                                E_Stop = true;
+
+                                // Start moving forward to look for the white line
+                                MechDrive.Override();
+                                FrontRight.setPower(0.3);
+                                FrontLeft.setPower(0.3);
+                                BackLeft.setPower(0.3);
+                                BackRight.setPower(0.3);
+                            }
                         }
 
                         if (white || yellow) {
