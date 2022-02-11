@@ -284,14 +284,12 @@ public class FarRed_FINAL extends LinearOpMode {
                             MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.OVERRIDE) {
 
                         if (laps == 3) {
-                            //MechDrive.SetTargets(180, 600, 0.5, 1);
-                            //MechDrive.SetTargets(180, 1650, 0.5, 1); // Prev: 1250
-                            MechDrive.SetTargets(180, 2550, 0.6, 1);
+                            // MechDrive.SetTargets(180, 2550, 0.6, 1);
+                            MechDrive.SetTargets(180, 1550, 0.6, 1);
                         }
                         else if (laps == 2) {
-                            //MechDrive.SetTargets(180, 600, 0.5, 1);
-                            //MechDrive.SetTargets(180, 1650, 0.5, 1); // Prev: 1250
-                            MechDrive.SetTargets(180, 2350, 0.6, 1);
+                            // MechDrive.SetTargets(180, 2350, 0.6, 1);
+                            MechDrive.SetTargets(180, 1550, 0.6, 1);
                         }
                         else {
                             if (left) {
@@ -452,17 +450,29 @@ public class FarRed_FINAL extends LinearOpMode {
                 case 13:
 
                     if (White) {
+
+                        // Override mech drive and stop the robot
                         MechDrive.Override();
                         FrontRight.setPower(0);
                         FrontLeft.setPower(0);
                         BackLeft.setPower(0);
                         BackRight.setPower(0);
+
+                        // Close the intake and purge any freight caught under the intake wheel
                         IntakeServo.setPosition(ClosingIntakePosition);
                         Intake.setPower(-1);
-                        //Sequences.SetSequence(1, false);
+
+                        // Set up to always load on the top level of the alliance hub
                         left = false;
                         center = false;
                         right = true;
+
+                        // Reset all encoders
+                        FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                        BackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                        FrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                        BackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
                         programorder1 = 1;
                         laps++;
 
