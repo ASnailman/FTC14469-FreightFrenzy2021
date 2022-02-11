@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode;
 
 import android.graphics.Color;
 
+import androidx.core.math.MathUtils;
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -94,6 +96,7 @@ public class FarRed_FINAL extends LinearOpMode {
     static final double ClosingIntakePosition = 0.8;
 
     static final double START_OF_LAP2_DELAY = 0;        // Set to non-zero if we need to wait for alliance partner's robot to move out of our way (msec)
+                                                        // Cannot be more than 2 secs
     boolean lap2_start_delay_done = false;              // Ensures we only perform the lap2 delay once
 
     boolean BucketIsEmpty = true;
@@ -284,11 +287,11 @@ public class FarRed_FINAL extends LinearOpMode {
 
                         if (laps == 3) {
                             // MechDrive.SetTargets(180, 2550, 0.6, 1);
-                            MechDrive.SetTargets(180, 1550, 0.6, 1);
+                            MechDrive.SetTargets(180, 1700, 0.6, 1);
                         }
                         else if (laps == 2) {
                             // MechDrive.SetTargets(180, 2350, 0.6, 1);
-                            MechDrive.SetTargets(180, 1550, 0.6, 1);
+                            MechDrive.SetTargets(180, 1650, 0.6, 1);
                         }
                         else {
                             if (left) {
@@ -314,14 +317,14 @@ public class FarRed_FINAL extends LinearOpMode {
                                 MechDrive.SetTargets(240, 1500, 0.35, 1); // 1600
                             }
                             else {
-                                MechDrive.SetTargets(240, 1800, 0.35, 1); // 1600
+                                MechDrive.SetTargets(245, 1800, 0.35, 1); // 1600
                             }
                         }
                         else if (laps == 2) {
-                            MechDrive.SetTargets(-90, 1200, 0.6, 0);
+                            MechDrive.SetTargets(-90, 1100, 0.6, 0);
                         }
                         else {
-                            MechDrive.SetTargets(-90, 1300, 0.6, 0);
+                            MechDrive.SetTargets(-90, 1100, 0.6, 0);
                         }
                         programorder1++;
                     }
@@ -348,14 +351,14 @@ public class FarRed_FINAL extends LinearOpMode {
                                     MechDrive.SetTargets(60, 1500, 0.7, 1); // 1600
                                 }
                                 else {
-                                    MechDrive.SetTargets(60, 1800, 0.7, 1); // 1600
+                                    MechDrive.SetTargets(65, 1800, 0.7, 1); // 1600
                                 }
                             }
                             else if (laps == 2) {
-                                MechDrive.SetTargets(90, 1200, 0.7, 1);
+                                MechDrive.SetTargets(90, 1100, 0.7, 1);
                             }
                             else {
-                                MechDrive.SetTargets(90, 1300, 0.7, 1);
+                                MechDrive.SetTargets(90, 1200, 0.7, 1);
                             }
                             GateServo.setPosition(ClosingGatePosition);
                             programorder1++;
@@ -392,7 +395,7 @@ public class FarRed_FINAL extends LinearOpMode {
                             //MechDrive.SetTargets(0, 1500, 0.6, 0);
                         }
                         else {
-                            MechDrive.SetTargets(0, 2500, 0.8, 0);
+                            MechDrive.SetTargets(0, 2600, 0.8, 0);
                             //MechDrive.SetTargets(0, 1500, 0.6, 0);
                         }
                         ArmControl.Override();
@@ -472,11 +475,17 @@ public class FarRed_FINAL extends LinearOpMode {
                         FrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         BackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+                        if (E_Stop && laps == 3) {
+                            programorder1 = 14;
+                        }
+
                         programorder1 = 1;
                         laps++;
 
                     } else if (Unknown) {
-                        if (MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.READY) {
+
+                        if (MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.READY ||
+                            MechDrive.GetTaskState() == Task_State.OVERRIDE) {
 
                             // Lock bucket in place first
                             BucketControl.SetTargetPosition(0.5);
@@ -517,7 +526,12 @@ public class FarRed_FINAL extends LinearOpMode {
                     break;
 
                 case 14:
-                    MechDrive.SetTargets(0, 2700, 0.8, 0);
+                    if (E_Stop && laps == 3) {
+                        MechDrive.SetTargets(0, 700, 0.8, 0);
+                    }
+                    else {
+                        MechDrive.SetTargets(0, 2700, 0.8, 0);
+                    }
                     programorder1++;
                     break;
 
