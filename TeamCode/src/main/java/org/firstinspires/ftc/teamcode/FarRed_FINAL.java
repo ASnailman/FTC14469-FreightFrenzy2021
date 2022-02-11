@@ -93,6 +93,9 @@ public class FarRed_FINAL extends LinearOpMode {
     static final double ClosingGatePosition = 0.2;
     static final double ClosingIntakePosition = 0.8;
 
+    static final double START_OF_LAP2_DELAY = 0;        // Set to non-zero if we need to wait for alliance partner's robot to move out of our way (msec)
+    boolean lap2_start_delay_done = false;              // Ensures we only perform the lap2 delay once
+
     boolean BucketIsEmpty = true;
     boolean white;
     boolean yellow;
@@ -432,8 +435,10 @@ public class FarRed_FINAL extends LinearOpMode {
 
                 case 11:
 
+                    // Strafe into the wall to straighten the robot
                     MechDrive.SetTargets(110, 200, 0.8, 0);
                     programorder1++;
+                    ET.reset();
                     break;
 
                 case 12:
@@ -476,25 +481,31 @@ public class FarRed_FINAL extends LinearOpMode {
                             // Lock bucket in place first
                             BucketControl.SetTargetPosition(0.5);
 
-                            // If E-stop fail safe is inactive, keep reversing slowly to look for the white line
-                            if (!E_Stop) {
-                                MechDrive.Override();
-                                FrontRight.setPower(-0.3);
-                                FrontLeft.setPower(-0.3);
-                                BackLeft.setPower(-0.3);
-                                BackRight.setPower(-0.3);
-                            }
+                            // Give some time for our alliance partner's robot to move away first (if necessary)
+                            if ((ET.milliseconds() > START_OF_LAP2_DELAY) || lap2_start_delay_done) {
 
-                            // If this condition is true, that means we have overshot the white line
-                            if (Math.abs(FrontRight.getCurrentPosition()) > 1200) {
-                                E_Stop = true;
+                                lap2_start_delay_done = true;
 
-                                // Start moving forward to look for the white line
-                                MechDrive.Override();
-                                FrontRight.setPower(0.3);
-                                FrontLeft.setPower(0.3);
-                                BackLeft.setPower(0.3);
-                                BackRight.setPower(0.3);
+                                // If E-stop fail safe is inactive, keep reversing slowly to look for the white line
+                                if (!E_Stop) {
+                                    MechDrive.Override();
+                                    FrontRight.setPower(-0.3);
+                                    FrontLeft.setPower(-0.3);
+                                    BackLeft.setPower(-0.3);
+                                    BackRight.setPower(-0.3);
+                                }
+
+                                // If this condition is true, that means we have overshot the white line
+                                if (Math.abs(FrontRight.getCurrentPosition()) > 1200) {
+                                    E_Stop = true;
+
+                                    // Start moving forward to look for the white line
+                                    MechDrive.Override();
+                                    FrontRight.setPower(0.3);
+                                    FrontLeft.setPower(0.3);
+                                    BackLeft.setPower(0.3);
+                                    BackRight.setPower(0.3);
+                                }
                             }
                         }
 
