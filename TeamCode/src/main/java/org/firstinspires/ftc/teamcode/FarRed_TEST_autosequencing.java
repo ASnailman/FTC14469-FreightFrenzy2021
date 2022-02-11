@@ -224,7 +224,7 @@ public class FarRed_TEST_autosequencing extends LinearOpMode {
             switch (programorder1) {
 
                 case 0:
-                    BucketObjectColorDetector();
+                    WhiteColorDetector();
                     //programorder1++;
                     break;
 
@@ -235,7 +235,7 @@ public class FarRed_TEST_autosequencing extends LinearOpMode {
 
             //telemetry.addData("case", programorder1);
             //telemetry.update();
-            BucketObjectColorDetector();
+            WhiteColorDetector();
             // THIS IS THE PART OF THE PROGRAM THAT IS REPETITIVE
             // THEY ARE CALLED 'BACKGROUND TASKS" BUT FOR SIMPLICITY, WE SHALL CALL THEM 'TASKS'
 
@@ -543,11 +543,11 @@ public class FarRed_TEST_autosequencing extends LinearOpMode {
                 position = ShippingElementPosition.NONE;
             }
 
-            telemetry_vision.addData("Avg1", Avg1());
-            telemetry_vision.addData("Avg2", Avg2());
-            telemetry_vision.addData("Avg3", Avg3());
-            telemetry_vision.addData("Position", getAnalysis());
-            telemetry_vision.update();
+            //telemetry_vision.addData("Avg1", Avg1());
+            //telemetry_vision.addData("Avg2", Avg2());
+            //telemetry_vision.addData("Avg3", Avg3());
+            //telemetry_vision.addData("Position", getAnalysis());
+            //telemetry_vision.update();
 
             /*
              * Render the 'input' buffer to the viewport. But note this is not
@@ -665,7 +665,7 @@ public class FarRed_TEST_autosequencing extends LinearOpMode {
         int white = 1;
         int unkwown = 0;
 
-        if (HSV[1] >= 0.4 && HSV[1] <= 0.6) {
+        if (HSV[1] >= 0.38 && HSV[1] <= 0.42) {
             telemetry.addData("Color:", "White");
             telemetry.update();
             White = true;

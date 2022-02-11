@@ -94,7 +94,7 @@ public class Mech_Drive_FAST {
             } else {
                 power = ((targetdistance - BackRight.getCurrentPosition()) / targetdistance) * targetpower;
             }
-            power = 1.2*power;
+            power = 1.1*power;
             finalpower = Range.clip(power, 0.35, targetpower);
 
             power_x_old = 0;                // make x_old 0 to make the degrees start at the front of the robot

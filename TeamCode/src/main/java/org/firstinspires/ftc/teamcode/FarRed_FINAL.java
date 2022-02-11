@@ -68,7 +68,8 @@ public class FarRed_FINAL extends LinearOpMode {
     double final_value;
 
     ElapsedTime ET = new ElapsedTime();
-    ElapsedTime ET1 = new ElapsedTime();
+    int retrieve_seq = 0;
+
     byte AXIS_MAP_SIGN_BYTE = 0x6; //rotates control hub 180 degrees around z axis by negating x and y signs
     byte AXIS_MAP_CONFIG_BYTE = 0x6; //rotates control hub 90 degrees around y axis by swapping x and z axis
 
@@ -117,6 +118,11 @@ public class FarRed_FINAL extends LinearOpMode {
 
     boolean turnright = false;
     boolean turnleft = false;
+
+    float[] S_Sample = {0, 0, 0, 0, 0};
+    float S_Avg;
+    float S_Total;
+    char cnt = 0;
 
     @Override
     public void runOpMode() {
@@ -274,13 +280,18 @@ public class FarRed_FINAL extends LinearOpMode {
 
                 case 3:
 
-                    if (MechDrive.GetTaskState() == Task_State.INIT || MechDrive.GetTaskState() == Task_State.READY) {
+                    if (MechDrive.GetTaskState() == Task_State.INIT || MechDrive.GetTaskState() == Task_State.READY ||
+                            MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.OVERRIDE) {
 
                         if (laps == 3) {
-                            MechDrive.SetTargets(180, 400, 0.5, 1);
+                            //MechDrive.SetTargets(180, 600, 0.5, 1);
+                            //MechDrive.SetTargets(180, 1650, 0.5, 1); // Prev: 1250
+                            MechDrive.SetTargets(180, 2550, 0.6, 1);
                         }
                         else if (laps == 2) {
-                            MechDrive.SetTargets(180, 400, 0.5, 1);
+                            //MechDrive.SetTargets(180, 600, 0.5, 1);
+                            //MechDrive.SetTargets(180, 1650, 0.5, 1); // Prev: 1250
+                            MechDrive.SetTargets(180, 2350, 0.6, 1);
                         }
                         else {
                             if (left) {
@@ -296,18 +307,24 @@ public class FarRed_FINAL extends LinearOpMode {
 
                 case 4:
 
-                    if (MechDrive.GetTaskState() == Task_State.DONE) {
+                    if (MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.READY) {
                         Intake.setPower(0);
                         if (laps == 1) {
                             if (left) {
                                 MechDrive.SetTargets(240, 1950, 0.35, 1);
                             }
-                            else {
+                            else if (center) {
                                 MechDrive.SetTargets(240, 1500, 0.35, 1); // 1600
                             }
+                            else {
+                                MechDrive.SetTargets(240, 1800, 0.35, 1); // 1600
+                            }
+                        }
+                        else if (laps == 2) {
+                            MechDrive.SetTargets(-90, 1200, 0.6, 0);
                         }
                         else {
-                            MechDrive.SetTargets(240, 1800, 0.4, 1);
+                            MechDrive.SetTargets(-90, 1300, 0.6, 0);
                         }
                         programorder1++;
                     }
@@ -317,6 +334,7 @@ public class FarRed_FINAL extends LinearOpMode {
 
                     if (Sequences.GetTaskState() == Task_State.READY && (MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.READY)) {
                         GateServo.setPosition(OpenGatePosition);
+                        IntakeServo.setPosition(OpenIntakePosition);
                         ET.reset();
                         programorder1++;
                     }
@@ -324,17 +342,23 @@ public class FarRed_FINAL extends LinearOpMode {
 
                 case 6:
 
-                    if (ET.milliseconds() > 500) { // 1000
+                    if (ET.milliseconds() > 500) { // Prev: 1000
                             if (laps == 1) {
                                 if (left) {
-                                    MechDrive.SetTargets(60, 1900, 0.9, 1);
+                                    MechDrive.SetTargets(60, 1900, 0.7, 1);
+                                }
+                                else if (center) {
+                                    MechDrive.SetTargets(60, 1500, 0.7, 1); // 1600
                                 }
                                 else {
-                                    MechDrive.SetTargets(60, 1500, 0.9, 1); // 1600
+                                    MechDrive.SetTargets(60, 1800, 0.7, 1); // 1600
                                 }
                             }
+                            else if (laps == 2) {
+                                MechDrive.SetTargets(90, 1200, 0.7, 1);
+                            }
                             else {
-                                MechDrive.SetTargets(70, 1300, 0.9, 1);
+                                MechDrive.SetTargets(90, 1300, 0.7, 1);
                             }
                             GateServo.setPosition(ClosingGatePosition);
                             programorder1++;
@@ -354,7 +378,11 @@ public class FarRed_FINAL extends LinearOpMode {
                            programorder1 = 14;
                        } else {
                            MechDrive.SetTargets(0, 800, 0.7, 0);
-                           ArmControl.Override();
+                           //MechDrive.Override();
+                           //FrontRight.setPower(0.3);
+                           //FrontLeft.setPower(0.3);
+                           //BackLeft.setPower(0.3);
+                           //BackRight.setPower(0.3);
                            programorder1++;
                        }
                    }
@@ -363,12 +391,16 @@ public class FarRed_FINAL extends LinearOpMode {
                 case 9:
 
                     if (MechDrive.GetTaskState() == Task_State.DONE) {
+                    //if (White) {
                         if (laps == 1) {
-                            MechDrive.SetTargets(0, 1700, 0.6, 0);
+                            MechDrive.SetTargets(0, 1900, 0.8, 0);
+                            //MechDrive.SetTargets(0, 1500, 0.6, 0);
                         }
                         else {
-                            MechDrive.SetTargets(0, 2000, 0.6, 0);
+                            MechDrive.SetTargets(0, 2500, 0.8, 0);
+                            //MechDrive.SetTargets(0, 1500, 0.6, 0);
                         }
+                        ArmControl.Override();
                         BucketControl.Override();
                         Intake.setPower(1);
                         IntakeServo.setPosition(OpenIntakePosition);
@@ -379,13 +411,28 @@ public class FarRed_FINAL extends LinearOpMode {
 
                 case 10:
 
-                    if (white || yellow) {
-                        //MechDrive.SetTargets(0, 0, 0, 0);
-                        IntakeServo.setPosition(ClosingIntakePosition);
-                        programorder1++;
-                    } else if (ET.milliseconds() > 3000) {
-                        programorder1++;
+                    if (MechDrive.GetTaskState() == Task_State.DONE || ET.milliseconds() > 2500) {
+                        if (retrieve_seq == 0) {
+                            retrieve_seq = 1;
+                            MechDrive.SetTargets(180, 600, 0.5, 0);
+                        }
+                        else if (retrieve_seq == 1) {
+                            retrieve_seq = 2;
+                            MechDrive.SetTargets(0, 500, 0.5, 0);
+                        }
+                        else {
+                            programorder1 = 11;
+                            retrieve_seq = 0;
+                        }
                     }
+
+                    if (white || yellow) {
+                        IntakeServo.setPosition(ClosingIntakePosition);
+                        Intake.setPower(-1);
+                        programorder1 = 11;
+                        retrieve_seq = 0;
+                    }
+
                     Rail.setTargetPosition(0);
                     Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     Rail.setPower(0.65);
@@ -393,21 +440,23 @@ public class FarRed_FINAL extends LinearOpMode {
 
                 case 11:
 
-                    MechDrive.SetTargets(120, 100, 0.4, 0);
+                    MechDrive.SetTargets(110, 200, 0.8, 0);
                     programorder1++;
                     break;
 
                 case 12:
 
-                    ET.reset();
                     programorder1++;
                     break;
 
                 case 13:
 
                     if (White) {
-
-                        MechDrive.SetTargets(180, 1250, 0.9, 0);
+                        MechDrive.Override();
+                        FrontRight.setPower(0);
+                        FrontLeft.setPower(0);
+                        BackLeft.setPower(0);
+                        BackRight.setPower(0);
                         IntakeServo.setPosition(ClosingIntakePosition);
                         Intake.setPower(-1);
                         //Sequences.SetSequence(1, false);
@@ -420,24 +469,23 @@ public class FarRed_FINAL extends LinearOpMode {
                     } else if (Unknown) {
                         if (MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.READY) {
                             MechDrive.Override();
-                            BucketControl.SetTargetPosition(1);
+                            BucketControl.SetTargetPosition(0.5);
+                            //Intake.setPower(-1);
                             FrontRight.setPower(-0.3);
                             FrontLeft.setPower(-0.3);
                             BackLeft.setPower(-0.3);
                             BackRight.setPower(-0.3);
+                        }
 
-                            if (ET.milliseconds() > 6000) {
-                                FrontRight.setPower(0.3);
-                                FrontLeft.setPower(0.3);
-                                BackLeft.setPower(0.3);
-                                BackRight.setPower(0.3);
-                            }
+                        if (white || yellow) {
+                            IntakeServo.setPosition(ClosingIntakePosition);
+                            Intake.setPower(-1);
                         }
                     }
                     break;
 
                 case 14:
-                    MechDrive.SetTargets(0, 1600, 1, 0);
+                    MechDrive.SetTargets(0, 2700, 0.8, 0);
                     programorder1++;
                     break;
 
@@ -834,7 +882,7 @@ public class FarRed_FINAL extends LinearOpMode {
         int Unkwown = 0;
 
         if (HSV[1] >= 0 && HSV[1] <= 0.5) {
-            if (HSV[2] >= 0.17 && HSV[2] <= 1) {
+            if (HSV[2] >= 0.2 && HSV[2] <= 1) {
                 telemetry.addData("Color:", "White");
                 telemetry.update();
                 white = true;
@@ -850,7 +898,7 @@ public class FarRed_FINAL extends LinearOpMode {
                 return Unkwown;
             }
         } else if (HSV[1] >= 0.5 && HSV[1] <= 1) {
-            if (HSV[2] >= 0.17 && HSV[2] <= 1) {
+            if (HSV[2] >= 0.2 && HSV[2] <= 1) {
                 telemetry.addData("Color:", "Yellow");
                 telemetry.update();
                 yellow = true;
@@ -889,7 +937,16 @@ public class FarRed_FINAL extends LinearOpMode {
         int white = 1;
         int unkwown = 0;
 
-        if (HSV[2] >= 0.2 && HSV[2] <= 0.4) {
+        /*S_Sample[cnt] = HSV[2];
+        S_Avg = (S_Sample[0] + S_Sample[1] + S_Sample[2])/3;
+        cnt++;
+
+        if (cnt >= 3) {
+            cnt = 0;
+        }*/
+
+        //if (S_Avg >= 0.30 && S_Avg <= 0.38) {
+        if (HSV[2] >= 0.16 && HSV[2] <= 0.44) {
             telemetry.addData("Color:", "White");
             telemetry.update();
             White = true;
@@ -985,37 +1042,6 @@ public class FarRed_FINAL extends LinearOpMode {
             }
         }
 
-    }
-
-    private int WhiteDetector() {
-
-        float[] HSV = new float[3];
-        NormalizedRGBA RGBA = whitecolorsensor.getNormalizedColors();
-        whitecolorsensor.setGain(70);
-
-        Color.colorToHSV(RGBA.toColor(), HSV);
-        telemetry.addData("H:", HSV[0]);
-        telemetry.addData("S:", HSV[1]);
-        telemetry.addData("V:", HSV[2]);
-
-        int White = 1;
-        int Unkwown = 0;
-
-        if (HSV[1] <= 0.25) {
-            if (HSV[2] >= 0.93) {
-                telemetry.addData("Color:", "White");
-                telemetry.update();
-                return White;
-            } else {
-                telemetry.addData("Color:", "Unknown");
-                telemetry.update();
-                return Unkwown;
-            }
-        } else {
-            telemetry.addData("Color:", "Unknown");
-            telemetry.update();
-            return Unkwown;
-        }
     }
 
 }

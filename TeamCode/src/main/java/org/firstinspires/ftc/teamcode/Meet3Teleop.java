@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.util.RollingAverage;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
 
@@ -140,6 +141,10 @@ public class Meet3Teleop extends LinearOpMode {
 
     int armorder = 0;
     int armposition;
+
+    float[] S_Sample = {(float)0.5, (float)0.5, (float)0.5, (float)0.5};
+    float S_Avg;
+    char cnt = 0;
 
     @Override
     public void runOpMode() {
@@ -671,10 +676,10 @@ public class Meet3Teleop extends LinearOpMode {
                     // Deliberately tip the bucket at an angle so it doesn't hit the chassis when the rail moves down later
                     if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
                         if (mirror_event) {
-                            BucketMotor.SetTargetPosition(20);
+                            BucketMotor.SetTargetPosition(1);
                         }
                         else {
-                            BucketMotor.SetTargetPosition(-20);
+                            BucketMotor.SetTargetPosition(-1);
                         }
                     }
                     else if (BucketMotor.GetTaskState() == Task_State.DONE) {
@@ -693,11 +698,11 @@ public class Meet3Teleop extends LinearOpMode {
                             if (mirror_event) {
                                 //ArmMotor.SetTargetPosition(120, 0.001, 0.01);
                                 //ArmMotor.SetTargetPosition(120, 0.001, 0.001);
-                                ArmMotor.SetTargetPosition(80, 0.00002, 0.00002);
+                                ArmMotor.SetTargetPosition(40, 0.00004, 0.00004);
                             }
                             else {
                                 //ArmMotor.SetTargetPosition(-120, -0.6, -0.0001);
-                                ArmMotor.SetTargetPosition(-80, -0.00002, -0.00002);
+                                ArmMotor.SetTargetPosition(-40, -0.00004, -0.00004);
                             }
 
                         }
@@ -714,11 +719,11 @@ public class Meet3Teleop extends LinearOpMode {
                             if (mirror_event) {
                                 //ArmMotor.SetTargetPosition(120, 0.001, 0.01);
                                 //ArmMotor.SetTargetPosition(120, 0.001, 0.001);
-                                ArmMotor.SetTargetPosition(30, 0.00001, 0.00001);
+                                ArmMotor.SetTargetPosition(30, 0.00002, 0.00002);
                             }
                             else {
                                 //ArmMotor.SetTargetPosition(-120, -0.6, -0.0001);
-                                ArmMotor.SetTargetPosition(-30, -0.00001, -0.00001);
+                                ArmMotor.SetTargetPosition(-30, -0.00002, -0.00002);
                             }
 
                         }
@@ -1267,5 +1272,72 @@ public class Meet3Teleop extends LinearOpMode {
             return Unkwown;
         }
     }
+
+    private int WhiteYellowDetectorAv() {
+
+        float[] HSV = new float[3];
+        NormalizedRGBA RGBA = colorsensor.getNormalizedColors();
+        colorsensor.setGain(30);
+
+        Color.colorToHSV(RGBA.toColor(), HSV);
+        telemetry.addData("H:", HSV[0]);
+        telemetry.addData("S:", HSV[1]);
+        telemetry.addData("V:", HSV[2]);
+
+        int Yellow = 2;
+        int White = 1;
+        int Unkwown = 0;
+
+        S_Sample[cnt] = HSV[1];
+        S_Avg = (S_Sample[0] + S_Sample[1] + S_Sample[2] + S_Sample[3])/4;
+        cnt++;
+
+        if (cnt >= 4) {
+            cnt = 0;
+        }
+
+
+        if (S_Avg >= 0 && S_Avg <= 0.5) {
+            if (HSV[2] >= 0.18 && HSV[2] <= 1) {
+                telemetry.addData("Color:", "White");
+                telemetry.update();
+                white = true;
+                yellow = false;
+                unknown = false;
+                return White;
+            } else {
+                telemetry.addData("Color:", "Unknown");
+                telemetry.update();
+                unknown = true;
+                yellow = false;
+                white = false;
+                return Unkwown;
+            }
+        } else if (S_Avg >= 0.7 && S_Avg <= 1) {
+            if (HSV[2] >= 0.18 && HSV[2] <= 1) {
+                telemetry.addData("Color:", "Yellow");
+                telemetry.update();
+                yellow = true;
+                white = false;
+                unknown = false;
+                return Yellow;
+            } else {
+                telemetry.addData("Color:", "Unknown");
+                telemetry.update();
+                unknown = true;
+                yellow = false;
+                white = false;
+                return Unkwown;
+            }
+        } else {
+            telemetry.addData("Color:", "Unknown");
+            telemetry.update();
+            unknown = true;
+            yellow = false;
+            white = false;
+            return Unkwown;
+        }
+    }
+
 
 }
