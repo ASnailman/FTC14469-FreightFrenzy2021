@@ -475,12 +475,12 @@ public class FarRed_FINAL extends LinearOpMode {
                         FrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         BackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+                        programorder1 = 1;
+                        laps++;
+
                         if (E_Stop && laps == 3) {
                             programorder1 = 14;
                         }
-
-                        programorder1 = 1;
-                        laps++;
 
                     } else if (Unknown) {
 
@@ -505,7 +505,7 @@ public class FarRed_FINAL extends LinearOpMode {
                                 }
 
                                 // If this condition is true, that means we have overshot the white line
-                                if (Math.abs(FrontRight.getCurrentPosition()) > 1200) {
+                                if (Math.abs(FrontRight.getCurrentPosition()) > 2400) {
                                     E_Stop = true;
 
                                     // Start moving forward to look for the white line
@@ -531,12 +531,14 @@ public class FarRed_FINAL extends LinearOpMode {
                     }
                     else {
                         MechDrive.SetTargets(0, 2700, 0.8, 0);
+                        BucketControl.SetTargetPosition(0.5);
                     }
                     programorder1++;
                     break;
 
                 case 15:
                     if (MechDrive.GetTaskState() == Task_State.DONE) {
+                        Intake.setPower(0);
                         BucketControl.Calibrate();
                         ArmControl.Calibrate();
                         Rail.setTargetPosition(0);
