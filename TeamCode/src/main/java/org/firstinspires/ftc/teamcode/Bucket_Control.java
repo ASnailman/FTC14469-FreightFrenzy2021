@@ -87,7 +87,7 @@ public class Bucket_Control {
         else if (state == Task_State.CALIBRATE) {
             bucketmotor.setPower(0);
 
-            if (et.milliseconds() >= 2000) {
+            if (et.milliseconds() >= 1500) {
 
                 // Reset the bucket's DC motor encoder
                 bucketmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.checkerframework.checker.units.qual.A;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -88,8 +89,8 @@ public class FarBlue_FINAL extends LinearOpMode {
     static final double LowBucketPosition = 95;
     static final double MirrorLowBucketPosition = -95;
 
-    static final double OpenGatePosition = 0.8;
-    static final double OpenIntakePosition = 0.6;
+    static final double OpenGatePosition = 0.5;
+    static final double OpenIntakePosition = 0.5;
     static final double ClosingGatePosition = 0.2;
     static final double ClosingIntakePosition = 0.8;
 
@@ -145,6 +146,7 @@ public class FarBlue_FINAL extends LinearOpMode {
         CarouselRight = hardwareMap.get(CRServo.class, "carouselright");
         BucketMotor = hardwareMap.get(DcMotor.class, "BucketMotor");
         colorsensor = hardwareMap.get(NormalizedColorSensor.class, "colorsensor");
+        whitecolorsensor = hardwareMap.get(NormalizedColorSensor.class, "whitecolorsensor");
         ColorStrip = hardwareMap.get(RevBlinkinLedDriver.class, "colorstrip");
         IntakeServo = hardwareMap.get(Servo.class, "IntakeServo");
         GateServo = hardwareMap.get(Servo.class, "GateServo");
@@ -310,20 +312,20 @@ public class FarBlue_FINAL extends LinearOpMode {
                         Intake.setPower(0);
                         if (laps == 1) {
                             if (left) {
-                                MechDrive.SetTargets(120, 1950, 0.35, 1);
+                                MechDrive.SetTargets(120, 1950, 0.35, 0);
                             }
                             else if (center) {
-                                MechDrive.SetTargets(120, 1500, 0.35, 1); // 1600
+                                MechDrive.SetTargets(120, 1700, 0.35, 0); // 1600
                             }
                             else {
-                                MechDrive.SetTargets(115, 1800, 0.35, 1); // 1600
+                                MechDrive.SetTargets(115, 1800, 0.35, 0); // 1600
                             }
                         }
                         else if (laps == 2) {
-                            MechDrive.SetTargets(90, 1100, 0.6, 0);
+                            MechDrive.SetTargets(90, 1000, 0.5, 0);
                         }
                         else {
-                            MechDrive.SetTargets(90, 1100, 0.6, 0);
+                            MechDrive.SetTargets(90, 1000, 0.5, 0);
                         }
                         programorder1++;
                     }
@@ -344,20 +346,20 @@ public class FarBlue_FINAL extends LinearOpMode {
                     if (ET.milliseconds() > 500) { // Prev: 1000
                         if (laps == 1) {
                             if (left) {
-                                MechDrive.SetTargets(-60, 1900, 0.7, 1);
+                                MechDrive.SetTargets(-60, 2000, 0.5, 0);
                             }
                             else if (center) {
-                                MechDrive.SetTargets(-60, 1500, 0.7, 1); // 1600
+                                MechDrive.SetTargets(-60, 1700, 0.5, 0); // 1600
                             }
                             else {
-                                MechDrive.SetTargets(-65, 1800, 0.7, 1); // 1600
+                                MechDrive.SetTargets(-65, 1800, 0.5, 0); // 1600
                             }
                         }
                         else if (laps == 2) {
-                            MechDrive.SetTargets(-90, 1100, 0.7, 1);
+                            MechDrive.SetTargets(-90, 850, 0.5, 0);
                         }
                         else {
-                            MechDrive.SetTargets(-90, 1200, 0.7, 1);
+                            MechDrive.SetTargets(-90, 850, 0.5, 0);
                         }
                         GateServo.setPosition(ClosingGatePosition);
                         programorder1++;
@@ -366,13 +368,13 @@ public class FarBlue_FINAL extends LinearOpMode {
 
                 case 7:
 
-                    Sequences.SetSequence(4, false);
+                    Sequences.SetSequence(4, true);
                     programorder1++;
                     break;
 
                 case 8:
 
-                    if (MechDrive.GetTaskState() == Task_State.DONE) {
+                    if (MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.READY) {
 
                         // If this is the last lap or E_Stop fail safe was previously enabled, then just park in the warehouse
                         if (laps == 3 || E_Stop) {
@@ -387,21 +389,21 @@ public class FarBlue_FINAL extends LinearOpMode {
 
                 case 9:
 
-                    if (MechDrive.GetTaskState() == Task_State.DONE) {
+                    if (MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.READY) {
 
                         if (laps == 1) {
-                            MechDrive.SetTargets(0, 1900, 0.8, 0);
+                            MechDrive.SetTargets(0, 1700, 0.6, 0);
+                        } else {
+                            MechDrive.SetTargets(0, 2600, 0.6, 0);
                         }
-                        else {
-                            MechDrive.SetTargets(0, 2600, 0.8, 0);
-                        }
-                        ArmControl.Override();
+
                         BucketControl.Override();
                         Intake.setPower(1);
                         IntakeServo.setPosition(OpenIntakePosition);
                         ET.reset();
                         programorder1++;
                     }
+                    ArmControl.Override();
                     break;
 
                 case 10:
@@ -430,13 +432,13 @@ public class FarBlue_FINAL extends LinearOpMode {
 
                     Rail.setTargetPosition(0);
                     Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    Rail.setPower(0.65);
+                    Rail.setPower(0.3); // Prev: 0.65
                     break;
 
                 case 11:
 
                     // Strafe into the wall to straighten the robot
-                    MechDrive.SetTargets(-110, 200, 0.8, 0);
+                    MechDrive.SetTargets(-110, 200, 0.8, 1);
                     programorder1++;
                     ET.reset();
                     break;
@@ -617,9 +619,9 @@ public class FarBlue_FINAL extends LinearOpMode {
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(110,115);
-        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(680,115);
-        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1080,115);
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(60,115);
+        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(500,115);
+        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1050,115);
         static final int REGION_WIDTH = 80;
         static final int REGION_HEIGHT = 80;
 

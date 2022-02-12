@@ -32,11 +32,11 @@ public class Auto_Sequences_FAST {
 
     static final double OriginalBucketPosition = 0;
     static final double TopBucketPosition = 140;
-    static final double MirrorTopBucketPosition = -140;
+    static final double MirrorTopBucketPosition = -150;
     static final double MiddleBucketPosition = 120;
     static final double MirrorMiddleBucketPosition = -120;
     static final double LowBucketPosition = 95;
-    static final double MirrorLowBucketPosition = -95;
+    static final double MirrorLowBucketPosition = -105;
 
     static final double OpenGatePosition = 0.8;
     static final double OpenIntakePosition = 0.6;
@@ -125,7 +125,7 @@ public class Auto_Sequences_FAST {
                         if (topalliancehub == true || middlealliancehub == true) {
                             if (ArmCtrl.GetTaskState() == Task_State.INIT || ArmCtrl.GetTaskState() == Task_State.READY) {
                                 if (mirror_event) {
-                                    ArmCtrl.SetTargetPosition(40, 0.00004, 0.00004); // Prev: 80, 0.00003
+                                    ArmCtrl.SetTargetPosition(50, 0.00004, 0.00004); // Prev: 80, 0.00003
                                 }
                                 else {
                                     ArmCtrl.SetTargetPosition(-40, -0.00004, -0.00004); // Prev: -80, -0.00003
@@ -156,7 +156,7 @@ public class Auto_Sequences_FAST {
                     case 4:
                         if (ArmCtrl.GetTaskState() == Task_State.INIT || ArmCtrl.GetTaskState() == Task_State.READY) {
                             if (mirror_event) {
-                                ArmCtrl.SetTargetPosition(-0.5, -0.1, 0.1);
+                                ArmCtrl.SetTargetPosition(-0.5, -0.2, 0.2);
                             }
                             else {
                                 ArmCtrl.SetTargetPosition(0.5, -0.1, 0.1);

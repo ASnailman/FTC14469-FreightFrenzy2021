@@ -90,8 +90,8 @@ public class FarRed_FINAL extends LinearOpMode {
     static final double LowBucketPosition = 95;
     static final double MirrorLowBucketPosition = -95;
 
-    static final double OpenGatePosition = 0.8;
-    static final double OpenIntakePosition = 0.6;
+    static final double OpenGatePosition = 0.5;
+    static final double OpenIntakePosition = 0.5;
     static final double ClosingGatePosition = 0.2;
     static final double ClosingIntakePosition = 0.8;
 
@@ -312,7 +312,7 @@ public class FarRed_FINAL extends LinearOpMode {
                                 MechDrive.SetTargets(240, 1950, 0.35, 1);
                             }
                             else if (center) {
-                                MechDrive.SetTargets(240, 1500, 0.35, 1); // 1600
+                                MechDrive.SetTargets(240, 1550, 0.35, 1); // 1600
                             }
                             else {
                                 MechDrive.SetTargets(245, 1800, 0.35, 1); // 1600
@@ -346,7 +346,7 @@ public class FarRed_FINAL extends LinearOpMode {
                                     MechDrive.SetTargets(60, 1900, 0.7, 1);
                                 }
                                 else if (center) {
-                                    MechDrive.SetTargets(60, 1500, 0.7, 1); // 1600
+                                    MechDrive.SetTargets(60, 1550, 0.7, 1); // 1600
                                 }
                                 else {
                                     MechDrive.SetTargets(65, 1800, 0.7, 1); // 1600
@@ -371,7 +371,7 @@ public class FarRed_FINAL extends LinearOpMode {
 
                 case 8:
 
-                   if (MechDrive.GetTaskState() == Task_State.DONE) {
+                   if (MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.READY) {
 
                        // If this is the last lap or E_Stop fail safe was previously enabled, then just park in the warehouse
                        if (laps == 3 || E_Stop) {
@@ -386,21 +386,21 @@ public class FarRed_FINAL extends LinearOpMode {
 
                 case 9:
 
-                    if (MechDrive.GetTaskState() == Task_State.DONE) {
+                    if (MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.READY) {
 
                         if (laps == 1) {
-                            MechDrive.SetTargets(0, 1900, 0.8, 0);
+                            MechDrive.SetTargets(0, 1750, 0.7, 0);
+                        } else {
+                            MechDrive.SetTargets(0, 2600, 0.7, 0);
                         }
-                        else {
-                            MechDrive.SetTargets(0, 2600, 0.8, 0);
-                        }
-                        ArmControl.Override();
+
                         BucketControl.Override();
                         Intake.setPower(1);
                         IntakeServo.setPosition(OpenIntakePosition);
                         ET.reset();
                         programorder1++;
                     }
+                    ArmControl.Override();
                     break;
 
                 case 10:
@@ -429,7 +429,7 @@ public class FarRed_FINAL extends LinearOpMode {
 
                     Rail.setTargetPosition(0);
                     Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    Rail.setPower(0.65);
+                    Rail.setPower(0.3); // Prev: 0.65
                     break;
 
                 case 11:

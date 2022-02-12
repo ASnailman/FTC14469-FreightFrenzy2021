@@ -164,7 +164,7 @@ public class Meet3Teleop extends LinearOpMode {
         Bucket = hardwareMap.get(DcMotor.class, "BucketMotor");
         IntakeServo = hardwareMap.get(Servo.class, "IntakeServo");
         GateServo = hardwareMap.get(Servo.class, "GateServo");
-        ElementServo = hardwareMap.get(Servo.class, "ElementServo");
+        //ElementServo = hardwareMap.get(Servo.class, "ElementServo");
         IMU = hardwareMap.get(BNO055IMU.class, "imu");
 
         AttachmentSetDirection();
@@ -418,12 +418,12 @@ public class Meet3Teleop extends LinearOpMode {
              ***************************************/
             if (!button_dpad_right_already_pressed) {
                 if (gamepad1.dpad_right) {
-                    CarouselLeft.setPower(1.0);
+                    CarouselRight.setPower(1.0);
                     button_dpad_right_already_pressed = true;
                 }
             } else {
                 if (!gamepad1.dpad_right) {
-                    CarouselLeft.setPower(0);
+                    CarouselRight.setPower(0);
                     button_dpad_right_already_pressed = false;
                 }
             }
@@ -480,6 +480,7 @@ public class Meet3Teleop extends LinearOpMode {
                     if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
 
                         // Lock the bucket in the zero position first before raising the rail or arm to prevent it from falling
+                        Intake.setPower(-1);
                         BucketMotor.SetTargetPosition(0);
                     }
                     else if (BucketMotor.GetTaskState() == Task_State.DONE) {
@@ -582,6 +583,7 @@ public class Meet3Teleop extends LinearOpMode {
                     if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
 
                         // Lock the bucket in the zero position first before raising the rail or arm to prevent it from falling
+                        Intake.setPower(-1);
                         BucketMotor.SetTargetPosition(0);
                     }
                     else if (BucketMotor.GetTaskState() == Task_State.DONE) {
@@ -669,6 +671,7 @@ public class Meet3Teleop extends LinearOpMode {
                 case 1:
                     // Close the outtake gate first
                     GateServo.setPosition(ClosingGatePosition);
+                    Intake.setPower(0);
                     bucketresetorder++;
                     break;
 
@@ -871,7 +874,7 @@ public class Meet3Teleop extends LinearOpMode {
                     if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
 
                         // Lock the bucket in the zero position first before raising the rail or arm to prevent it from falling
-                        BucketMotor.SetTargetPosition(0);
+                        BucketMotor.SetTargetPosition(0.5);
                     }
                     else if (BucketMotor.GetTaskState() == Task_State.DONE) {
                         shippingelementorder1++;
@@ -909,7 +912,7 @@ public class Meet3Teleop extends LinearOpMode {
 
                         BucketMotor.SetTargetPosition(150);
                         //BucketMotor.SetTargetPosition(125);
-                        BucketMotor.Override();
+                        //BucketMotor.Override();
                     }
                     else if (BucketMotor.GetTaskState() == Task_State.DONE) {
                         shippingelementorder1++;
