@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -22,6 +23,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 import java.io.File;
+
+//import java.io.File;
 
 @TeleOp(name="TeleopPracticeRobot", group="MecanumDrive")
 public class TeleopPracticeRobot extends LinearOpMode {
@@ -53,7 +56,7 @@ public class TeleopPracticeRobot extends LinearOpMode {
     double power_x_old;
     double power_y_old;
 
-    double movement;
+    double movement = 1;
 
     boolean button_a_already_pressed = false;
     boolean button_b_already_pressed = false;
@@ -84,12 +87,12 @@ public class TeleopPracticeRobot extends LinearOpMode {
 
     int programorder = 0;
 
-    private String soundPath = "/sdcard/FIRST/blocks/sounds";
-    private File soundAFile = new File(soundPath + "/3-AngryLoud.WAV");
-    private File soundBFile = new File(soundPath + "/2-Alert.WAV");
-    private File soundXFile = new File(soundPath + "/5-SongShort2.mp3");
-    private File soundYFile = new File(soundPath + "/1-BTBTLoud.WAV");
-    private File soundEnemyFile = new File(soundPath + "/6-enemyhit.WAV");
+    private String soundPath = "/FIRST/sounds";
+    //private File soundAFile = new File(soundPath + "/3-AngryLoud.WAV");
+    //private File soundBFile = new File(soundPath + "/2-Alert.WAV");
+    //private File soundXFile = new File(soundPath + "/5-SongShort2.mp3");
+    //private File soundYFile = new File(soundPath + "/1-BTBTLoud.WAV");
+    private File soundEnemyFile = new File(soundPath + "/enemyhit.WAV");
 
     boolean soundPlaying = false;
 
@@ -107,14 +110,17 @@ public class TeleopPracticeRobot extends LinearOpMode {
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
         IMU.initialize(parameters);
 
-        while (!isStopRequested() && !IMU.isGyroCalibrated()) {
-            sleep(50);
-            idle();
-        }
+        BackRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        FrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        telemetry.addData("Mode", "waiting for start");
-        telemetry.addData("imu calib status", IMU.getCalibrationStatus().toString());
-        telemetry.update();
+        //while (!isStopRequested() && !IMU.isGyroCalibrated()) {
+          //  sleep(50);
+            //idle();
+        //}
+
+        //telemetry.addData("Mode", "waiting for start");
+        //telemetry.addData("imu calib status", IMU.getCalibrationStatus().toString());
+        //telemetry.update();
 
         orientation = IMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         globalangle = 0;
@@ -150,13 +156,18 @@ public class TeleopPracticeRobot extends LinearOpMode {
             FrontRight.setPower(FRPower);
             BackRight.setPower(BRPower);
 
-            ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+            //ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
 
             if (gamepad2.a && !soundPlaying) {
                 ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
-                PlaySound(soundAFile);
+                PlaySound(soundEnemyFile);
             } else if (!gamepad2.a) {
-                ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+                if (programorder !=0) {
+
+                } else {
+                    ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+                }
+
             }
 
             if (button_b_already_pressed == false) {
@@ -215,7 +226,7 @@ public class TeleopPracticeRobot extends LinearOpMode {
                     break;
                 case 8:
                     if (ET.milliseconds() > 3500) {
-                        programorder++;
+                        programorder = 0;
                     }
                     break;
 
@@ -226,18 +237,22 @@ public class TeleopPracticeRobot extends LinearOpMode {
     }
 
     void PlaySound(File soundFile) {
+        int SoundID = -1;
+
         //--- Configure our Sound Player
         SoundPlayer.PlaySoundParams params = new SoundPlayer.PlaySoundParams();
         params.loopControl = 0;
         params.waitForNonLoopingSoundsToFinish = true;
 
         // Start playing, when done update soundPlaying variable
-        soundPlaying = true;
-        SoundPlayer.getInstance().startPlaying(hardwareMap.appContext, soundFile, params, null,
-                new Runnable() { public void run()
-                {
-                    soundPlaying = false;
-                }});
+
+        if ((SoundID = hardwareMap.appContext.getResources().getIdentifier("enemyhit", "raw", hardwareMap.appContext.getPackageName())) != 0) {
+            soundPlaying = true;
+
+            SoundPlayer.getInstance().startPlaying(hardwareMap.appContext, SoundID, params, null,
+                    () -> { soundPlaying = false; } );
+        }
+
     }
 
         private void MotorTurn ( double FR, double FL, double BR, double BL){
