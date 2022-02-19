@@ -312,7 +312,7 @@ public class FarBlue_FINAL extends LinearOpMode {
                         Intake.setPower(0);
                         if (laps == 1) {
                             if (left) {
-                                MechDrive.SetTargets(120, 1950, 0.35, 0);
+                                MechDrive.SetTargets(120, 2000, 0.35, 0);
                             }
                             else if (center) {
                                 MechDrive.SetTargets(120, 1700, 0.35, 0); // 1600
@@ -346,7 +346,7 @@ public class FarBlue_FINAL extends LinearOpMode {
                     if (ET.milliseconds() > 500) { // Prev: 1000
                         if (laps == 1) {
                             if (left) {
-                                MechDrive.SetTargets(-60, 2000, 0.5, 0);
+                                MechDrive.SetTargets(-60, 2050, 0.5, 0);
                             }
                             else if (center) {
                                 MechDrive.SetTargets(-60, 1700, 0.5, 0); // 1600

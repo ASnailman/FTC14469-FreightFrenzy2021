@@ -36,7 +36,7 @@ public class Auto_Sequences_FAST {
     static final double MiddleBucketPosition = 120;
     static final double MirrorMiddleBucketPosition = -120;
     static final double LowBucketPosition = 95;
-    static final double MirrorLowBucketPosition = -105;
+    static final double MirrorLowBucketPosition = -95;
 
     static final double OpenGatePosition = 0.8;
     static final double OpenIntakePosition = 0.6;
