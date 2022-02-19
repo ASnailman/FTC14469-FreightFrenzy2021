@@ -87,12 +87,16 @@ public class TeleopPracticeRobot extends LinearOpMode {
 
     int programorder = 0;
 
+    final int ENEMYHIT = 0;
+
+    String sounds[] = {"enemyhit"};
+
     private String soundPath = "/FIRST/sounds";
     //private File soundAFile = new File(soundPath + "/3-AngryLoud.WAV");
     //private File soundBFile = new File(soundPath + "/2-Alert.WAV");
     //private File soundXFile = new File(soundPath + "/5-SongShort2.mp3");
     //private File soundYFile = new File(soundPath + "/1-BTBTLoud.WAV");
-    private File soundEnemyFile = new File(soundPath + "/enemyhit.WAV");
+    //private File soundEnemyFile = new File(soundPath + "/enemyhit.WAV");
 
     boolean soundPlaying = false;
 
@@ -160,7 +164,7 @@ public class TeleopPracticeRobot extends LinearOpMode {
 
             if (gamepad2.a && !soundPlaying) {
                 ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
-                PlaySound(soundEnemyFile);
+                PlaySound(sounds[ENEMYHIT]);
             } else if (!gamepad2.a) {
                 if (programorder !=0) {
 
@@ -236,7 +240,7 @@ public class TeleopPracticeRobot extends LinearOpMode {
         }
     }
 
-    void PlaySound(File soundFile) {
+    void PlaySound(String soundFile) {
         int SoundID = -1;
 
         //--- Configure our Sound Player
@@ -246,7 +250,7 @@ public class TeleopPracticeRobot extends LinearOpMode {
 
         // Start playing, when done update soundPlaying variable
 
-        if ((SoundID = hardwareMap.appContext.getResources().getIdentifier("enemyhit", "raw", hardwareMap.appContext.getPackageName())) != 0) {
+        if ((SoundID = hardwareMap.appContext.getResources().getIdentifier(soundFile, "raw", hardwareMap.appContext.getPackageName())) != 0) {
             soundPlaying = true;
 
             SoundPlayer.getInstance().startPlaying(hardwareMap.appContext, SoundID, params, null,
