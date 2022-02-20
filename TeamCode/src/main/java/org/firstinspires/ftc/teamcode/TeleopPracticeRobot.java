@@ -102,6 +102,7 @@ public class TeleopPracticeRobot extends LinearOpMode {
     String timestop[] = {"timestop"};
     String oof[] = {"oof"};
     String mecanum[] = {"mecanum"};
+    String intro[] = {"intro"};
 
 
     private String soundPath = "/FIRST/sounds";
@@ -152,9 +153,9 @@ public class TeleopPracticeRobot extends LinearOpMode {
         BackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         BackLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        waitForStart();
-
         //PlaySound(mecanum[MECANUM]);
+
+        waitForStart();
 
         ElapsedTime ET = new ElapsedTime();
 
@@ -284,6 +285,7 @@ public class TeleopPracticeRobot extends LinearOpMode {
             if (gamepad2.dpad_right && !soundPlaying) {
                 ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.BEATS_PER_MINUTE_FOREST_PALETTE);
                 //PlaySound(mecanum[MECANUM]);
+                PlaySound(intro[0]);
                 programorder = 12;
             }
             else if (!gamepad2.dpad_right) {
@@ -299,7 +301,7 @@ public class TeleopPracticeRobot extends LinearOpMode {
         //--- Configure our Sound Player
         SoundPlayer.PlaySoundParams params = new SoundPlayer.PlaySoundParams();
         params.loopControl = 0;
-        params.waitForNonLoopingSoundsToFinish = true;
+        params.waitForNonLoopingSoundsToFinish = false;
 
         // Start playing, when done update soundPlaying variable
 
@@ -307,7 +309,9 @@ public class TeleopPracticeRobot extends LinearOpMode {
             soundPlaying = true;
 
             SoundPlayer.getInstance().startPlaying(hardwareMap.appContext, SoundID, params, null,
-                    () -> { soundPlaying = false; } );
+                    () -> { soundPlaying = false;
+                            SoundPlayer.getInstance().stopPlayingAll();
+                            ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);} );
         }
 
     }
