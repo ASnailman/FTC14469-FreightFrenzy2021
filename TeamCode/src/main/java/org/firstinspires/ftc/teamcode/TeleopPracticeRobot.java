@@ -21,6 +21,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotserver.internal.webserver.RobotControllerWebHandlers;
 
 import java.io.File;
 
@@ -86,10 +87,22 @@ public class TeleopPracticeRobot extends LinearOpMode {
     boolean double_trigger_already_pressed = false;
 
     int programorder = 0;
+    int programorder2 = 0;
 
     final int ENEMYHIT = 0;
+    final int SPINATTACK = 0;
+    final int ZAWARUDO = 0;
+    final int TIMESTOP = 0;
+    final int MECANUM = 0;
+    final int OOF = 0;
 
     String sounds[] = {"enemyhit"};
+    String spinsound[] = {"spinattack"};
+    String zawarudo[] = {"zawarudo"};
+    String timestop[] = {"timestop"};
+    String oof[] = {"oof"};
+    String mecanum[] = {"mecanum"};
+
 
     private String soundPath = "/FIRST/sounds";
     //private File soundAFile = new File(soundPath + "/3-AngryLoud.WAV");
@@ -141,13 +154,15 @@ public class TeleopPracticeRobot extends LinearOpMode {
 
         waitForStart();
 
+        //PlaySound(mecanum[MECANUM]);
+
         ElapsedTime ET = new ElapsedTime();
 
         while (opModeIsActive()) {
 
-            double y = -gamepad1.left_stick_y * movement;
-            double x = gamepad1.left_stick_x * movement;
-            double rx = gamepad1.right_stick_x * movement;
+            double y = -gamepad2.left_stick_y * movement;
+            double x = gamepad2.left_stick_x * movement;
+            double rx = gamepad2.right_stick_x * movement;
 
             double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
             double FLPower = (y + x + rx) / denominator;
@@ -164,6 +179,8 @@ public class TeleopPracticeRobot extends LinearOpMode {
 
             if (gamepad2.a && !soundPlaying) {
                 ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+                programorder = 0;
+                //programorder2 = 0;
                 PlaySound(sounds[ENEMYHIT]);
             } else if (!gamepad2.a) {
                 if (programorder !=0) {
@@ -171,7 +188,6 @@ public class TeleopPracticeRobot extends LinearOpMode {
                 } else {
                     ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
                 }
-
             }
 
             if (button_b_already_pressed == false) {
@@ -237,6 +253,43 @@ public class TeleopPracticeRobot extends LinearOpMode {
                 default:
                     break;
             }
+
+            if (gamepad2.y && !soundPlaying) {
+                ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.BREATH_GRAY);
+                PlaySound(zawarudo[ZAWARUDO]);
+                programorder = 9;
+            }
+            else if (!gamepad2.y) {
+
+            }
+
+            if (gamepad2.x && !soundPlaying) {
+                ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.BEATS_PER_MINUTE_PARTY_PALETTE);
+                PlaySound(timestop[TIMESTOP]);
+                programorder = 10;
+            }
+            else if (!gamepad2.x) {
+
+            }
+
+            if (gamepad2.dpad_left && !soundPlaying) {
+                ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
+                PlaySound(oof[OOF]);
+                programorder = 11;
+            }
+            else if (!gamepad2.dpad_left) {
+
+            }
+
+            if (gamepad2.dpad_right && !soundPlaying) {
+                ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.BEATS_PER_MINUTE_FOREST_PALETTE);
+                //PlaySound(mecanum[MECANUM]);
+                programorder = 12;
+            }
+            else if (!gamepad2.dpad_right) {
+
+            }
+
         }
     }
 
