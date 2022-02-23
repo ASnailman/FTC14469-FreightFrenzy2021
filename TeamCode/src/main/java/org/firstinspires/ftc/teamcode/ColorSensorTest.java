@@ -32,8 +32,8 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-@Autonomous(name="FarRed_AutoSequencingTest", group="MecanumDrive")
-public class FarRed_TEST_autosequencing extends LinearOpMode {
+@Autonomous(name="ColorSensorTest", group="MecanumDrive")
+public class ColorSensorTest extends LinearOpMode {
 
     OpenCvWebcam webcam;
     BarcodeDeterminationPipeline pipeline;
@@ -105,7 +105,7 @@ public class FarRed_TEST_autosequencing extends LinearOpMode {
     Mech_Drive MechDrive;
     Bucket_Control BucketControl;
     Arm_Control ArmControl;
-    Auto_Sequences Sequences;
+    //Auto_Sequences Sequences;
 
     boolean left;
     boolean center;
@@ -179,7 +179,7 @@ public class FarRed_TEST_autosequencing extends LinearOpMode {
         MechDrive = new Mech_Drive(FrontRight, FrontLeft, BackRight, BackLeft, MoveDirection.REVERSE, telemetry);
         BucketControl = new Bucket_Control(BucketMotor);
         ArmControl = new Arm_Control(Arm);
-        Sequences = new Auto_Sequences(BucketControl, ArmControl, Rail, telemetry);
+        //Sequences = new Auto_Sequences(BucketControl, ArmControl, Rail, telemetry);
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
@@ -272,7 +272,7 @@ public class FarRed_TEST_autosequencing extends LinearOpMode {
             MechDrive.Task(GyroContinuity());
             BucketControl.BucketTask();
             ArmControl.ArmTask();
-            Sequences.Task();
+            //Sequences.Task();
 
         }
     }

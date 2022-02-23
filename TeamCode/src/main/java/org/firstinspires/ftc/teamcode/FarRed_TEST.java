@@ -96,9 +96,13 @@ public class FarRed_TEST extends LinearOpMode {
     boolean yellow;
     boolean unknown;
 
+    boolean White;
+    boolean Yellow;
+    boolean Unknown;
+
     int programorder1 = 0;
     int programorder2 = 0;
-    Mech_Drive MechDrive;
+    Mech_Drive_FAST MechDrive;
     Bucket_Control BucketControl;
     Arm_Control ArmControl;
 
@@ -171,7 +175,7 @@ public class FarRed_TEST extends LinearOpMode {
         IntakeServo.setPosition(ClosingIntakePosition);
         GateServo.setPosition(ClosingGatePosition);
 
-        MechDrive = new Mech_Drive(FrontRight, FrontLeft, BackRight, BackLeft, MoveDirection.REVERSE, telemetry);
+        MechDrive = new Mech_Drive_FAST(FrontRight, FrontLeft, BackRight, BackLeft, MoveDirection.REVERSE, telemetry);
         BucketControl = new Bucket_Control(BucketMotor);
         ArmControl = new Arm_Control(Arm);
 
@@ -219,100 +223,11 @@ public class FarRed_TEST extends LinearOpMode {
 
                 case 0:
                     if (MechDrive.GetTaskState() == Task_State.INIT) {
-                        MechDrive.SetTargets(0, 400, 0.5);
+                        MechDrive.SetTargets(-90, 100000, 0.5, 0);
                     }
                     else if (MechDrive.GetTaskState() == Task_State.DONE) {
-                        programorder1++;
+                        //programorder1++;
                     }
-                    break;
-
-                case 1:
-                    Intake.setPower(1);
-                    IntakeServo.setPosition(OpenIntakePosition);
-                    Rail.setTargetPosition(80);
-                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    Rail.setPower(0.65);
-                    if (Rail.getCurrentPosition() >= 30 && Rail.getCurrentPosition() <= 130) {
-                        programorder1++;
-                        ET.reset();
-                    }
-                    break;
-
-                case 2:
-                    if (white || yellow || ET.milliseconds() > 1200) {
-                        if (MechDrive.GetTaskState() == Task_State.READY) {
-                            MechDrive.SetTargets(0, 0, 0);
-                        }
-                        else if (MechDrive.GetTaskState() == Task_State.DONE) {
-                            programorder1++;
-                        }
-                    } else if (unknown) {
-                        FrontRight.setPower(0.5);
-                        FrontLeft.setPower(0.5);
-                        BackLeft.setPower(0.5);
-                        BackRight.setPower(0.5);
-                    }
-                    break;
-
-                case 3:
-                    if (MechDrive.GetTaskState() == Task_State.READY) {
-                        MechDrive.SetTargets(180, 200, 0.7);
-                    }
-                    else if (MechDrive.GetTaskState() == Task_State.DONE) {
-                        programorder1++;
-                    }
-                    break;
-
-                case 4:
-                    if (MechDrive.GetTaskState() == Task_State.READY) {
-                        MechDrive.SetTargets(0, 200, 0.7);
-                    }
-                    else if (MechDrive.GetTaskState() == Task_State.DONE) {
-                        programorder1++;
-                    }
-                    break;
-
-                case 5:
-                    if (white || yellow) {
-                        //if (MechDrive.GetTaskState() == Task_State.READY) {
-                        //    MechDrive.SetTargets(180, 500, 0.5);
-                        //}
-                        //else if (MechDrive.GetTaskState() == Task_State.DONE) {
-                            programorder1++;
-                        //}
-                    } else if (unknown) {
-                        FrontRight.setPower(0);
-                        FrontLeft.setPower(0);
-                        BackLeft.setPower(0);
-                        BackRight.setPower(0);
-                    }
-                    break;
-
-                case 6:
-                    //if (MechDrive.GetTaskState() == Task_State.READY) {
-                    //    MechDrive.SetTargets(5, 200, 0.8);
-                    //}
-                    //else if (MechDrive.GetTaskState() == Task_State.DONE) {
-                        programorder1++;
-                    //}
-                    break;
-
-                case 7:
-                    if (MechDrive.GetTaskState() == Task_State.READY) {
-                        MechDrive.SetTargets(180, 1700, 0.5);
-                    }
-                    else if (MechDrive.GetTaskState() == Task_State.DONE) {
-                        programorder1++;
-                    }
-                    break;
-
-                case 8:
-                    BucketControl.Calibrate();
-                    ArmControl.Calibrate();
-                    Rail.setTargetPosition(0);
-                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    Rail.setPower(0.5);
-                    programorder1++;
                     break;
 
                 default:
@@ -320,14 +235,15 @@ public class FarRed_TEST extends LinearOpMode {
 
             }
 
-            telemetry.addData("case", programorder1);
+            //telemetry.addData("case", programorder1);
             telemetry.update();
 
             // THIS IS THE PART OF THE PROGRAM THAT IS REPETITIVE
             // THEY ARE CALLED 'BACKGROUND TASKS" BUT FOR SIMPLICITY, WE SHALL CALL THEM 'TASKS'
 
             // Detect for objects in the bucket
-            BucketObjectColorDetector();
+            //BucketObjectColorDetector();
+            WhiteColorDetector();
 
             if (BucketIsEmpty) {
 
@@ -629,10 +545,10 @@ public class FarRed_TEST extends LinearOpMode {
                 position = ShippingElementPosition.NONE;
             }
 
-            telemetry_vision.addData("Avg1", Avg1());
-            telemetry_vision.addData("Avg2", Avg2());
-            telemetry_vision.addData("Avg3", Avg3());
-            telemetry_vision.addData("Position", getAnalysis());
+            //telemetry_vision.addData("Avg1", Avg1());
+            //telemetry_vision.addData("Avg2", Avg2());
+            //telemetry_vision.addData("Avg3", Avg3());
+            //telemetry_vision.addData("Position", getAnalysis());
             telemetry_vision.update();
 
             /*
@@ -678,6 +594,36 @@ public class FarRed_TEST extends LinearOpMode {
         Intake.setDirection(DcMotor.Direction.FORWARD);
         //Arm.setDirection(DcMotor.Direction.FORWARD);
         Rail.setDirection(DcMotor.Direction.FORWARD);
+    }
+
+    private int WhiteColorDetector() {
+
+        float[] HSV = new float[3];
+        NormalizedRGBA RGBA = whitecolorsensor.getNormalizedColors();
+        whitecolorsensor.setGain(30);
+
+        Color.colorToHSV(RGBA.toColor(), HSV);
+        telemetry.addData("H:", HSV[0]);
+        telemetry.addData("S:", HSV[1]);
+        telemetry.addData("V:", HSV[2]);
+
+        int white = 1;
+        int unkwown = 0;
+
+        if (HSV[1] >= 0.38 && HSV[1] <= 0.42) {
+            telemetry.addData("Color:", "White");
+            telemetry.update();
+            White = true;
+            Unknown = false;
+            return white;
+        } else {
+            telemetry.addData("Color:", "Unknown");
+            telemetry.update();
+            Unknown = true;
+            Yellow = false;
+            White = false;
+            return unkwown;
+        }
     }
 
     private int BucketObjectColorDetector() {
