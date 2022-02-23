@@ -257,7 +257,7 @@ public class TeleopPracticeRobot extends LinearOpMode {
 
             if (gamepad2.y && !soundPlaying) {
                 ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.BREATH_GRAY);
-                PlaySound(zawarudo[ZAWARUDO]);
+                //PlaySound(zawarudo[ZAWARUDO]);
                 programorder = 9;
             }
             else if (!gamepad2.y) {
