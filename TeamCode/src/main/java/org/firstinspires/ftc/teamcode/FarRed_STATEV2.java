@@ -32,8 +32,8 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-@Autonomous(name="ColorSensorTest", group="MecanumDrive")
-public class ColorSensorTest extends LinearOpMode {
+@Autonomous(name="FarRed_STATEV2", group="MecanumDrive")
+public class FarRed_STATEV2 extends LinearOpMode {
 
     OpenCvWebcam webcam;
     BarcodeDeterminationPipeline pipeline;
@@ -69,6 +69,8 @@ public class ColorSensorTest extends LinearOpMode {
     double final_value;
 
     ElapsedTime ET = new ElapsedTime();
+    int retrieve_seq = 0;
+
     byte AXIS_MAP_SIGN_BYTE = 0x6; //rotates control hub 180 degrees around z axis by negating x and y signs
     byte AXIS_MAP_CONFIG_BYTE = 0x6; //rotates control hub 90 degrees around y axis by swapping x and z axis
 
@@ -87,10 +89,14 @@ public class ColorSensorTest extends LinearOpMode {
     static final double LowBucketPosition = 95;
     static final double MirrorLowBucketPosition = -95;
 
-    static final double OpenGatePosition = 0.8;
-    static final double OpenIntakePosition = 0.6;
+    static final double OpenGatePosition = 0.5;
+    static final double OpenIntakePosition = 0.5;
     static final double ClosingGatePosition = 0.2;
     static final double ClosingIntakePosition = 0.8;
+
+    static final double START_OF_LAP2_DELAY = 0;        // Set to non-zero if we need to wait for alliance partner's robot to move out of our way (msec)
+                                                        // Cannot be more than 2 secs
+    boolean lap2_start_delay_done = false;              // Ensures we only perform the lap2 delay once
 
     boolean BucketIsEmpty = true;
     boolean white;
@@ -101,16 +107,19 @@ public class ColorSensorTest extends LinearOpMode {
     boolean Yellow;
     boolean Unknown;
 
-    boolean WHITE1 = false;
-    boolean YELLOW1 = false;
-    boolean UNKNOWN1 = false;
+    boolean WHITE1;
+    boolean YELLOW1;
+    boolean UNKNOWN1;
 
     int programorder1 = 0;
-    int programorder2 = 0;
+    int spare_case = 0;
     Mech_Drive_FAST MechDrive;
     Bucket_Control BucketControl;
     Arm_Control ArmControl;
-    //Auto_Sequences Sequences;
+    Auto_Sequences_FAST Sequences;
+    int laps = 1;
+    final int TOTAL_LAPS = 3;
+    int num_of_times_to_try = 0;
 
     boolean left;
     boolean center;
@@ -118,6 +127,7 @@ public class ColorSensorTest extends LinearOpMode {
 
     boolean turnright = false;
     boolean turnleft = false;
+    boolean E_Stop = false;         // Emergency stop to indicate robot has lost where it's at on the field
 
     @Override
     public void runOpMode() {
@@ -179,18 +189,16 @@ public class ColorSensorTest extends LinearOpMode {
         IntakeServo.scaleRange(0,1);
         GateServo.scaleRange(0,1);
 
-        //IntakeServo.setPosition(ClosingIntakePosition);
+        IntakeServo.setPosition(ClosingIntakePosition);
         GateServo.setPosition(ClosingGatePosition);
 
         MechDrive = new Mech_Drive_FAST(FrontRight, FrontLeft, BackRight, BackLeft, MoveDirection.REVERSE, telemetry);
         BucketControl = new Bucket_Control(BucketMotor);
         ArmControl = new Arm_Control(Arm);
-
-        //ET.reset();
-        //Sequences = new Auto_Sequences(BucketControl, ArmControl, Rail, telemetry);
+        Sequences = new Auto_Sequences_FAST(BucketControl,  ArmControl, Rail, telemetry);
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 2"), cameraMonitorViewId);
         pipeline = new BarcodeDeterminationPipeline();
         webcam.setPipeline(pipeline);
         pipeline.InitTelemetry(telemetry);
@@ -213,8 +221,9 @@ public class ColorSensorTest extends LinearOpMode {
             }
         });
 
-        waitForStart();
+        //WhiteColorDetector();
 
+        waitForStart();
         while (opModeIsActive()) {
 
             // We are going to write this autonomous program as a state machine
@@ -232,41 +241,353 @@ public class ColorSensorTest extends LinearOpMode {
             switch (programorder1) {
 
                 case 0:
+                    if (pipeline.position == FarRed_STATEV2.BarcodeDeterminationPipeline.ShippingElementPosition.LEFT) {
+                        left = true;
+                        center = false;
+                        right = false;
+                    }
+                    else if (pipeline.position == FarRed_STATEV2.BarcodeDeterminationPipeline.ShippingElementPosition.CENTER) {
+                        left = false;
+                        center = true;
+                        right = false;
+                    }
+                    else if (pipeline.position == FarRed_STATEV2.BarcodeDeterminationPipeline.ShippingElementPosition.RIGHT) {
+                        left = false;
+                        center = false;
+                        right = true;
+                    }
+                    else {
+                        left = false;
+                        center = false;
+                        right = true;
+                    }
 
-                    FrontRight.setPower(0.2);
-                    FrontLeft.setPower(0.2);
-                    BackLeft.setPower(0.2);
-                    BackRight.setPower(0.2);
-                    Intake.setPower(1);
-                    ET.reset();
-                    //DeadZoneColorDetector();
-                    //WhiteColorDetector();
                     programorder1++;
                     break;
 
                 case 1:
-                    if (ET.milliseconds() > 500 && YELLOW1 || ET.milliseconds() > 500 && WHITE1) {
-                        //MechDrive.Override();
-                        FrontRight.setPower(-0.3);
-                        FrontLeft.setPower(-0.3);
-                        BackLeft.setPower(-0.3);
-                        BackRight.setPower(-0.3);
-                        //Intake.setPower(-1);
+
+                    spare_case = 1;
+                    programorder1++;
+
+                    break;
+
+                case 2:
+
+                    if (left) {
+                        Sequences.SetSequence(3, false);
+                    } else if (center) {
+                        Sequences.SetSequence(2, false);
+                    } else if (right) {
+                        Sequences.SetSequence(1, false);
+                    }
+                    programorder1++;
+                    break;
+
+                case 3:
+
+                    if (MechDrive.GetTaskState() == Task_State.INIT || MechDrive.GetTaskState() == Task_State.READY ||
+                            MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.OVERRIDE) {
+
+                        if (laps == 3) {
+                            MechDrive.SetTargets(180, 1700, 0.6, 1);
+                        }
+                        else if (laps == 2) {
+                            MechDrive.SetTargets(180, 1650, 0.6, 1);
+                        }
+                        else {
+                            if (left) {
+                                MechDrive.SetTargets(180, 250, 0.4, 1);
+                            }
+                            else {
+                                MechDrive.SetTargets(180, 400, 0.4, 1);
+                            }
+                        }
+                        programorder1++;
+                    }
+                    break;
+
+                case 4:
+
+                    if (MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.READY) {
+                        Intake.setPower(0);
+                        if (laps == 1) {
+                            if (left) {
+                                MechDrive.SetTargets(240, 1950, 0.35, 1);
+                            }
+                            else if (center) {
+                                MechDrive.SetTargets(240, 1550, 0.35, 1); // 1600
+                            }
+                            else {
+                                MechDrive.SetTargets(245, 1800, 0.35, 1); // 1600
+                            }
+                        }
+                        else if (laps == 2) {
+                            MechDrive.SetTargets(-90, 1100, 0.6, 0);
+                        }
+                        else {
+                            MechDrive.SetTargets(-90, 1100, 0.6, 0);
+                        }
+                        programorder1++;
+                    }
+                    break;
+
+                case 5:
+
+                    if (Sequences.GetTaskState() == Task_State.READY && (MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.READY)) {
+                        GateServo.setPosition(OpenGatePosition);
+                        IntakeServo.setPosition(OpenIntakePosition);
+                        ET.reset();
+                        programorder1++;
+                    }
+                    break;
+
+                case 6:
+
+                    if (ET.milliseconds() > 500) { // Prev: 1000
+                            if (laps == 1) {
+                                if (left) {
+                                    MechDrive.SetTargets(60, 1900, 0.7, 1);
+                                }
+                                else if (center) {
+                                    MechDrive.SetTargets(60, 1550, 0.7, 1); // 1600
+                                }
+                                else {
+                                    MechDrive.SetTargets(65, 1900, 0.7, 1); // 1600
+                                }
+                            }
+                            else if (laps == 2) {
+                                MechDrive.SetTargets(90, 1200, 0.7, 1);
+                            }
+                            else {
+                                MechDrive.SetTargets(90, 1200, 0.7, 1);
+                            }
+                            GateServo.setPosition(ClosingGatePosition);
+                            programorder1++;
+                    }
+                    break;
+
+                case 7:
+
+                    Sequences.SetSequence(4, false);
+                    programorder1++;
+                    break;
+
+                case 8:
+
+                   if (MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.READY) {
+
+                       // If this is the last lap or E_Stop fail safe was previously enabled, then just park in the warehouse
+                       if (laps == 3 || E_Stop) {
+                           programorder1 = 16;
+                       } else {
+                           // Start driving toward the warehouse
+                           MechDrive.SetTargets(0, 800, 0.7, 0);
+                           programorder1++;
+                       }
+                   }
+                   break;
+
+                case 9:
+                    if (White) {
+                        MechDrive.Override();
+                        FrontRight.setPower(0);
+                        FrontLeft.setPower(0);
+                        BackLeft.setPower(0);
+                        BackRight.setPower(0);
 
                         FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                         BackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                         FrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         BackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-                        //programorder1++;
+                        programorder1++;
                     }
 
-                    else if (UNKNOWN1) {
-                        //MechDrive.Override();
-                        //FrontRight.setPower(0.3);
-                        //FrontLeft.setPower(0.3);
-                        //BackLeft.setPower(0.1);
-                        //BackRight.setPower(0.1);
+                    else if (Unknown) {
+                        MechDrive.Override();
+                        FrontRight.setPower(0.3);
+                        FrontLeft.setPower(0.3);
+                        BackLeft.setPower(0.3);
+                        BackRight.setPower(0.3);
+                    }
+                    break;
+
+                case 10:
+                    //check condition (done/ready)
+                    if (MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.READY) {
+
+                        if (laps == 1) {
+                            MechDrive.SetTargets(0, 1650, 0.7, 0);
+                        } else {
+                            MechDrive.SetTargets(0, 2400, 0.7, 0);
+                        }
+
+                        BucketControl.Override();
+                        Intake.setPower(1);
+                        IntakeServo.setPosition(OpenIntakePosition);
+                        ET.reset();
+                        programorder1++;
+                    }
+                    ArmControl.Override();
+                    break;
+
+                case 11:
+                    if (WHITE1 || YELLOW1) {
+                        MechDrive.Override();
+                        FrontRight.setPower(0);
+                        FrontLeft.setPower(0);
+                        BackLeft.setPower(0);
+                        BackRight.setPower(0);
+
+                        FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                        BackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                        FrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                        BackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+                        ET.reset();
+                        programorder1++;
+                    }
+                    break;
+
+                case 12:
+
+                    if (MechDrive.GetTaskState() == Task_State.DONE || ET.milliseconds() > 2500) {
+                        if (retrieve_seq == 0) {
+                            retrieve_seq = 1;
+                            MechDrive.SetTargets(180, 600, 0.5, 0);
+                        }
+                        else if (retrieve_seq == 1) {
+                            retrieve_seq = 2;
+                            MechDrive.SetTargets(0, 500, 0.5, 0);
+                        }
+                        else {
+                            programorder1 = 11;
+                            retrieve_seq = 0;
+                        }
+                    }
+
+                    if (white || yellow) {
+                        IntakeServo.setPosition(ClosingIntakePosition);
+                        Intake.setPower(-1);
+                        programorder1 = 11;
+                        retrieve_seq = 0;
+                    }
+
+                    Rail.setTargetPosition(0);
+                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    Rail.setPower(0.3); // Prev: 0.65
+                    break;
+
+                case 13:
+
+                    // Strafe into the wall to straighten the robot
+                    MechDrive.SetTargets(110, 200, 0.8, 0);
+                    programorder1++;
+                    ET.reset();
+                    break;
+
+                case 14:
+
+                    programorder1++;
+                    break;
+
+                case 15:
+
+                    if (White) {
+
+                        // Override MechDrive task and stop the robot
+                        MechDrive.Override();
+                        FrontRight.setPower(0);
+                        FrontLeft.setPower(0);
+                        BackLeft.setPower(0);
+                        BackRight.setPower(0);
+
+                        // Close the intake and purge any freight caught under the intake wheel
+                        IntakeServo.setPosition(ClosingIntakePosition);
+                        Intake.setPower(-1);
+
+                        // Set up to always load on the top level of the alliance hub
+                        left = false;
+                        center = false;
+                        right = true;
+
+                        // Reset all encoders
+                        FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                        BackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                        FrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                        BackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+                        programorder1 = 1;
+                        laps++;
+
+                        if (E_Stop && laps == 3) {
+                            programorder1 = 16;
+                        }
+
+                    } else if (Unknown) {
+
+                        if (MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.READY ||
+                            MechDrive.GetTaskState() == Task_State.OVERRIDE) {
+
+                            // Lock bucket in place first
+                            BucketControl.SetTargetPosition(0.5);
+
+                            // Give some time for our alliance partner's robot to move away first (if necessary)
+                            if ((ET.milliseconds() > START_OF_LAP2_DELAY) || lap2_start_delay_done) {
+
+                                lap2_start_delay_done = true;
+
+                                // If E-stop fail safe is inactive, keep reversing slowly to look for the white line
+                                if (!E_Stop) {
+                                    MechDrive.Override();
+                                    FrontRight.setPower(-0.3);
+                                    FrontLeft.setPower(-0.3);
+                                    BackLeft.setPower(-0.3);
+                                    BackRight.setPower(-0.3);
+                                }
+
+                                // If this condition is true, that means we have overshot the white line
+                                if (Math.abs(FrontRight.getCurrentPosition()) > 2400) {
+                                    E_Stop = true;
+
+                                    // Start moving forward to look for the white line
+                                    MechDrive.Override();
+                                    FrontRight.setPower(0.3);
+                                    FrontLeft.setPower(0.3);
+                                    BackLeft.setPower(0.3);
+                                    BackRight.setPower(0.3);
+                                }
+                            }
+                        }
+
+                        if (white || yellow) {
+                            IntakeServo.setPosition(ClosingIntakePosition);
+                            Intake.setPower(-1);
+                        }
+                    }
+                    break;
+
+                case 16:
+                    if (E_Stop && laps == 3) {
+                        MechDrive.SetTargets(0, 700, 0.8, 0);
+                    }
+                    else {
+                        MechDrive.SetTargets(0, 2700, 0.8, 0);
+                        BucketControl.SetTargetPosition(0.5);
+                    }
+                    programorder1++;
+                    break;
+
+                case 17:
+                    if (MechDrive.GetTaskState() == Task_State.DONE) {
+                        Intake.setPower(0);
+                        BucketControl.Calibrate();
+                        ArmControl.Calibrate();
+                        Rail.setTargetPosition(0);
+                        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        Rail.setPower(0.5);
+                        programorder1++;
                     }
                     break;
 
@@ -275,16 +596,11 @@ public class ColorSensorTest extends LinearOpMode {
 
             }
 
-            //telemetry.addData("case", programorder1);
-            //telemetry.update();
-            //WhiteColorDetector();
-            DeadZoneColorDetector();
             // THIS IS THE PART OF THE PROGRAM THAT IS REPETITIVE
             // THEY ARE CALLED 'BACKGROUND TASKS" BUT FOR SIMPLICITY, WE SHALL CALL THEM 'TASKS'
 
             // Detect for objects in the bucket
-
-            //WhiteColorDetector();
+            BucketObjectColorDetector();
 
             if (BucketIsEmpty) {
 
@@ -312,11 +628,16 @@ public class ColorSensorTest extends LinearOpMode {
             }
 
             //WhiteDetector();
+            WhiteColorDetector();
+            DeadZoneColorDetector();
             MechDrive.Task(GyroContinuity());
+            Sequences.Task();
             BucketControl.BucketTask();
             ArmControl.ArmTask();
-            //Sequences.Task();
 
+            telemetry.addData("program sequence", programorder1);
+            telemetry.addData("backright encoder", BackRight.getCurrentPosition());
+            telemetry.update();
         }
     }
 
@@ -344,9 +665,9 @@ public class ColorSensorTest extends LinearOpMode {
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(110,115);
-        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(590,115);
-        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1080,115);
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(60,85);
+        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(590,65);
+        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1050,65);
         static final int REGION_WIDTH = 80;
         static final int REGION_HEIGHT = 80;
 
@@ -586,11 +907,11 @@ public class ColorSensorTest extends LinearOpMode {
                 position = ShippingElementPosition.NONE;
             }
 
-            //telemetry_vision.addData("Avg1", Avg1());
-            //telemetry_vision.addData("Avg2", Avg2());
-            //telemetry_vision.addData("Avg3", Avg3());
-            //telemetry_vision.addData("Position", getAnalysis());
-            //telemetry_vision.update();
+            telemetry_vision.addData("Avg1", Avg1());
+            telemetry_vision.addData("Avg2", Avg2());
+            telemetry_vision.addData("Avg3", Avg3());
+            telemetry_vision.addData("Position", getAnalysis());
+            telemetry_vision.update();
 
             /*
              * Render the 'input' buffer to the viewport. But note this is not
@@ -652,8 +973,8 @@ public class ColorSensorTest extends LinearOpMode {
         int White = 1;
         int Unkwown = 0;
 
-        if (HSV[1] >= 0 && HSV[1] <= 0.45) {
-            if (HSV[2] >= 0.3 && HSV[2] <= 1) {
+        if (HSV[1] >= 0 && HSV[1] <= 0.5) {
+            if (HSV[2] >= 0.2 && HSV[2] <= 1) {
                 telemetry.addData("Color:", "White");
                 telemetry.update();
                 white = true;
@@ -668,8 +989,8 @@ public class ColorSensorTest extends LinearOpMode {
                 white = false;
                 return Unkwown;
             }
-        } else if (HSV[1] >= 0.5 && HSV[1] <= 0.8) {
-            if (HSV[2] >= 0.6 && HSV[2] <= 1) {
+        } else if (HSV[1] >= 0.5 && HSV[1] <= 1) {
+            if (HSV[2] >= 0.2 && HSV[2] <= 1) {
                 telemetry.addData("Color:", "Yellow");
                 telemetry.update();
                 yellow = true;
@@ -708,7 +1029,16 @@ public class ColorSensorTest extends LinearOpMode {
         int white = 1;
         int unkwown = 0;
 
-        if (HSV[1] >= 0.38 && HSV[1] <= 0.42) {
+        /*S_Sample[cnt] = HSV[2];
+        S_Avg = (S_Sample[0] + S_Sample[1] + S_Sample[2])/3;
+        cnt++;
+
+        if (cnt >= 3) {
+            cnt = 0;
+        }*/
+
+        //if (S_Avg >= 0.30 && S_Avg <= 0.38) {
+        if (HSV[2] >= 0.16 && HSV[2] <= 0.44) {
             telemetry.addData("Color:", "White");
             telemetry.update();
             White = true;
@@ -746,10 +1076,8 @@ public class ColorSensorTest extends LinearOpMode {
             cnt = 0;
         }*/
 
-
-
         //if (S_Avg >= 0.30 && S_Avg <= 0.38) {
-        if (HSV[0] < 150 || HSV[2] > 0.052) {
+        if (HSV[2] >= 0.16 && HSV[2] <= 0.44) {
             telemetry.addData("Color:", "DeadZoneWhite");
             telemetry.update();
             WHITE1 = true;
@@ -846,37 +1174,6 @@ public class ColorSensorTest extends LinearOpMode {
             }
         }
 
-    }
-
-    private int WhiteDetector() {
-
-        float[] HSV = new float[3];
-        NormalizedRGBA RGBA = whitecolorsensor.getNormalizedColors();
-        whitecolorsensor.setGain(70);
-
-        Color.colorToHSV(RGBA.toColor(), HSV);
-        telemetry.addData("H:", HSV[0]);
-        telemetry.addData("S:", HSV[1]);
-        telemetry.addData("V:", HSV[2]);
-
-        int White = 1;
-        int Unkwown = 0;
-
-        if (HSV[1] <= 0.25) {
-            if (HSV[2] >= 0.93) {
-                telemetry.addData("Color:", "White");
-                telemetry.update();
-                return White;
-            } else {
-                telemetry.addData("Color:", "Unknown");
-                telemetry.update();
-                return Unkwown;
-            }
-        } else {
-            telemetry.addData("Color:", "Unknown");
-            telemetry.update();
-            return Unkwown;
-        }
     }
 
 }
