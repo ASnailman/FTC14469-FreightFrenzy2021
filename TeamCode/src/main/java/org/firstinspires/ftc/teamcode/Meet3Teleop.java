@@ -306,7 +306,7 @@ public class Meet3Teleop extends LinearOpMode {
 
             if (button_b_already_pressed == false) {
                 if (gamepad2.left_bumper) {
-                    Intake.setPower(-1);
+                    Intake.setPower(-0.6);
                     button_b_already_pressed = true;
                 }
             }
@@ -480,7 +480,7 @@ public class Meet3Teleop extends LinearOpMode {
                     if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
 
                         // Lock the bucket in the zero position first before raising the rail or arm to prevent it from falling
-                        Intake.setPower(-1);
+                        Intake.setPower(-0.6);
                         BucketMotor.SetTargetPosition(0);
                     }
                     else if (BucketMotor.GetTaskState() == Task_State.DONE) {
@@ -583,7 +583,7 @@ public class Meet3Teleop extends LinearOpMode {
                     if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
 
                         // Lock the bucket in the zero position first before raising the rail or arm to prevent it from falling
-                        Intake.setPower(-1);
+                        Intake.setPower(-0.6);
                         BucketMotor.SetTargetPosition(0);
                     }
                     else if (BucketMotor.GetTaskState() == Task_State.DONE) {

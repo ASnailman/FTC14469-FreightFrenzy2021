@@ -233,11 +233,11 @@ public class ColorSensorTest extends LinearOpMode {
 
                 case 0:
 
-                    FrontRight.setPower(0.2);
-                    FrontLeft.setPower(0.2);
-                    BackLeft.setPower(0.2);
-                    BackRight.setPower(0.2);
-                    Intake.setPower(1);
+                    FrontRight.setPower(0.25);
+                    FrontLeft.setPower(0.25);
+                    BackLeft.setPower(0.25);
+                    BackRight.setPower(0.25);
+                    Intake.setPower(0.6);
                     ET.reset();
                     //DeadZoneColorDetector();
                     //WhiteColorDetector();
