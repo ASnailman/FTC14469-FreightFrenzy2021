@@ -398,7 +398,7 @@ public class FarBlue_FINAL extends LinearOpMode {
                         }
 
                         BucketControl.Override();
-                        Intake.setPower(1);
+                        Intake.setPower(-1);
                         IntakeServo.setPosition(OpenIntakePosition);
                         ET.reset();
                         programorder1++;
@@ -425,7 +425,7 @@ public class FarBlue_FINAL extends LinearOpMode {
 
                     if (white || yellow) {
                         IntakeServo.setPosition(ClosingIntakePosition);
-                        Intake.setPower(-1);
+                        Intake.setPower(1);
                         programorder1 = 11;
                         retrieve_seq = 0;
                     }
@@ -461,7 +461,7 @@ public class FarBlue_FINAL extends LinearOpMode {
 
                         // Close the intake and purge any freight caught under the intake wheel
                         IntakeServo.setPosition(ClosingIntakePosition);
-                        Intake.setPower(-1);
+                        Intake.setPower(1);
 
                         // Set up to always load on the top level of the alliance hub
                         left = false;
@@ -519,7 +519,7 @@ public class FarBlue_FINAL extends LinearOpMode {
 
                         if (white || yellow) {
                             IntakeServo.setPosition(ClosingIntakePosition);
-                            Intake.setPower(-1);
+                            Intake.setPower(1);
                         }
                     }
                     break;
@@ -578,7 +578,7 @@ public class FarBlue_FINAL extends LinearOpMode {
             }
             else {
                 /* If intake is enabled, just assume bucket is empty */
-                if (Intake.getPower() >= 0.9) {
+                if (Intake.getPower() >= -0.9) {
                     BucketIsEmpty = true;
                 }
             }

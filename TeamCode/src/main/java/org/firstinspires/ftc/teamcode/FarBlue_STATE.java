@@ -32,8 +32,8 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-@Autonomous(name="FarRed_STATEV2", group="MecanumDrive")
-public class FarRed_STATEV2 extends LinearOpMode {
+@Autonomous(name="FarBlue_STATE", group="MecanumDrive")
+public class FarBlue_STATE extends LinearOpMode {
 
     OpenCvWebcam webcam;
     BarcodeDeterminationPipeline pipeline;
@@ -170,6 +170,11 @@ public class FarRed_STATEV2 extends LinearOpMode {
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
         IMU.initialize(parameters);
 
+        /*while (!isStopRequested() && !IMU.isGyroCalibrated()) {
+            sleep(50);
+            idle();
+        }*/
+
         orientation = IMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         globalangle = 0;
         //Arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -198,7 +203,7 @@ public class FarRed_STATEV2 extends LinearOpMode {
         Sequences = new Auto_Sequences_FAST(BucketControl,  ArmControl, Rail, telemetry);
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 2"), cameraMonitorViewId);
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
         pipeline = new BarcodeDeterminationPipeline();
         webcam.setPipeline(pipeline);
         pipeline.InitTelemetry(telemetry);
@@ -221,9 +226,8 @@ public class FarRed_STATEV2 extends LinearOpMode {
             }
         });
 
-        //WhiteColorDetector();
-
         waitForStart();
+
         while (opModeIsActive()) {
 
             // We are going to write this autonomous program as a state machine
@@ -241,17 +245,17 @@ public class FarRed_STATEV2 extends LinearOpMode {
             switch (programorder1) {
 
                 case 0:
-                    if (pipeline.position == FarRed_STATEV2.BarcodeDeterminationPipeline.ShippingElementPosition.LEFT) {
+                    if (pipeline.position == FarBlue_STATE.BarcodeDeterminationPipeline.ShippingElementPosition.LEFT) {
                         left = true;
                         center = false;
                         right = false;
                     }
-                    else if (pipeline.position == FarRed_STATEV2.BarcodeDeterminationPipeline.ShippingElementPosition.CENTER) {
+                    else if (pipeline.position == FarBlue_STATE.BarcodeDeterminationPipeline.ShippingElementPosition.CENTER) {
                         left = false;
                         center = true;
                         right = false;
                     }
-                    else if (pipeline.position == FarRed_STATEV2.BarcodeDeterminationPipeline.ShippingElementPosition.RIGHT) {
+                    else if (pipeline.position == FarBlue_STATE.BarcodeDeterminationPipeline.ShippingElementPosition.RIGHT) {
                         left = false;
                         center = false;
                         right = true;
@@ -275,11 +279,11 @@ public class FarRed_STATEV2 extends LinearOpMode {
                 case 2:
 
                     if (left) {
-                        Sequences.SetSequence(3, false);
+                        Sequences.SetSequence(3, true);
                     } else if (center) {
-                        Sequences.SetSequence(2, false);
+                        Sequences.SetSequence(2, true);
                     } else if (right) {
-                        Sequences.SetSequence(1, false);
+                        Sequences.SetSequence(1, true);
                     }
                     programorder1++;
                     break;
@@ -313,20 +317,20 @@ public class FarRed_STATEV2 extends LinearOpMode {
                         Intake.setPower(0);
                         if (laps == 1) {
                             if (left) {
-                                MechDrive.SetTargets(240, 1950, 0.35, 1);
+                                MechDrive.SetTargets(120, 2100, 0.35, 0);
                             }
                             else if (center) {
-                                MechDrive.SetTargets(240, 1550, 0.35, 1); // 1600
+                                MechDrive.SetTargets(120, 1700, 0.35, 0); // 1600
                             }
                             else {
-                                MechDrive.SetTargets(245, 1800, 0.35, 1); // 1600
+                                MechDrive.SetTargets(115, 1800, 0.35, 0); // 1600
                             }
                         }
                         else if (laps == 2) {
-                            MechDrive.SetTargets(-90, 1100, 0.6, 0);
+                            MechDrive.SetTargets(90, 1000, 0.5, 0);
                         }
                         else {
-                            MechDrive.SetTargets(-90, 1100, 0.6, 0);
+                            MechDrive.SetTargets(90, 1000, 0.5, 0);
                         }
                         programorder1++;
                     }
@@ -345,48 +349,48 @@ public class FarRed_STATEV2 extends LinearOpMode {
                 case 6:
 
                     if (ET.milliseconds() > 500) { // Prev: 1000
-                            if (laps == 1) {
-                                if (left) {
-                                    MechDrive.SetTargets(60, 1900, 0.7, 1);
-                                }
-                                else if (center) {
-                                    MechDrive.SetTargets(60, 1550, 0.7, 1); // 1600
-                                }
-                                else {
-                                    MechDrive.SetTargets(65, 1900, 0.7, 1); // 1600
-                                }
+                        if (laps == 1) {
+                            if (left) {
+                                MechDrive.SetTargets(-60, 2150, 0.5, 0);
                             }
-                            else if (laps == 2) {
-                                MechDrive.SetTargets(90, 1200, 0.7, 1);
+                            else if (center) {
+                                MechDrive.SetTargets(-60, 1700, 0.5, 0); // 1600
                             }
                             else {
-                                MechDrive.SetTargets(90, 1200, 0.7, 1);
+                                MechDrive.SetTargets(-65, 1800, 0.5, 0); // 1600
                             }
-                            GateServo.setPosition(ClosingGatePosition);
-                            programorder1++;
+                        }
+                        else if (laps == 2) {
+                            MechDrive.SetTargets(-90, 850, 0.5, 0);
+                        }
+                        else {
+                            MechDrive.SetTargets(-90, 850, 0.5, 0);
+                        }
+                        GateServo.setPosition(ClosingGatePosition);
+                        programorder1++;
                     }
                     break;
 
                 case 7:
 
-                    Sequences.SetSequence(4, false);
+                    Sequences.SetSequence(4, true);
                     programorder1++;
                     break;
 
                 case 8:
 
-                   if (MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.READY) {
+                    if (MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.READY) {
 
-                       // If this is the last lap or E_Stop fail safe was previously enabled, then just park in the warehouse
-                       if (laps == 3 || E_Stop) {
-                           programorder1 = 16;
-                       } else {
-                           // Start driving toward the warehouse
-                           MechDrive.SetTargets(0, 800, 0.7, 0);
-                           programorder1++;
-                       }
-                   }
-                   break;
+                        // If this is the last lap or E_Stop fail safe was previously enabled, then just park in the warehouse
+                        if (laps == 3 || E_Stop) {
+                            programorder1 = 16;
+                        } else {
+                            // Start driving toward the warehouse
+                            MechDrive.SetTargets(0, 800, 0.7, 0);
+                            programorder1++;
+                        }
+                    }
+                    break;
 
                 case 9:
                     if (White) {
@@ -489,7 +493,7 @@ public class FarRed_STATEV2 extends LinearOpMode {
                 case 13:
 
                     // Strafe into the wall to straighten the robot
-                    MechDrive.SetTargets(110, 200, 0.8, 0);
+                    MechDrive.SetTargets(-110, 200, 0.8, 1);
                     programorder1++;
                     ET.reset();
                     break;
@@ -535,7 +539,7 @@ public class FarRed_STATEV2 extends LinearOpMode {
                     } else if (Unknown) {
 
                         if (MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.READY ||
-                            MechDrive.GetTaskState() == Task_State.OVERRIDE) {
+                                MechDrive.GetTaskState() == Task_State.OVERRIDE) {
 
                             // Lock bucket in place first
                             BucketControl.SetTargetPosition(0.5);
@@ -634,9 +638,7 @@ public class FarRed_STATEV2 extends LinearOpMode {
                 }
             }
 
-            //WhiteDetector();
             WhiteColorDetector();
-            DeadZoneColorDetector();
             MechDrive.Task(GyroContinuity());
             Sequences.Task();
             BucketControl.BucketTask();
@@ -672,9 +674,9 @@ public class FarRed_STATEV2 extends LinearOpMode {
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(60,85);
-        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(590,65);
-        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1050,65);
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(60,115);
+        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(500,115);
+        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1050,115);
         static final int REGION_WIDTH = 80;
         static final int REGION_HEIGHT = 80;
 

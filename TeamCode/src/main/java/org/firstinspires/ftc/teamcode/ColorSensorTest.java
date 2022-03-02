@@ -233,11 +233,11 @@ public class ColorSensorTest extends LinearOpMode {
 
                 case 0:
 
-                    FrontRight.setPower(0.25);
-                    FrontLeft.setPower(0.25);
-                    BackLeft.setPower(0.25);
-                    BackRight.setPower(0.25);
-                    Intake.setPower(0.6);
+                    FrontRight.setPower(0.22);
+                    FrontLeft.setPower(0.22);
+                    BackLeft.setPower(0.22);
+                    BackRight.setPower(0.22);
+                    Intake.setPower(-0.8);
                     ET.reset();
                     //DeadZoneColorDetector();
                     //WhiteColorDetector();
@@ -245,7 +245,7 @@ public class ColorSensorTest extends LinearOpMode {
                     break;
 
                 case 1:
-                    if (ET.milliseconds() > 500 && YELLOW1 || ET.milliseconds() > 500 && WHITE1) {
+                    if (ET.milliseconds() > 500 && yellow || ET.milliseconds() > 500 && white) {
                         //MechDrive.Override();
                         FrontRight.setPower(-0.3);
                         FrontLeft.setPower(-0.3);
@@ -261,7 +261,7 @@ public class ColorSensorTest extends LinearOpMode {
                         //programorder1++;
                     }
 
-                    else if (UNKNOWN1) {
+                    else if (unknown) {
                         //MechDrive.Override();
                         //FrontRight.setPower(0.3);
                         //FrontLeft.setPower(0.3);
@@ -278,7 +278,8 @@ public class ColorSensorTest extends LinearOpMode {
             //telemetry.addData("case", programorder1);
             //telemetry.update();
             //WhiteColorDetector();
-            DeadZoneColorDetector();
+            //DeadZoneColorDetector();
+            WhiteYellowDetector();
             // THIS IS THE PART OF THE PROGRAM THAT IS REPETITIVE
             // THEY ARE CALLED 'BACKGROUND TASKS" BUT FOR SIMPLICITY, WE SHALL CALL THEM 'TASKS'
 
@@ -306,7 +307,7 @@ public class ColorSensorTest extends LinearOpMode {
             }
             else {
                 /* If intake is enabled, just assume bucket is empty */
-                if (Intake.getPower() >= 0.9) {
+                if (Intake.getPower() >= -0.7) {
                     BucketIsEmpty = true;
                 }
             }
@@ -724,11 +725,68 @@ public class ColorSensorTest extends LinearOpMode {
         }
     }
 
+    private int WhiteYellowDetector() {
+
+        float[] HSV = new float[3];
+        NormalizedRGBA RGBA = colorsensor.getNormalizedColors();
+        colorsensor.setGain(30);
+
+        Color.colorToHSV(RGBA.toColor(), HSV);
+        telemetry.addData("H:", HSV[0]);
+        telemetry.addData("S:", HSV[1]);
+        telemetry.addData("V:", HSV[2]);
+
+        int Yellow = 2;
+        int White = 1;
+        int Unkwown = 0;
+
+        if (HSV[1] >= 0 && HSV[1] <= 0.5) {
+            if (HSV[2] >= 0.1 && HSV[2] <= 1) {
+                telemetry.addData("Color:", "White");
+                telemetry.update();
+                white = true;
+                yellow = false;
+                unknown = false;
+                return White;
+            } else {
+                telemetry.addData("Color:", "Unknown");
+                telemetry.update();
+                unknown = true;
+                yellow = false;
+                white = false;
+                return Unkwown;
+            }
+        } else if (HSV[1] >= 0.5 && HSV[1] <= 1) {
+            if (HSV[2] >= 0.1 && HSV[2] <= 1) {
+                telemetry.addData("Color:", "Yellow");
+                telemetry.update();
+                yellow = true;
+                white = false;
+                unknown = false;
+                return Yellow;
+            } else {
+                telemetry.addData("Color:", "Unknown");
+                telemetry.update();
+                unknown = true;
+                yellow = false;
+                white = false;
+                return Unkwown;
+            }
+        } else {
+            telemetry.addData("Color:", "Unknown");
+            telemetry.update();
+            unknown = true;
+            yellow = false;
+            white = false;
+            return Unkwown;
+        }
+    }
+
     private int DeadZoneColorDetector() {
 
         float[] HSV = new float[3];
-        NormalizedRGBA RGBA = deadzonesensor.getNormalizedColors();
-        deadzonesensor.setGain(30);
+        NormalizedRGBA RGBA = colorsensor.getNormalizedColors();
+        colorsensor.setGain(30);
 
         Color.colorToHSV(RGBA.toColor(), HSV);
         telemetry.addData("DeadZoneH:", HSV[0]);

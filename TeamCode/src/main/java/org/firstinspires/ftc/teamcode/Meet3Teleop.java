@@ -231,7 +231,7 @@ public class Meet3Teleop extends LinearOpMode {
             }
             else {
                 /* If intake is enabled, just assume bucket is empty */
-                if (Intake.getPower() >= 0.9) {
+                if (Intake.getPower() >= -0.6) {
                     BucketIsEmpty = true;
                     ET1.reset();
                 }
@@ -306,7 +306,7 @@ public class Meet3Teleop extends LinearOpMode {
 
             if (button_b_already_pressed == false) {
                 if (gamepad2.left_bumper) {
-                    Intake.setPower(-0.6);
+                    Intake.setPower(1);
                     button_b_already_pressed = true;
                 }
             }
@@ -389,7 +389,7 @@ public class Meet3Teleop extends LinearOpMode {
                         ArmMotor.Calibrate();
                         //ArmMotor.SetTargetPosition(8, -0.1, 0.1);
                         IntakeServo.setPosition(OpenIntakePosition);
-                        Intake.setPower(1);
+                        Intake.setPower(-0.7);
 
                         // Move the rail down and allow the bucket to hang loosely
                         Rail.setTargetPosition(100);
@@ -480,7 +480,7 @@ public class Meet3Teleop extends LinearOpMode {
                     if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
 
                         // Lock the bucket in the zero position first before raising the rail or arm to prevent it from falling
-                        Intake.setPower(-0.6);
+                        Intake.setPower(1);
                         BucketMotor.SetTargetPosition(0);
                     }
                     else if (BucketMotor.GetTaskState() == Task_State.DONE) {
@@ -583,7 +583,7 @@ public class Meet3Teleop extends LinearOpMode {
                     if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
 
                         // Lock the bucket in the zero position first before raising the rail or arm to prevent it from falling
-                        Intake.setPower(-0.6);
+                        Intake.setPower(1);
                         BucketMotor.SetTargetPosition(0);
                     }
                     else if (BucketMotor.GetTaskState() == Task_State.DONE) {
@@ -1235,7 +1235,7 @@ public class Meet3Teleop extends LinearOpMode {
         int Unkwown = 0;
 
         if (HSV[1] >= 0 && HSV[1] <= 0.5) {
-            if (HSV[2] >= 0.17 && HSV[2] <= 1) {
+            if (HSV[2] >= 0.1 && HSV[2] <= 1) {
                 telemetry.addData("Color:", "White");
                 telemetry.update();
                 white = true;
@@ -1251,7 +1251,7 @@ public class Meet3Teleop extends LinearOpMode {
                 return Unkwown;
             }
         } else if (HSV[1] >= 0.5 && HSV[1] <= 1) {
-            if (HSV[2] >= 0.17 && HSV[2] <= 1) {
+            if (HSV[2] >= 0.1 && HSV[2] <= 1) {
                 telemetry.addData("Color:", "Yellow");
                 telemetry.update();
                 yellow = true;
