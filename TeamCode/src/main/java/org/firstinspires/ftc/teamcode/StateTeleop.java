@@ -13,13 +13,9 @@ import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
-import com.qualcomm.robotcore.util.RollingAverage;
 
-import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
-
-@TeleOp(name="Meet3Teleop", group="MecanumDrive")
-public class Meet3Teleop extends LinearOpMode {
+@TeleOp(name="StateTeleop", group="MecanumDrive")
+public class StateTeleop extends LinearOpMode {
 
     static DcMotor FrontLeft;
     static DcMotor BackLeft;
@@ -701,11 +697,11 @@ public class Meet3Teleop extends LinearOpMode {
                             if (mirror_event) {
                                 //ArmMotor.SetTargetPosition(120, 0.001, 0.01);
                                 //ArmMotor.SetTargetPosition(120, 0.001, 0.001);
-                                ArmMotor.SetTargetPosition(40, 0.00004, 0.00004);
+                                ArmMotor.SetTargetPosition(150, 0.00003, 0.00003);
                             }
                             else {
                                 //ArmMotor.SetTargetPosition(-120, -0.6, -0.0001);
-                                ArmMotor.SetTargetPosition(-40, -0.00004, -0.00004);
+                                ArmMotor.SetTargetPosition(-150, -0.00003, -0.00003);
                             }
 
                         }
@@ -745,12 +741,12 @@ public class Meet3Teleop extends LinearOpMode {
                         if (mirror_event) {
                             //ArmMotor.SetTargetPosition(-2, -0.105, 0.6);
                             //ArmMotor.SetTargetPosition(-10, -0.5, 0.5);
-                            ArmMotor.SetTargetPosition(0, 0.1, 0.1);
+                            ArmMotor.SetTargetPosition(40, 0.22, 0.22);
                         }
                         else {
                             //ArmMotor.SetTargetPosition(2, -0.6, 0.2);
                             //ArmMotor.SetTargetPosition(10, -0.5, 0.5);
-                            ArmMotor.SetTargetPosition(0, -0.1, -0.1);
+                            ArmMotor.SetTargetPosition(-40, -0.22, -0.22);
                         }
                     }
                     else if (ArmMotor.GetTaskState() == Task_State.DONE) {
@@ -767,15 +763,16 @@ public class Meet3Teleop extends LinearOpMode {
                             ArmMotor.GetTaskState() == Task_State.READY) {
                         if (mirror_event) {
                             //ArmMotor.SetTargetPosition(-2, -0.105, 0.6);
-                            ArmMotor.SetTargetPosition(-10, -0.5, 0.5);
+                            ArmMotor.SetTargetPosition(20, -0.25, 0.25);
                         }
                         else {
                             //ArmMotor.SetTargetPosition(2, -0.6, 0.2);
-                            ArmMotor.SetTargetPosition(0, -0.5, 0.5);
+                            ArmMotor.SetTargetPosition(-20, -0.3, 0.3);
                         }
                     }
                     else if (ArmMotor.GetTaskState() == Task_State.DONE) {
                         bucketresetorder++;
+                        ET.reset();
                     }
                     break;
 
@@ -792,10 +789,36 @@ public class Meet3Teleop extends LinearOpMode {
                         //}
                     //}
                     //else if (ArmMotor.GetTaskState() == Task_State.DONE) {
-                        bucketresetorder++;
-                    //}
-                    sharedhub = false;
-                    topalliancehub = false;
+                    if (topalliancehub == true) {
+                        if (ET.milliseconds() > 500) {
+                            BucketMotor.Override();
+                            ArmMotor.Override();
+                            IntakeServo.setPosition(OpenIntakePosition);
+                            Rail.setTargetPosition(0);
+                            Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                            Rail.setPower(0.5);
+                            Intake.setPower(-1);
+                            bucketresetorder++;
+                            //}
+                            sharedhub = false;
+                            topalliancehub = false;
+                        }
+                    }
+                    else if (sharedhub == true) {
+                        //if (ET.milliseconds() > 150) {
+                            BucketMotor.Override();
+                            ArmMotor.Override();
+                            IntakeServo.setPosition(OpenIntakePosition);
+                            Rail.setTargetPosition(0);
+                            Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                            Rail.setPower(0.5);
+                            Intake.setPower(-1);
+                            bucketresetorder++;
+                            //}
+                            sharedhub = false;
+                            topalliancehub = false;
+                        //}
+                    }
                     break;
 
                 default:

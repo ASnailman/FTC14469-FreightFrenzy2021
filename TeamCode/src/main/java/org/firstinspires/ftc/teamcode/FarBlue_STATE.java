@@ -317,7 +317,7 @@ public class FarBlue_STATE extends LinearOpMode {
                         Intake.setPower(0);
                         if (laps == 1) {
                             if (left) {
-                                MechDrive.SetTargets(120, 2100, 0.35, 0);
+                                MechDrive.SetTargets(120, 2200, 0.35, 0);
                             }
                             else if (center) {
                                 MechDrive.SetTargets(120, 1700, 0.35, 0); // 1600
@@ -351,7 +351,7 @@ public class FarBlue_STATE extends LinearOpMode {
                     if (ET.milliseconds() > 500) { // Prev: 1000
                         if (laps == 1) {
                             if (left) {
-                                MechDrive.SetTargets(-60, 2150, 0.5, 0);
+                                MechDrive.SetTargets(-60, 2250, 0.5, 0);
                             }
                             else if (center) {
                                 MechDrive.SetTargets(-60, 1700, 0.5, 0); // 1600
@@ -386,7 +386,7 @@ public class FarBlue_STATE extends LinearOpMode {
                             programorder1 = 16;
                         } else {
                             // Start driving toward the warehouse
-                            MechDrive.SetTargets(0, 800, 0.7, 0);
+                            //MechDrive.SetTargets(0, 800, 0.7, 0);
                             programorder1++;
                         }
                     }
@@ -405,7 +405,14 @@ public class FarBlue_STATE extends LinearOpMode {
                         FrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         BackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+                        BucketControl.Override();
+                        ArmControl.Override();
+                        Rail.setTargetPosition(0);
+                        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        Rail.setPower(0.3);
+
                         programorder1++;
+
                     }
 
                     else if (Unknown) {
@@ -419,71 +426,74 @@ public class FarBlue_STATE extends LinearOpMode {
 
                 case 10:
                     //check condition (done/ready)
-                    if (MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.READY) {
-
+                    //if (MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.READY) {
+                    //if (Rail.getCurrentPosition() < 50) {
                         if (laps == 1) {
-                            MechDrive.SetTargets(0, 1650, 0.7, 0);
+                            MechDrive.SetTargets(0, 100, 0.4, 0);
                         } else {
-                            MechDrive.SetTargets(0, 2400, 0.7, 0);
+                            MechDrive.SetTargets(0, 150, 0.4, 0);
                         }
 
-                        BucketControl.Override();
                         Intake.setPower(-1);
                         IntakeServo.setPosition(OpenIntakePosition);
-                        ET.reset();
+                        //ET.reset();
+
                         programorder1++;
-                    }
-                    ArmControl.Override();
+
+                    //}
+
                     break;
 
                 case 11:
-                    if (ET.milliseconds() > 500 && YELLOW1 || ET.milliseconds() > 500 && WHITE1) {
-                        MechDrive.Override();
-                        FrontRight.setPower(-0.3);
-                        FrontLeft.setPower(-0.3);
-                        BackLeft.setPower(-0.3);
-                        BackRight.setPower(-0.3);
+                    if (MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.READY) {
 
-                        FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                        BackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                        FrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                        BackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                        if (yellow || white) {
+                            MechDrive.Override();
+                            FrontRight.setPower(0);
+                            FrontLeft.setPower(0);
+                            BackLeft.setPower(0);
+                            BackRight.setPower(0);
 
-                        ET.reset();
-                        programorder1++;
-                    }
-                    else if (UNKNOWN1) {
-                        //MechDrive.Override();
-                        FrontRight.setPower(0.3);
-                        FrontLeft.setPower(0.3);
-                        BackLeft.setPower(0.3);
-                        BackRight.setPower(0.3);
+                            FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                            BackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                            FrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                            BackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+                            //ET.reset();
+                            programorder1++;
+                        } else if (unknown || UNKNOWN1) {
+                            //MechDrive.Override();
+                            FrontRight.setPower(0.2);
+                            FrontLeft.setPower(0.2);
+                            BackLeft.setPower(0.2);
+                            BackRight.setPower(0.2);
+                        }
                     }
                     break;
 
                 case 12:
 
-                    if (MechDrive.GetTaskState() == Task_State.DONE || ET.milliseconds() > 2500) {
-                        if (retrieve_seq == 0) {
-                            retrieve_seq = 1;
-                            MechDrive.SetTargets(180, 600, 0.5, 0);
-                        }
-                        else if (retrieve_seq == 1) {
-                            retrieve_seq = 2;
-                            MechDrive.SetTargets(0, 500, 0.5, 0);
-                        }
-                        else {
-                            programorder1 = 13;
-                            retrieve_seq = 0;
-                        }
-                    }
+                    //if (MechDrive.GetTaskState() == Task_State.DONE || ET.milliseconds() > 2500) {
+                    //    if (retrieve_seq == 0) {
+                    //        retrieve_seq = 1;
+                    //        MechDrive.SetTargets(180, 600, 0.5, 0);
+                    //    }
+                    //    else if (retrieve_seq == 1) {
+                    //        retrieve_seq = 2;
+                    //        MechDrive.SetTargets(0, 500, 0.5, 0);
+                    //    }
+                    //    else {
+                    //        programorder1 = 13;
+                    //        retrieve_seq = 0;
+                    //    }
+                    //}
 
-                    if (white || yellow) {
-                        IntakeServo.setPosition(ClosingIntakePosition);
+                    //if (white || yellow) {
+                    //    IntakeServo.setPosition(ClosingIntakePosition);
                         Intake.setPower(1);
                         programorder1 = 13;
-                        retrieve_seq = 0;
-                    }
+                    //    retrieve_seq = 0;
+                    //}
 
                     Rail.setTargetPosition(0);
                     Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -639,6 +649,7 @@ public class FarBlue_STATE extends LinearOpMode {
             }
 
             WhiteColorDetector();
+            DeadZoneColorDetector();
             MechDrive.Task(GyroContinuity());
             Sequences.Task();
             BucketControl.BucketTask();
@@ -1086,8 +1097,8 @@ public class FarBlue_STATE extends LinearOpMode {
         }*/
 
         //if (S_Avg >= 0.30 && S_Avg <= 0.38) {
-        if (HSV[0] < 150 || HSV[2] > 0.052) {
-            telemetry.addData("Color:", "DeadZoneWhite");
+        if (HSV[0] > 154 || HSV[0] < 100) {
+            telemetry.addData("Color:", "DeadZoneWhiteYellow");
             telemetry.update();
             WHITE1 = true;
             YELLOW1 = true;

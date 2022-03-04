@@ -401,6 +401,12 @@ public class FarRed_STATEV2 extends LinearOpMode {
                         FrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         BackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+                        ArmControl.Override();
+                        BucketControl.Override();
+                        Rail.setTargetPosition(0);
+                        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        Rail.setPower(0.3);
+
                         programorder1++;
                     }
 
@@ -415,71 +421,72 @@ public class FarRed_STATEV2 extends LinearOpMode {
 
                 case 10:
                     //check condition (done/ready)
-                    if (MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.READY) {
+                    //if (MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.READY) {
 
                         if (laps == 1) {
-                            MechDrive.SetTargets(0, 1650, 0.7, 0);
+                            MechDrive.SetTargets(0, 150, 0.4, 0);
                         } else {
-                            MechDrive.SetTargets(0, 2400, 0.7, 0);
+                            MechDrive.SetTargets(0, 200, 0.4, 0);
                         }
 
-                        BucketControl.Override();
                         Intake.setPower(-1);
                         IntakeServo.setPosition(OpenIntakePosition);
-                        ET.reset();
-                        programorder1++;
-                    }
-                    ArmControl.Override();
+                        //ET.reset();
+                        if (Rail.getCurrentPosition() < 50) {
+                            programorder1++;
+                        }
+                    //}
                     break;
 
                 case 11:
-                    if (ET.milliseconds() > 500 && YELLOW1 || ET.milliseconds() > 500 && WHITE1) {
-                        MechDrive.Override();
-                        FrontRight.setPower(-0.3);
-                        FrontLeft.setPower(-0.3);
-                        BackLeft.setPower(-0.3);
-                        BackRight.setPower(-0.3);
+                    if (MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.READY) {
+                        if (yellow || white || WHITE1 || YELLOW1) {
+                            MechDrive.Override();
+                            FrontRight.setPower(0);
+                            FrontLeft.setPower(0);
+                            BackLeft.setPower(0);
+                            BackRight.setPower(0);
 
-                        FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                        BackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                        FrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                        BackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                            FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                            BackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                            FrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                            BackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-                        ET.reset();
-                        programorder1++;
-                    }
-                    else if (UNKNOWN1) {
-                        //MechDrive.Override();
-                        FrontRight.setPower(0.3);
-                        FrontLeft.setPower(0.3);
-                        BackLeft.setPower(0.3);
-                        BackRight.setPower(0.3);
+                            //ET.reset();
+                            programorder1++;
+                        } else if (unknown || UNKNOWN1) {
+                            //MechDrive.Override();
+                            FrontRight.setPower(0.22);
+                            FrontLeft.setPower(0.22);
+                            BackLeft.setPower(0.22);
+                            BackRight.setPower(0.22);
+                        }
                     }
                     break;
 
                 case 12:
 
-                    if (MechDrive.GetTaskState() == Task_State.DONE || ET.milliseconds() > 2500) {
-                        if (retrieve_seq == 0) {
-                            retrieve_seq = 1;
-                            MechDrive.SetTargets(180, 600, 0.5, 0);
-                        }
-                        else if (retrieve_seq == 1) {
-                            retrieve_seq = 2;
-                            MechDrive.SetTargets(0, 500, 0.5, 0);
-                        }
-                        else {
-                            programorder1 = 13;
-                            retrieve_seq = 0;
-                        }
-                    }
+                    //if (MechDrive.GetTaskState() == Task_State.DONE || ET.milliseconds() > 2500) {
+                    //    if (retrieve_seq == 0) {
+                    //        retrieve_seq = 1;
+                    //        MechDrive.SetTargets(180, 600, 0.5, 0);
+                    //    }
+                    //    else if (retrieve_seq == 1) {
+                    //        retrieve_seq = 2;
+                    //        MechDrive.SetTargets(0, 500, 0.5, 0);
+                    //    }
+                    //    else {
+                    //        programorder1 = 13;
+                    //        retrieve_seq = 0;
+                    //    }
+                    //}
 
-                    if (white || yellow) {
-                        IntakeServo.setPosition(ClosingIntakePosition);
+                    //if (white || yellow) {
+                    //    IntakeServo.setPosition(ClosingIntakePosition);
                         Intake.setPower(1);
                         programorder1 = 13;
-                        retrieve_seq = 0;
-                    }
+                    //    retrieve_seq = 0;
+                    //}
 
                     Rail.setTargetPosition(0);
                     Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -1084,8 +1091,8 @@ public class FarRed_STATEV2 extends LinearOpMode {
         }*/
 
         //if (S_Avg >= 0.30 && S_Avg <= 0.38) {
-        if (HSV[0] < 150 || HSV[2] > 0.052) {
-            telemetry.addData("Color:", "DeadZoneWhite");
+        if (HSV[0] > 150 || HSV[0] < 100) {
+            telemetry.addData("Color:", "DeadZoneWhiteYellow");
             telemetry.update();
             WHITE1 = true;
             YELLOW1 = true;

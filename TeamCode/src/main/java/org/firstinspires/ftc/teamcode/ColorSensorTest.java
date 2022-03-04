@@ -245,7 +245,7 @@ public class ColorSensorTest extends LinearOpMode {
                     break;
 
                 case 1:
-                    if (ET.milliseconds() > 500 && yellow || ET.milliseconds() > 500 && white) {
+                    if (ET.milliseconds() > 500 && YELLOW1 || ET.milliseconds() > 500 && WHITE1) {
                         //MechDrive.Override();
                         FrontRight.setPower(-0.3);
                         FrontLeft.setPower(-0.3);
@@ -261,7 +261,7 @@ public class ColorSensorTest extends LinearOpMode {
                         //programorder1++;
                     }
 
-                    else if (unknown) {
+                    else if (UNKNOWN1) {
                         //MechDrive.Override();
                         //FrontRight.setPower(0.3);
                         //FrontLeft.setPower(0.3);
@@ -278,7 +278,7 @@ public class ColorSensorTest extends LinearOpMode {
             //telemetry.addData("case", programorder1);
             //telemetry.update();
             //WhiteColorDetector();
-            //DeadZoneColorDetector();
+            DeadZoneColorDetector();
             WhiteYellowDetector();
             // THIS IS THE PART OF THE PROGRAM THAT IS REPETITIVE
             // THEY ARE CALLED 'BACKGROUND TASKS" BUT FOR SIMPLICITY, WE SHALL CALL THEM 'TASKS'
@@ -732,9 +732,9 @@ public class ColorSensorTest extends LinearOpMode {
         colorsensor.setGain(30);
 
         Color.colorToHSV(RGBA.toColor(), HSV);
-        telemetry.addData("H:", HSV[0]);
-        telemetry.addData("S:", HSV[1]);
-        telemetry.addData("V:", HSV[2]);
+        //telemetry.addData("H:", HSV[0]);
+        //telemetry.addData("S:", HSV[1]);
+        //telemetry.addData("V:", HSV[2]);
 
         int Yellow = 2;
         int White = 1;
@@ -742,15 +742,15 @@ public class ColorSensorTest extends LinearOpMode {
 
         if (HSV[1] >= 0 && HSV[1] <= 0.5) {
             if (HSV[2] >= 0.1 && HSV[2] <= 1) {
-                telemetry.addData("Color:", "White");
-                telemetry.update();
+                //telemetry.addData("Color:", "White");
+                //telemetry.update();
                 white = true;
                 yellow = false;
                 unknown = false;
                 return White;
             } else {
-                telemetry.addData("Color:", "Unknown");
-                telemetry.update();
+                //telemetry.addData("Color:", "Unknown");
+                //telemetry.update();
                 unknown = true;
                 yellow = false;
                 white = false;
@@ -758,23 +758,23 @@ public class ColorSensorTest extends LinearOpMode {
             }
         } else if (HSV[1] >= 0.5 && HSV[1] <= 1) {
             if (HSV[2] >= 0.1 && HSV[2] <= 1) {
-                telemetry.addData("Color:", "Yellow");
-                telemetry.update();
+                //telemetry.addData("Color:", "Yellow");
+                //telemetry.update();
                 yellow = true;
                 white = false;
                 unknown = false;
                 return Yellow;
             } else {
-                telemetry.addData("Color:", "Unknown");
-                telemetry.update();
+                //telemetry.addData("Color:", "Unknown");
+                //telemetry.update();
                 unknown = true;
                 yellow = false;
                 white = false;
                 return Unkwown;
             }
         } else {
-            telemetry.addData("Color:", "Unknown");
-            telemetry.update();
+            //telemetry.addData("Color:", "Unknown");
+            //telemetry.update();
             unknown = true;
             yellow = false;
             white = false;
@@ -807,8 +807,8 @@ public class ColorSensorTest extends LinearOpMode {
 
 
         //if (S_Avg >= 0.30 && S_Avg <= 0.38) {
-        if (HSV[0] < 150 || HSV[2] > 0.052) {
-            telemetry.addData("Color:", "DeadZoneWhite");
+        if (HSV[0] > 150 || HSV[0] < 100) {
+            telemetry.addData("Color:", "DeadZoneWhiteYellow");
             telemetry.update();
             WHITE1 = true;
             YELLOW1 = true;
