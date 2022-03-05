@@ -323,10 +323,10 @@ public class FarRed_STATEV2 extends LinearOpMode {
                             }
                         }
                         else if (laps == 2) {
-                            MechDrive.SetTargets(-90, 1100, 0.6, 0);
+                            MechDrive.SetTargets(-90, 1150, 0.6, 0);
                         }
                         else {
-                            MechDrive.SetTargets(-90, 1100, 0.6, 0);
+                            MechDrive.SetTargets(-90, 1150, 0.6, 0);
                         }
                         programorder1++;
                     }
@@ -357,10 +357,10 @@ public class FarRed_STATEV2 extends LinearOpMode {
                                 }
                             }
                             else if (laps == 2) {
-                                MechDrive.SetTargets(90, 1200, 0.7, 1);
+                                MechDrive.SetTargets(90, 1250, 0.7, 1);
                             }
                             else {
-                                MechDrive.SetTargets(90, 1200, 0.7, 1);
+                                MechDrive.SetTargets(90, 1250, 0.7, 1);
                             }
                             GateServo.setPosition(ClosingGatePosition);
                             programorder1++;
@@ -382,7 +382,7 @@ public class FarRed_STATEV2 extends LinearOpMode {
                            programorder1 = 16;
                        } else {
                            // Start driving toward the warehouse
-                           MechDrive.SetTargets(0, 800, 0.7, 0);
+                           MechDrive.SetTargets(0, 500, 0.7, 0);
                            programorder1++;
                        }
                    }
@@ -446,6 +446,8 @@ public class FarRed_STATEV2 extends LinearOpMode {
                             FrontLeft.setPower(0);
                             BackLeft.setPower(0);
                             BackRight.setPower(0);
+
+                            Intake.setPower(0);
 
                             FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                             BackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

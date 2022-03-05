@@ -238,7 +238,7 @@ public class StateTeleop extends LinearOpMode {
              *******************************/
 
             if (PowerMode) {
-                movement = 0.85;
+                movement = 0.75;
             } else {
                 movement = 0.45;
             }
@@ -763,7 +763,7 @@ public class StateTeleop extends LinearOpMode {
                             ArmMotor.GetTaskState() == Task_State.READY) {
                         if (mirror_event) {
                             //ArmMotor.SetTargetPosition(-2, -0.105, 0.6);
-                            ArmMotor.SetTargetPosition(20, -0.25, 0.25);
+                            ArmMotor.SetTargetPosition(20, -0.3, 0.3);
                         }
                         else {
                             //ArmMotor.SetTargetPosition(2, -0.6, 0.2);
@@ -790,9 +790,9 @@ public class StateTeleop extends LinearOpMode {
                     //}
                     //else if (ArmMotor.GetTaskState() == Task_State.DONE) {
                     if (topalliancehub == true) {
-                        if (ET.milliseconds() > 500) {
-                            BucketMotor.Override();
-                            ArmMotor.Override();
+                        //if (ET.milliseconds() > 500) {
+                            BucketMotor.Calibrate();
+                            ArmMotor.Calibrate();
                             IntakeServo.setPosition(OpenIntakePosition);
                             Rail.setTargetPosition(0);
                             Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -802,7 +802,7 @@ public class StateTeleop extends LinearOpMode {
                             //}
                             sharedhub = false;
                             topalliancehub = false;
-                        }
+                        //}
                     }
                     else if (sharedhub == true) {
                         //if (ET.milliseconds() > 150) {

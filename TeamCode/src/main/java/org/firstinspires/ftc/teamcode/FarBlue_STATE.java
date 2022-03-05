@@ -327,10 +327,10 @@ public class FarBlue_STATE extends LinearOpMode {
                             }
                         }
                         else if (laps == 2) {
-                            MechDrive.SetTargets(90, 1000, 0.5, 0);
+                            MechDrive.SetTargets(90, 1050, 0.5, 0);
                         }
                         else {
-                            MechDrive.SetTargets(90, 1000, 0.5, 0);
+                            MechDrive.SetTargets(90, 1050, 0.5, 0);
                         }
                         programorder1++;
                     }
@@ -351,20 +351,20 @@ public class FarBlue_STATE extends LinearOpMode {
                     if (ET.milliseconds() > 500) { // Prev: 1000
                         if (laps == 1) {
                             if (left) {
-                                MechDrive.SetTargets(-60, 2250, 0.5, 0);
+                                MechDrive.SetTargets(-60, 2250, 0.7, 0);
                             }
                             else if (center) {
-                                MechDrive.SetTargets(-60, 1700, 0.5, 0); // 1600
+                                MechDrive.SetTargets(-60, 1700, 0.7, 0); // 1600
                             }
                             else {
-                                MechDrive.SetTargets(-65, 1800, 0.5, 0); // 1600
+                                MechDrive.SetTargets(-65, 1800, 0.7, 0); // 1600
                             }
                         }
                         else if (laps == 2) {
-                            MechDrive.SetTargets(-90, 850, 0.5, 0);
+                            MechDrive.SetTargets(-90, 900, 0.7, 0);
                         }
                         else {
-                            MechDrive.SetTargets(-90, 850, 0.5, 0);
+                            MechDrive.SetTargets(-90, 900, 0.7, 0);
                         }
                         GateServo.setPosition(ClosingGatePosition);
                         programorder1++;
@@ -386,7 +386,7 @@ public class FarBlue_STATE extends LinearOpMode {
                             programorder1 = 16;
                         } else {
                             // Start driving toward the warehouse
-                            //MechDrive.SetTargets(0, 800, 0.7, 0);
+                            MechDrive.SetTargets(0, 500, 0.7, 0);
                             programorder1++;
                         }
                     }
@@ -453,6 +453,8 @@ public class FarBlue_STATE extends LinearOpMode {
                             FrontLeft.setPower(0);
                             BackLeft.setPower(0);
                             BackRight.setPower(0);
+
+                            Intake.setPower(0);
 
                             FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                             BackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
