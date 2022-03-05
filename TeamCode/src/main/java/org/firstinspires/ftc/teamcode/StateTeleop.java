@@ -1258,7 +1258,7 @@ public class StateTeleop extends LinearOpMode {
         int Unkwown = 0;
 
         if (HSV[1] >= 0 && HSV[1] <= 0.5) {
-            if (HSV[2] >= 0.1 && HSV[2] <= 1) {
+            if (HSV[2] >= 0.15 && HSV[2] <= 1) {
                 telemetry.addData("Color:", "White");
                 telemetry.update();
                 white = true;
@@ -1274,7 +1274,7 @@ public class StateTeleop extends LinearOpMode {
                 return Unkwown;
             }
         } else if (HSV[1] >= 0.5 && HSV[1] <= 1) {
-            if (HSV[2] >= 0.1 && HSV[2] <= 1) {
+            if (HSV[2] >= 0.15 && HSV[2] <= 1) {
                 telemetry.addData("Color:", "Yellow");
                 telemetry.update();
                 yellow = true;

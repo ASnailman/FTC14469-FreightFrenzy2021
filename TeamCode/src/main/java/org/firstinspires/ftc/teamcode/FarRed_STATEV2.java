@@ -313,7 +313,7 @@ public class FarRed_STATEV2 extends LinearOpMode {
                         Intake.setPower(0);
                         if (laps == 1) {
                             if (left) {
-                                MechDrive.SetTargets(240, 1950, 0.35, 1);
+                                MechDrive.SetTargets(240, 1900, 0.35, 1);
                             }
                             else if (center) {
                                 MechDrive.SetTargets(240, 1550, 0.35, 1); // 1600
@@ -323,10 +323,10 @@ public class FarRed_STATEV2 extends LinearOpMode {
                             }
                         }
                         else if (laps == 2) {
-                            MechDrive.SetTargets(-90, 1150, 0.6, 0);
+                            MechDrive.SetTargets(-90, 1100, 0.6, 0);
                         }
                         else {
-                            MechDrive.SetTargets(-90, 1150, 0.6, 0);
+                            MechDrive.SetTargets(-90, 1100, 0.6, 0);
                         }
                         programorder1++;
                     }
@@ -347,20 +347,20 @@ public class FarRed_STATEV2 extends LinearOpMode {
                     if (ET.milliseconds() > 500) { // Prev: 1000
                             if (laps == 1) {
                                 if (left) {
-                                    MechDrive.SetTargets(60, 1900, 0.7, 1);
+                                    MechDrive.SetTargets(60, 2100, 0.7, 1);
                                 }
                                 else if (center) {
-                                    MechDrive.SetTargets(60, 1550, 0.7, 1); // 1600
+                                    MechDrive.SetTargets(60, 1750, 0.7, 1); // 1600
                                 }
                                 else {
-                                    MechDrive.SetTargets(65, 1900, 0.7, 1); // 1600
+                                    MechDrive.SetTargets(65, 2000, 0.7, 1); // 1600
                                 }
                             }
                             else if (laps == 2) {
-                                MechDrive.SetTargets(90, 1250, 0.7, 1);
+                                MechDrive.SetTargets(90, 1400, 0.9, 1);
                             }
                             else {
-                                MechDrive.SetTargets(90, 1250, 0.7, 1);
+                                MechDrive.SetTargets(90, 1400, 0.9, 1);
                             }
                             GateServo.setPosition(ClosingGatePosition);
                             programorder1++;
@@ -382,40 +382,41 @@ public class FarRed_STATEV2 extends LinearOpMode {
                            programorder1 = 16;
                        } else {
                            // Start driving toward the warehouse
-                           MechDrive.SetTargets(0, 500, 0.7, 0);
+                           MechDrive.headingangle = 0;
+                           MechDrive.SetTargets(15, 700, 0.8, 0);
                            programorder1++;
                        }
                    }
                    break;
 
                 case 9:
-                    if (White) {
-                        MechDrive.Override();
-                        FrontRight.setPower(0);
-                        FrontLeft.setPower(0);
-                        BackLeft.setPower(0);
-                        BackRight.setPower(0);
+                    if (MechDrive.GetTaskState() == Task_State.READY || MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.OVERRIDE) {
+                        if (White) {
+                            MechDrive.Override();
+                            FrontRight.setPower(0);
+                            FrontLeft.setPower(0);
+                            BackLeft.setPower(0);
+                            BackRight.setPower(0);
 
-                        FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                        BackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                        FrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                        BackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                            FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                            BackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                            FrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                            BackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-                        ArmControl.Override();
-                        BucketControl.Override();
-                        Rail.setTargetPosition(0);
-                        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        Rail.setPower(0.3);
+                            ArmControl.Override();
+                            BucketControl.Override();
+                            Rail.setTargetPosition(0);
+                            Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                            Rail.setPower(0.3);
 
-                        programorder1++;
-                    }
-
-                    else if (Unknown) {
-                        MechDrive.Override();
-                        FrontRight.setPower(0.3);
-                        FrontLeft.setPower(0.3);
-                        BackLeft.setPower(0.3);
-                        BackRight.setPower(0.3);
+                            programorder1++;
+                        } else if (Unknown) {
+                            MechDrive.Override();
+                            FrontRight.setPower(0.3);
+                            FrontLeft.setPower(0.3);
+                            BackLeft.setPower(0.3);
+                            BackRight.setPower(0.3);
+                        }
                     }
                     break;
 
@@ -458,10 +459,10 @@ public class FarRed_STATEV2 extends LinearOpMode {
                             programorder1++;
                         } else if (unknown || UNKNOWN1) {
                             //MechDrive.Override();
-                            FrontRight.setPower(0.23);
-                            FrontLeft.setPower(0.23);
-                            BackLeft.setPower(0.23);
-                            BackRight.setPower(0.23);
+                            FrontRight.setPower(0.2);
+                            FrontLeft.setPower(0.2);
+                            BackLeft.setPower(0.2);
+                            BackRight.setPower(0.2);
                         }
                     }
                     break;
