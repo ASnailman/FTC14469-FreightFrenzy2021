@@ -424,17 +424,17 @@ public class FarRed_STATEV2 extends LinearOpMode {
                     //if (MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.READY) {
 
                         if (laps == 1) {
-                            MechDrive.SetTargets(0, 150, 0.4, 0);
-                        } else {
                             MechDrive.SetTargets(0, 200, 0.4, 0);
+                        } else {
+                            MechDrive.SetTargets(0, 250, 0.4, 0);
                         }
 
                         Intake.setPower(-1);
                         IntakeServo.setPosition(OpenIntakePosition);
                         //ET.reset();
-                        if (Rail.getCurrentPosition() < 50) {
+                        //if (Rail.getCurrentPosition() < 50) {
                             programorder1++;
-                        }
+                        //}
                     //}
                     break;
 
@@ -456,10 +456,10 @@ public class FarRed_STATEV2 extends LinearOpMode {
                             programorder1++;
                         } else if (unknown || UNKNOWN1) {
                             //MechDrive.Override();
-                            FrontRight.setPower(0.22);
-                            FrontLeft.setPower(0.22);
-                            BackLeft.setPower(0.22);
-                            BackRight.setPower(0.22);
+                            FrontRight.setPower(0.23);
+                            FrontLeft.setPower(0.23);
+                            BackLeft.setPower(0.23);
+                            BackRight.setPower(0.23);
                         }
                     }
                     break;
@@ -483,7 +483,7 @@ public class FarRed_STATEV2 extends LinearOpMode {
 
                     //if (white || yellow) {
                     //    IntakeServo.setPosition(ClosingIntakePosition);
-                        Intake.setPower(1);
+                        Intake.setPower(-1);
                         programorder1 = 13;
                     //    retrieve_seq = 0;
                     //}
@@ -1091,7 +1091,7 @@ public class FarRed_STATEV2 extends LinearOpMode {
         }*/
 
         //if (S_Avg >= 0.30 && S_Avg <= 0.38) {
-        if (HSV[0] > 150 || HSV[0] < 100) {
+        if (HSV[0] < 100) {
             telemetry.addData("Color:", "DeadZoneWhiteYellow");
             telemetry.update();
             WHITE1 = true;

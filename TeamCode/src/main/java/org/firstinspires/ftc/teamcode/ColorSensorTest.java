@@ -345,7 +345,7 @@ public class ColorSensorTest extends LinearOpMode {
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(110,115);
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(100,115);
         static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(590,115);
         static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1080,115);
         static final int REGION_WIDTH = 80;
@@ -807,7 +807,7 @@ public class ColorSensorTest extends LinearOpMode {
 
 
         //if (S_Avg >= 0.30 && S_Avg <= 0.38) {
-        if (HSV[0] > 150 || HSV[0] < 100) {
+        if (HSV[2] > 0.045 || HSV[0] < 100) {
             telemetry.addData("Color:", "DeadZoneWhiteYellow");
             telemetry.update();
             WHITE1 = true;

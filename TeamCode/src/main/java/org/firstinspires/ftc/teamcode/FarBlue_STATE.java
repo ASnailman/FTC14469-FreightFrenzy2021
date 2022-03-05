@@ -429,9 +429,9 @@ public class FarBlue_STATE extends LinearOpMode {
                     //if (MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.READY) {
                     //if (Rail.getCurrentPosition() < 50) {
                         if (laps == 1) {
-                            MechDrive.SetTargets(0, 100, 0.4, 0);
+                            MechDrive.SetTargets(0, 200, 0.4, 0);
                         } else {
-                            MechDrive.SetTargets(0, 150, 0.4, 0);
+                            MechDrive.SetTargets(0, 250, 0.4, 0);
                         }
 
                         Intake.setPower(-1);
@@ -447,7 +447,7 @@ public class FarBlue_STATE extends LinearOpMode {
                 case 11:
                     if (MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.READY) {
 
-                        if (yellow || white) {
+                        if (yellow || white || WHITE1 || YELLOW1) {
                             MechDrive.Override();
                             FrontRight.setPower(0);
                             FrontLeft.setPower(0);
@@ -463,10 +463,10 @@ public class FarBlue_STATE extends LinearOpMode {
                             programorder1++;
                         } else if (unknown || UNKNOWN1) {
                             //MechDrive.Override();
-                            FrontRight.setPower(0.2);
-                            FrontLeft.setPower(0.2);
-                            BackLeft.setPower(0.2);
-                            BackRight.setPower(0.2);
+                            FrontRight.setPower(0.23);
+                            FrontLeft.setPower(0.23);
+                            BackLeft.setPower(0.23);
+                            BackRight.setPower(0.23);
                         }
                     }
                     break;
@@ -490,7 +490,7 @@ public class FarBlue_STATE extends LinearOpMode {
 
                     //if (white || yellow) {
                     //    IntakeServo.setPosition(ClosingIntakePosition);
-                        Intake.setPower(1);
+                        Intake.setPower(-1);
                         programorder1 = 13;
                     //    retrieve_seq = 0;
                     //}
@@ -685,9 +685,9 @@ public class FarBlue_STATE extends LinearOpMode {
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(60,115);
-        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(500,115);
-        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(1050,115);
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(0,115);
+        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(480,115);
+        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(980,115);
         static final int REGION_WIDTH = 80;
         static final int REGION_HEIGHT = 80;
 
@@ -1097,7 +1097,7 @@ public class FarBlue_STATE extends LinearOpMode {
         }*/
 
         //if (S_Avg >= 0.30 && S_Avg <= 0.38) {
-        if (HSV[0] > 154 || HSV[0] < 100) {
+        if (HSV[0] < 100) {
             telemetry.addData("Color:", "DeadZoneWhiteYellow");
             telemetry.update();
             WHITE1 = true;
