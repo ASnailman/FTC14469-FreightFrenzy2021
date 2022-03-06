@@ -357,7 +357,7 @@ public class FarBlue_STATE extends LinearOpMode {
                                 MechDrive.SetTargets(-60, 1700, 0.7, 0); // 1600
                             }
                             else {
-                                MechDrive.SetTargets(-65, 1800, 0.7, 0); // 1600
+                                MechDrive.SetTargets(-65, 1750, 0.7, 0); // 1600
                             }
                         }
                         else if (laps == 2) {

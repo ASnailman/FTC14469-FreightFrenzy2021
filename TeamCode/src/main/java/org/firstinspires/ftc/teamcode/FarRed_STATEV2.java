@@ -69,6 +69,7 @@ public class FarRed_STATEV2 extends LinearOpMode {
     double final_value;
 
     ElapsedTime ET = new ElapsedTime();
+    ElapsedTime wd_timer = new ElapsedTime();
     int retrieve_seq = 0;
 
     byte AXIS_MAP_SIGN_BYTE = 0x6; //rotates control hub 180 degrees around z axis by negating x and y signs
@@ -357,10 +358,10 @@ public class FarRed_STATEV2 extends LinearOpMode {
                                 }
                             }
                             else if (laps == 2) {
-                                MechDrive.SetTargets(90, 1400, 0.9, 1);
+                                MechDrive.SetTargets(90, 1250, 0.9, 1);
                             }
                             else {
-                                MechDrive.SetTargets(90, 1400, 0.9, 1);
+                                MechDrive.SetTargets(90, 1250, 0.9, 1);
                             }
                             GateServo.setPosition(ClosingGatePosition);
                             programorder1++;
@@ -1191,6 +1192,48 @@ public class FarRed_STATEV2 extends LinearOpMode {
             }
         }
 
+    }
+
+    boolean wd_enable = false;
+    int wd_encoder = 0;
+    boolean wall_detected = false;
+    float wd_prev_pos = 0;
+
+    private void WallDetector_Enable(int encoder) {
+        wd_enable = true;
+        wd_encoder = encoder;
+    }
+
+    private void WallDetector()
+    {
+        if (wd_enable) {
+            if (wd_encoder == 0) {
+                if (FrontRight.getCurrentPosition() == wd_prev_pos) {
+                    if (wd_timer.milliseconds() > 300) {
+                        wall_detected = true;
+                        wd_enable = false;
+                    }
+                }
+                else {
+                    wd_timer.reset();
+                    wall_detected = false;
+                }
+                wd_prev_pos = FrontRight.getCurrentPosition();
+            }
+            else {
+                if (BackRight.getCurrentPosition() == wd_prev_pos) {
+                    if (wd_timer.milliseconds() > 300) {
+                        wall_detected = true;
+                        wd_enable = false;
+                    }
+                }
+                else {
+                    wd_timer.reset();
+                    wall_detected = false;
+                }
+                wd_prev_pos = BackRight.getCurrentPosition();
+            }
+        }
     }
 
 }

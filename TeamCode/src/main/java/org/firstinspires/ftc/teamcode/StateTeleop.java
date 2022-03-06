@@ -28,6 +28,7 @@ public class StateTeleop extends LinearOpMode {
     static CRServo CarouselLeft;
     static CRServo CarouselRight;
     static NormalizedColorSensor colorsensor;
+    static NormalizedColorSensor deadzonesensor;
     static RevBlinkinLedDriver ColorStrip;
     BNO055IMU IMU;
     static DcMotor Bucket;
@@ -109,7 +110,7 @@ public class StateTeleop extends LinearOpMode {
     static final double OpenGatePosition = 0.5;
     static final double OpenIntakePosition = 0.5;
     static final double ClosingGatePosition = 0.2;
-    static final double ClosingIntakePosition = 0.8;
+    static final double ClosingIntakePosition = 0.73;
 
     int bucketposition;
 
@@ -135,6 +136,10 @@ public class StateTeleop extends LinearOpMode {
     boolean sharedhub = false;
     boolean topalliancehub = false;
 
+    boolean WHITE1;
+    boolean YELLOW1;
+    boolean UNKNOWN1;
+
     int armorder = 0;
     int armposition;
 
@@ -156,6 +161,7 @@ public class StateTeleop extends LinearOpMode {
         CarouselLeft = hardwareMap.get(CRServo.class, "carouselleft");
         CarouselRight = hardwareMap.get(CRServo.class, "carouselright");
         colorsensor = hardwareMap.get(NormalizedColorSensor.class, "colorsensor");
+        deadzonesensor = hardwareMap.get(NormalizedColorSensor.class, "deadzonesensor");
         ColorStrip = hardwareMap.get(RevBlinkinLedDriver.class, "colorstrip");
         Bucket = hardwareMap.get(DcMotor.class, "BucketMotor");
         IntakeServo = hardwareMap.get(Servo.class, "IntakeServo");
@@ -206,30 +212,36 @@ public class StateTeleop extends LinearOpMode {
              Bucket object sensing
              ***********************/
             WhiteYellowDetector();
+            DeadZoneColorDetector();
 
             if (BucketIsEmpty) {
 
-                if (yellow) {
+                if (yellow || YELLOW1) {
                     Intake.setPower(0);
                     ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
-                    IntakeServo.setPosition(ClosingIntakePosition);
-                    BucketIsEmpty = false;
+                    if (ET1.milliseconds() > 250) {
+                        IntakeServo.setPosition(ClosingIntakePosition);
+                        BucketIsEmpty = false;
+                    }
                 }
                 else if (white) {
                     Intake.setPower(0);
                     ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.SKY_BLUE);
-                    IntakeServo.setPosition(ClosingIntakePosition);
-                    BucketIsEmpty = false;
+                    if (ET1.milliseconds() > 250) {
+                        IntakeServo.setPosition(ClosingIntakePosition);
+                        BucketIsEmpty = false;
+                    }
                 }
                 else if (unknown) {
                     ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+                    ET1.reset();
                 }
             }
             else {
                 /* If intake is enabled, just assume bucket is empty */
-                if (Intake.getPower() >= -0.6) {
+                if (Intake.getPower() >= -0.9) {
                     BucketIsEmpty = true;
-                    ET1.reset();
+
                 }
             }
 
@@ -476,7 +488,7 @@ public class StateTeleop extends LinearOpMode {
                     if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
 
                         // Lock the bucket in the zero position first before raising the rail or arm to prevent it from falling
-                        Intake.setPower(1);
+                        //Intake.setPower(1);
                         BucketMotor.SetTargetPosition(0);
                     }
                     else if (BucketMotor.GetTaskState() == Task_State.DONE) {
@@ -504,14 +516,14 @@ public class StateTeleop extends LinearOpMode {
                     if (mirror_event) {
                         if (ArmMotor.GetTaskState() == Task_State.INIT || ArmMotor.GetTaskState() == Task_State.READY) {
 
-                            ArmMotor.SetTargetPosition(430, -0.7, 0.7);
+                            ArmMotor.SetTargetPosition(410, -0.75, 0.75);
                         } else if (ArmMotor.GetTaskState() == Task_State.DONE) {
                             tophuborder++;
                         }
                     } else {
                         if (ArmMotor.GetTaskState() == Task_State.INIT || ArmMotor.GetTaskState() == Task_State.READY) {
 
-                            ArmMotor.SetTargetPosition(-420, -0.65, 0.65);
+                            ArmMotor.SetTargetPosition(-400, -0.75, 0.75);
                         }
                         else if (ArmMotor.GetTaskState() == Task_State.DONE) {
                             tophuborder++;
@@ -763,11 +775,11 @@ public class StateTeleop extends LinearOpMode {
                             ArmMotor.GetTaskState() == Task_State.READY) {
                         if (mirror_event) {
                             //ArmMotor.SetTargetPosition(-2, -0.105, 0.6);
-                            ArmMotor.SetTargetPosition(20, -0.3, 0.3);
+                            ArmMotor.SetTargetPosition(30, -0.22, 0.22);
                         }
                         else {
                             //ArmMotor.SetTargetPosition(2, -0.6, 0.2);
-                            ArmMotor.SetTargetPosition(-20, -0.3, 0.3);
+                            ArmMotor.SetTargetPosition(-30, -0.22, 0.22);
                         }
                     }
                     else if (ArmMotor.GetTaskState() == Task_State.DONE) {
@@ -796,7 +808,7 @@ public class StateTeleop extends LinearOpMode {
                             IntakeServo.setPosition(OpenIntakePosition);
                             Rail.setTargetPosition(0);
                             Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                            Rail.setPower(0.5);
+                            Rail.setPower(0.8);
                             Intake.setPower(-1);
                             bucketresetorder++;
                             //}
@@ -811,7 +823,7 @@ public class StateTeleop extends LinearOpMode {
                             IntakeServo.setPosition(OpenIntakePosition);
                             Rail.setTargetPosition(0);
                             Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                            Rail.setPower(0.5);
+                            Rail.setPower(0.8);
                             Intake.setPower(-1);
                             bucketresetorder++;
                             //}
@@ -861,6 +873,8 @@ public class StateTeleop extends LinearOpMode {
                     Rail.setPower(0.5);
                     ArmMotor.SetTargetPosition(0, -0.5, 0.5);
                     BucketMotor.SetTargetPosition(0);
+                    //ArmMotor.Override();
+                    //BucketMotor.Override();
                     button_bumper_right_already_pressed = true;
                 }
             } else {
@@ -1258,7 +1272,7 @@ public class StateTeleop extends LinearOpMode {
         int Unkwown = 0;
 
         if (HSV[1] >= 0 && HSV[1] <= 0.5) {
-            if (HSV[2] >= 0.15 && HSV[2] <= 1) {
+            if (HSV[2] >= 0.18 && HSV[2] <= 1) {
                 telemetry.addData("Color:", "White");
                 telemetry.update();
                 white = true;
@@ -1274,7 +1288,7 @@ public class StateTeleop extends LinearOpMode {
                 return Unkwown;
             }
         } else if (HSV[1] >= 0.5 && HSV[1] <= 1) {
-            if (HSV[2] >= 0.15 && HSV[2] <= 1) {
+            if (HSV[2] >= 0.18 && HSV[2] <= 1) {
                 telemetry.addData("Color:", "Yellow");
                 telemetry.update();
                 yellow = true;
@@ -1365,5 +1379,44 @@ public class StateTeleop extends LinearOpMode {
         }
     }
 
+    private int DeadZoneColorDetector() {
+
+        float[] HSV = new float[3];
+        NormalizedRGBA RGBA = deadzonesensor.getNormalizedColors();
+        deadzonesensor.setGain(30);
+
+        Color.colorToHSV(RGBA.toColor(), HSV);
+        telemetry.addData("DeadZoneH:", HSV[0]);
+        telemetry.addData("DeadZoneS:", HSV[1]);
+        telemetry.addData("DeadZoneV:", HSV[2]);
+
+        int WHITE = 1;
+        int UNKNOWN = 0;
+
+        /*S_Sample[cnt] = HSV[2];
+        S_Avg = (S_Sample[0] + S_Sample[1] + S_Sample[2])/3;
+        cnt++;
+
+        if (cnt >= 3) {
+            cnt = 0;
+        }*/
+
+        //if (S_Avg >= 0.30 && S_Avg <= 0.38) {
+        if (HSV[0] < 80) {
+            telemetry.addData("Color:", "DeadZoneWhiteYellow");
+            telemetry.update();
+            WHITE1 = true;
+            YELLOW1 = true;
+            UNKNOWN1 = false;
+            return WHITE;
+        } else {
+            telemetry.addData("Color:", "DeadZoneUnknown");
+            telemetry.update();
+            UNKNOWN1 = true;
+            YELLOW1 = false;
+            WHITE1 = false;
+            return UNKNOWN;
+        }
+    }
 
 }
