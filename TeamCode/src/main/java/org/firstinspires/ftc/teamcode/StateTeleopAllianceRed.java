@@ -14,8 +14,8 @@ import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp(name="StateTeleop", group="MecanumDrive")
-public class StateTeleop extends LinearOpMode {
+@TeleOp(name="StateTeleopAllianceRed", group="MecanumDrive")
+public class StateTeleopAllianceRed extends LinearOpMode {
 
     static DcMotor FrontLeft;
     static DcMotor BackLeft;
@@ -84,7 +84,7 @@ public class StateTeleop extends LinearOpMode {
     boolean yellow;
     boolean unknown;
 
-    boolean BucketIsEmpty = true;
+    boolean BucketIsEmpty = false;
 
     boolean PowerMode = true;
     double movement;
@@ -103,7 +103,7 @@ public class StateTeleop extends LinearOpMode {
     static final double TopBucketPosition = 140;
     static final double MirrorTopBucketPosition = -140;
     static final double MiddleBucketPosition = 120;
-    static final double MirrorMiddleBucketPosition = -120;
+    static final double MirrorMiddleBucketPosition = -130;
     static final double LowBucketPosition = 110;
     static final double MirrorLowBucketPosition = -110;
 
@@ -123,6 +123,7 @@ public class StateTeleop extends LinearOpMode {
     int middlehuborder = 0;
     int tophuborder = 0;
     int sharedhuborder = 0;
+    int sharedhuborder2 = 0;
     int manualcalleft = 0;
     int manualcalright = 0;
     int shippingelementorder1 = 0;
@@ -214,26 +215,35 @@ public class StateTeleop extends LinearOpMode {
             WhiteYellowDetector();
             DeadZoneColorDetector();
 
+            if (!BucketIsEmpty) {
+                Intake.setPower(0);
+            }
+
             if (BucketIsEmpty) {
 
                 if (yellow || YELLOW1) {
-                    Intake.setPower(0);
+                    //Intake.setPower(1);
                     ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
-                    if (ET1.milliseconds() > 250) {
-                        IntakeServo.setPosition(ClosingIntakePosition);
+                    CarouselLeft.setPower(1);
+                    IntakeServo.setPosition(ClosingIntakePosition);
+                    if (ET1.milliseconds() > 450) {
+                        Intake.setPower(1);
                         BucketIsEmpty = false;
                     }
                 }
                 else if (white) {
-                    Intake.setPower(0);
+                    //Intake.setPower(1);
                     ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.SKY_BLUE);
-                    if (ET1.milliseconds() > 250) {
-                        IntakeServo.setPosition(ClosingIntakePosition);
+                    CarouselLeft.setPower(1);
+                    IntakeServo.setPosition(ClosingIntakePosition);
+                    if (ET1.milliseconds() > 450) {
+                        Intake.setPower(1);
                         BucketIsEmpty = false;
                     }
                 }
                 else if (unknown) {
                     ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+                    CarouselLeft.setPower(0);
                     ET1.reset();
                 }
             }
@@ -382,9 +392,9 @@ public class StateTeleop extends LinearOpMode {
                     break;
 
                 case 3:
-                    Rail.setTargetPosition(500);
-                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    Rail.setPower(0.5);
+                    //Rail.setTargetPosition(500);
+                    //Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    //Rail.setPower(0.5);
                     triggerresetorder++;
                     break;
 
@@ -393,16 +403,16 @@ public class StateTeleop extends LinearOpMode {
                     // At the same time, we will also run the intake
                     if (BucketMotor.GetTaskState() == Task_State.DONE || BucketMotor.GetTaskState() == Task_State.READY) {
                         // Open the intake gate and turn on the intake
-                        BucketMotor.Calibrate();
-                        ArmMotor.Calibrate();
+                        //BucketMotor.Calibrate();
+                        //ArmMotor.Calibrate();
                         //ArmMotor.SetTargetPosition(8, -0.1, 0.1);
                         IntakeServo.setPosition(OpenIntakePosition);
                         Intake.setPower(-1);
 
                         // Move the rail down and allow the bucket to hang loosely
-                        Rail.setTargetPosition(100);
-                        Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        Rail.setPower(0.5);
+                        //Rail.setTargetPosition(100);
+                        //Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        //Rail.setPower(0.5);
                         //ET.reset();
                         triggerresetorder++;
                     }
@@ -460,7 +470,7 @@ public class StateTeleop extends LinearOpMode {
             if (button_dpad_down_already_pressed2 == false) {
                 if (gamepad2.dpad_down) {
                     button_dpad_down_already_pressed2 = true;
-                    mirror_event = true;
+                    //mirror_event = true;
                 }
             } else {
                 if (!gamepad2.dpad_down) {
@@ -471,6 +481,8 @@ public class StateTeleop extends LinearOpMode {
             if (button_y_already_pressed2 == false) {
                 if (gamepad2.y) {
                     tophuborder = 1;
+                    CarouselLeft.setPower(0);
+                    CarouselRight.setPower(0);
                     topalliancehub = true;
                     button_y_already_pressed2 = true;
                 }
@@ -513,14 +525,7 @@ public class StateTeleop extends LinearOpMode {
 
                 case 3:
                     // Move the arm to its highest position
-                    if (mirror_event) {
-                        if (ArmMotor.GetTaskState() == Task_State.INIT || ArmMotor.GetTaskState() == Task_State.READY) {
 
-                            ArmMotor.SetTargetPosition(410, -0.75, 0.75);
-                        } else if (ArmMotor.GetTaskState() == Task_State.DONE) {
-                            tophuborder++;
-                        }
-                    } else {
                         if (ArmMotor.GetTaskState() == Task_State.INIT || ArmMotor.GetTaskState() == Task_State.READY) {
 
                             ArmMotor.SetTargetPosition(-400, -0.75, 0.75);
@@ -528,21 +533,12 @@ public class StateTeleop extends LinearOpMode {
                         else if (ArmMotor.GetTaskState() == Task_State.DONE) {
                             tophuborder++;
                         }
-                    }
+
                     break;
 
                 case 4:
                     // Tip the bucket to get it ready to dump the object out
-                    if (mirror_event) {
-                        if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
 
-                            BucketMotor.SetTargetPosition(MirrorTopBucketPosition);
-                        }
-                        else if (BucketMotor.GetTaskState() == Task_State.DONE) {
-                            tophuborder++;
-                        }
-                    }
-                    else {
                         if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
 
                             BucketMotor.SetTargetPosition(TopBucketPosition);
@@ -550,7 +546,95 @@ public class StateTeleop extends LinearOpMode {
                         else if (BucketMotor.GetTaskState() == Task_State.DONE) {
                             tophuborder++;
                         }
+
+                    break;
+
+                default:
+                    break;
+            }
+
+            /***********************************************************
+             Button B - Shared Hub Position 2
+             ***********************************************************/
+            if (button_dpad_down_already_pressed2 == false) {
+                if (gamepad2.dpad_down) {
+                    button_dpad_down_already_pressed2 = true;
+                    //mirror_event = true;
+                }
+            } else {
+                if (!gamepad2.dpad_down) {
+                    button_dpad_down_already_pressed2 = false;
+                }
+            }
+
+            if (button_b_already_pressed2 == false) {
+                if (gamepad2.b) {
+                    sharedhuborder2 = 1;
+                    CarouselLeft.setPower(0);
+                    CarouselRight.setPower(0);
+                    sharedhub = true;
+                    button_b_already_pressed2 = true;
+                }
+            } else {
+                if (!gamepad2.b) {
+                    button_b_already_pressed2 = false;
+                }
+            }
+
+            // SEQUENCE MANAGER TO DUMP ONTO THE TOP LEVEL OF THE ALLIANCE HUB
+            switch (sharedhuborder2) {
+
+                case 1:
+                    // Always check for INIT OR READY the first time
+                    if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
+
+                        // Lock the bucket in the zero position first before raising the rail or arm to prevent it from falling
+                        Intake.setPower(1);
+                        BucketMotor.SetTargetPosition(0);
                     }
+                    else if (BucketMotor.GetTaskState() == Task_State.DONE) {
+                        sharedhuborder2++;
+                    }
+                    // Close the intake and outtake gates to prevent the object from falling out of the bucket
+                    GateServo.setPosition(ClosingGatePosition);
+                    IntakeServo.setPosition(ClosingIntakePosition);
+                    break;
+
+                case 2:
+                    // Move the rail to its highest position
+                    Rail.setTargetPosition(890);
+                    Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    Rail.setPower(0.5);
+
+                    if (Rail.getCurrentPosition() >= 840 && Rail.getCurrentPosition() <= 940) {
+                        sharedhuborder2++;
+                    }
+                    break;
+
+                case 3:
+                    // Move the arm to its highest position
+
+                    if (ArmMotor.GetTaskState() == Task_State.INIT || ArmMotor.GetTaskState() == Task_State.READY) {
+
+                        ArmMotor.SetTargetPosition(230, -0.6, 0.6);
+                    } else if (ArmMotor.GetTaskState() == Task_State.DONE) {
+                        sharedhuborder2++;
+                    }
+
+                    break;
+
+                case 4:
+                    // Tip the bucket to get it ready to dump the object out
+
+                    if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
+
+                        BucketMotor.SetTargetPosition(MirrorMiddleBucketPosition);
+                    }
+                    else if (BucketMotor.GetTaskState() == Task_State.DONE) {
+                        sharedhuborder2++;
+                        mirror_event = true;
+                    }
+
                     break;
 
                 default:
@@ -563,7 +647,7 @@ public class StateTeleop extends LinearOpMode {
             if (button_dpad_down_already_pressed2 == false) {
                 if (gamepad2.dpad_down) {
                     button_dpad_down_already_pressed2 = true;
-                    mirror_event = true;
+                    //mirror_event = true;
                 }
             } else {
                 if (!gamepad2.dpad_down) {
@@ -574,6 +658,8 @@ public class StateTeleop extends LinearOpMode {
             if (button_a_already_pressed2 == false) {
                 if (gamepad2.a) {
                     sharedhuborder = 1;
+                    CarouselLeft.setPower(0);
+                    CarouselRight.setPower(0);
                     sharedhub = true;
                     button_a_already_pressed2 = true;
                 }
@@ -615,44 +701,28 @@ public class StateTeleop extends LinearOpMode {
 
                 case 3:
                     // Move the arm to its highest position
-                    if (mirror_event) {
-                        if (ArmMotor.GetTaskState() == Task_State.INIT || ArmMotor.GetTaskState() == Task_State.READY) {
 
-                            ArmMotor.SetTargetPosition(215, -0.6, 0.6);
-                        } else if (ArmMotor.GetTaskState() == Task_State.DONE) {
-                            sharedhuborder++;
-                        }
-                    } else {
-                        if (ArmMotor.GetTaskState() == Task_State.INIT || ArmMotor.GetTaskState() == Task_State.READY) {
+                    if (ArmMotor.GetTaskState() == Task_State.INIT || ArmMotor.GetTaskState() == Task_State.READY) {
 
-                            ArmMotor.SetTargetPosition(-215, -0.55, 0.55);
-                        }
-                        else if (ArmMotor.GetTaskState() == Task_State.DONE) {
-                            sharedhuborder++;
-                        }
+                        ArmMotor.SetTargetPosition(215, -0.6, 0.6);
+                    } else if (ArmMotor.GetTaskState() == Task_State.DONE) {
+                        sharedhuborder++;
                     }
+
                     break;
 
                 case 4:
                     // Tip the bucket to get it ready to dump the object out
-                    if (mirror_event) {
-                        if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
 
-                            BucketMotor.SetTargetPosition(MirrorLowBucketPosition);
-                        }
-                        else if (BucketMotor.GetTaskState() == Task_State.DONE) {
-                            sharedhuborder++;
-                        }
-                    }
-                    else {
-                        if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
+                    if (BucketMotor.GetTaskState() == Task_State.INIT || BucketMotor.GetTaskState() == Task_State.READY) {
 
-                            BucketMotor.SetTargetPosition(LowBucketPosition);
-                        }
-                        else if (BucketMotor.GetTaskState() == Task_State.DONE) {
-                            sharedhuborder++;
-                        }
+                        BucketMotor.SetTargetPosition(MirrorLowBucketPosition);
                     }
+                    else if (BucketMotor.GetTaskState() == Task_State.DONE) {
+                        sharedhuborder++;
+                        mirror_event = true;
+                    }
+
                     break;
 
                 default:
@@ -1301,7 +1371,7 @@ public class StateTeleop extends LinearOpMode {
         int Unkwown = 0;
 
         if (HSV[1] >= 0 && HSV[1] <= 0.5) {
-            if (HSV[2] >= 0.18 && HSV[2] <= 1) {
+            if (HSV[2] >= 0.09 && HSV[2] <= 1) {
                 telemetry.addData("Color:", "White");
                 telemetry.update();
                 white = true;
@@ -1317,7 +1387,7 @@ public class StateTeleop extends LinearOpMode {
                 return Unkwown;
             }
         } else if (HSV[1] >= 0.5 && HSV[1] <= 1) {
-            if (HSV[2] >= 0.18 && HSV[2] <= 1) {
+            if (HSV[2] >= 0.09 && HSV[2] <= 1) {
                 telemetry.addData("Color:", "Yellow");
                 telemetry.update();
                 yellow = true;
