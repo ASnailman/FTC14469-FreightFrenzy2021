@@ -41,6 +41,11 @@ public class FarBlue_STATE extends LinearOpMode {
     static int DifferenceCenter;
     static int DifferenceRight;
 
+    boolean wd_enable = false;
+    int wd_encoder = 0;
+    boolean wall_detected = false;
+    float wd_prev_pos = 0;
+
     static DcMotor BackLeft;
     static DcMotor BackRight;
     static DcMotor FrontLeft;
@@ -69,6 +74,8 @@ public class FarBlue_STATE extends LinearOpMode {
     double final_value;
 
     ElapsedTime ET = new ElapsedTime();
+    ElapsedTime wd_timer = new ElapsedTime();
+
     int retrieve_seq = 0;
 
     byte AXIS_MAP_SIGN_BYTE = 0x6; //rotates control hub 180 degrees around z axis by negating x and y signs
@@ -352,19 +359,24 @@ public class FarBlue_STATE extends LinearOpMode {
                         if (laps == 1) {
                             if (left) {
                                 MechDrive.SetTargets(-60, 2250, 0.7, 0);
+                                WallDetector_Enable(0);
                             }
                             else if (center) {
                                 MechDrive.SetTargets(-60, 1700, 0.7, 0); // 1600
+                                WallDetector_Enable(0);
                             }
                             else {
                                 MechDrive.SetTargets(-65, 1750, 0.7, 0); // 1600
+                                WallDetector_Enable(0);
                             }
                         }
                         else if (laps == 2) {
                             MechDrive.SetTargets(-90, 900, 0.9, 0);
+                            WallDetector_Enable(0);
                         }
                         else {
                             MechDrive.SetTargets(-90, 900, 0.9, 0);
+                            WallDetector_Enable(0);
                         }
                         GateServo.setPosition(ClosingGatePosition);
                         programorder1++;
@@ -379,7 +391,7 @@ public class FarBlue_STATE extends LinearOpMode {
 
                 case 8:
 
-                    if (MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.READY) {
+                    if (MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.READY || wall_detected) {
 
                         // If this is the last lap or E_Stop fail safe was previously enabled, then just park in the warehouse
                         if (laps == 3 || E_Stop) {
@@ -656,6 +668,7 @@ public class FarBlue_STATE extends LinearOpMode {
             Sequences.Task();
             BucketControl.BucketTask();
             ArmControl.ArmTask();
+            WallDetector();
 
             telemetry.addData("program sequence", programorder1);
             telemetry.addData("backright encoder", BackRight.getCurrentPosition());
@@ -1196,6 +1209,43 @@ public class FarBlue_STATE extends LinearOpMode {
             }
         }
 
+    }
+
+    private void WallDetector_Enable(int encoder) {
+        wd_enable = true;
+        wd_encoder = encoder;
+    }
+
+    private void WallDetector()
+    {
+        if (wd_enable) {
+            if (wd_encoder == 0) {
+                if (FrontRight.getCurrentPosition() == wd_prev_pos) {
+                    if (wd_timer.milliseconds() > 300) {
+                        wall_detected = true;
+                        wd_enable = false;
+                    }
+                }
+                else {
+                    wd_timer.reset();
+                    wall_detected = false;
+                }
+                wd_prev_pos = FrontRight.getCurrentPosition();
+            }
+            else {
+                if (BackRight.getCurrentPosition() == wd_prev_pos) {
+                    if (wd_timer.milliseconds() > 100) {
+                        wall_detected = true;
+                        wd_enable = false;
+                    }
+                }
+                else {
+                    wd_timer.reset();
+                    wall_detected = false;
+                }
+                wd_prev_pos = BackRight.getCurrentPosition();
+            }
+        }
     }
 
 }

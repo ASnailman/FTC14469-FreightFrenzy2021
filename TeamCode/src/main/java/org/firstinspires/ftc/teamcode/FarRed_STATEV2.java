@@ -41,6 +41,11 @@ public class FarRed_STATEV2 extends LinearOpMode {
     static int DifferenceCenter;
     static int DifferenceRight;
 
+    boolean wd_enable = false;
+    int wd_encoder = 0;
+    boolean wall_detected = false;
+    float wd_prev_pos = 0;
+
     static DcMotor BackLeft;
     static DcMotor BackRight;
     static DcMotor FrontLeft;
@@ -314,7 +319,7 @@ public class FarRed_STATEV2 extends LinearOpMode {
                         Intake.setPower(0);
                         if (laps == 1) {
                             if (left) {
-                                MechDrive.SetTargets(240, 1900, 0.35, 1);
+                                MechDrive.SetTargets(240, 2000, 0.35, 1);
                             }
                             else if (center) {
                                 MechDrive.SetTargets(240, 1550, 0.35, 1); // 1600
@@ -348,20 +353,25 @@ public class FarRed_STATEV2 extends LinearOpMode {
                     if (ET.milliseconds() > 500) { // Prev: 1000
                             if (laps == 1) {
                                 if (left) {
-                                    MechDrive.SetTargets(60, 2100, 0.7, 1);
+                                    MechDrive.SetTargets(60, 2200, 0.7, 1); // 2100
+                                    WallDetector_Enable(1);
                                 }
                                 else if (center) {
-                                    MechDrive.SetTargets(60, 1750, 0.7, 1); // 1600
+                                    MechDrive.SetTargets(60, 1750, 0.7, 1); // 1750
+                                    WallDetector_Enable(1);
                                 }
                                 else {
-                                    MechDrive.SetTargets(65, 2000, 0.7, 1); // 1600
+                                    MechDrive.SetTargets(65, 2000, 0.7, 1); // 2000
+                                    WallDetector_Enable(1);
                                 }
                             }
                             else if (laps == 2) {
-                                MechDrive.SetTargets(90, 1250, 0.9, 1);
+                                MechDrive.SetTargets(90, 1300, 0.9, 1); // 1250
+                                WallDetector_Enable(1);
                             }
                             else {
-                                MechDrive.SetTargets(90, 1250, 0.9, 1);
+                                MechDrive.SetTargets(90, 1350, 0.9, 1); // 1250
+                                WallDetector_Enable(1);
                             }
                             GateServo.setPosition(ClosingGatePosition);
                             programorder1++;
@@ -376,8 +386,8 @@ public class FarRed_STATEV2 extends LinearOpMode {
 
                 case 8:
 
-                   if (MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.READY) {
-
+                   if (MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.READY || wall_detected) {
+                    //if (wall_detected) {
                        // If this is the last lap or E_Stop fail safe was previously enabled, then just park in the warehouse
                        if (laps == 3 || E_Stop) {
                            programorder1 = 16;
@@ -591,7 +601,7 @@ public class FarRed_STATEV2 extends LinearOpMode {
                         MechDrive.SetTargets(0, 700, 0.8, 0);
                     }
                     else {
-                        MechDrive.SetTargets(0, 2700, 0.8, 0);
+                        MechDrive.SetTargets(0, 2000, 0.8, 0);
                         BucketControl.SetTargetPosition(0.5);
                     }
                     programorder1++;
@@ -652,6 +662,7 @@ public class FarRed_STATEV2 extends LinearOpMode {
             Sequences.Task();
             BucketControl.BucketTask();
             ArmControl.ArmTask();
+            WallDetector();
 
             telemetry.addData("program sequence", programorder1);
             telemetry.addData("backright encoder", BackRight.getCurrentPosition());
@@ -1194,11 +1205,6 @@ public class FarRed_STATEV2 extends LinearOpMode {
 
     }
 
-    boolean wd_enable = false;
-    int wd_encoder = 0;
-    boolean wall_detected = false;
-    float wd_prev_pos = 0;
-
     private void WallDetector_Enable(int encoder) {
         wd_enable = true;
         wd_encoder = encoder;
@@ -1222,7 +1228,7 @@ public class FarRed_STATEV2 extends LinearOpMode {
             }
             else {
                 if (BackRight.getCurrentPosition() == wd_prev_pos) {
-                    if (wd_timer.milliseconds() > 300) {
+                    if (wd_timer.milliseconds() > 100) {
                         wall_detected = true;
                         wd_enable = false;
                     }

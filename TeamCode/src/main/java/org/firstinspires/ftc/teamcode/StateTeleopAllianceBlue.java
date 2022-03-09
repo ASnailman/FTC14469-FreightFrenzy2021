@@ -85,7 +85,7 @@ public class StateTeleopAllianceBlue extends LinearOpMode {
     boolean yellow;
     boolean unknown;
 
-    boolean BucketIsEmpty = false;
+    boolean BucketIsEmpty = true;
     boolean BucketIsEmpty2 = false;
 
     boolean PowerMode = true;
@@ -112,7 +112,7 @@ public class StateTeleopAllianceBlue extends LinearOpMode {
     static final double OpenGatePosition = 0.5;
     static final double OpenIntakePosition = 0.5;
     static final double ClosingGatePosition = 0.2;
-    static final double ClosingIntakePosition = 0.73;
+    static final double ClosingIntakePosition = 0.7;
 
     int bucketposition;
 
@@ -217,9 +217,9 @@ public class StateTeleopAllianceBlue extends LinearOpMode {
             WhiteYellowDetector();
             DeadZoneColorDetector();
 
-            if (!BucketIsEmpty) {
-                Intake.setPower(0);
-            }
+            //if (!BucketIsEmpty) {
+              //  Intake.setPower(0);
+            //}
 
             if (BucketIsEmpty) {
 
@@ -228,19 +228,21 @@ public class StateTeleopAllianceBlue extends LinearOpMode {
                     ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
                     CarouselLeft.setPower(1);
                     IntakeServo.setPosition(ClosingIntakePosition);
-                    if (ET1.milliseconds() > 450) {
+                    if (ET1.milliseconds() > 450 && Math.abs(FrontRight.getPower()) > 0.01) {
                         Intake.setPower(1);
                         BucketIsEmpty = false;
                     }
                 }
                 else if (white) {
-                    //Intake.setPower(1);
-                    ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.SKY_BLUE);
-                    CarouselLeft.setPower(1);
-                    IntakeServo.setPosition(ClosingIntakePosition);
-                    if (ET1.milliseconds() > 450) {
-                        Intake.setPower(1);
-                        BucketIsEmpty = false;
+                    if (white && FrontRight.getPower() > 0.1) {
+                        //Intake.setPower(1);
+                        ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.SKY_BLUE);
+                        CarouselLeft.setPower(1);
+                        IntakeServo.setPosition(ClosingIntakePosition);
+                        if (ET1.milliseconds() > 450 && Math.abs(FrontRight.getPower()) > 0.01) {
+                            Intake.setPower(1);
+                            BucketIsEmpty = false;
+                        }
                     }
                 }
                 else if (unknown) {
@@ -469,16 +471,7 @@ public class StateTeleopAllianceBlue extends LinearOpMode {
             /***********************************************************
              Button Y - Top Level (For Opposite, press dpad_down first)
              ***********************************************************/
-            if (button_dpad_down_already_pressed2 == false) {
-                if (gamepad2.dpad_down) {
-                    button_dpad_down_already_pressed2 = true;
-                    //mirror_event = true;
-                }
-            } else {
-                if (!gamepad2.dpad_down) {
-                    button_dpad_down_already_pressed2 = false;
-                }
-            }
+
 
             if (button_y_already_pressed2 == false) {
                 if (gamepad2.y) {
@@ -558,16 +551,7 @@ public class StateTeleopAllianceBlue extends LinearOpMode {
             /***********************************************************
              Button B - Shared Hub Position 2
              ***********************************************************/
-            if (button_dpad_down_already_pressed2 == false) {
-                if (gamepad2.dpad_down) {
-                    button_dpad_down_already_pressed2 = true;
-                    //mirror_event = true;
-                }
-            } else {
-                if (!gamepad2.dpad_down) {
-                    button_dpad_down_already_pressed2 = false;
-                }
-            }
+
 
             if (button_b_already_pressed2 == false) {
                 if (gamepad2.b) {
@@ -646,16 +630,7 @@ public class StateTeleopAllianceBlue extends LinearOpMode {
             /***********************************************************
              Button A - Shared Hub (For Opposite, press dpad_down first)
              ***********************************************************/
-            if (button_dpad_down_already_pressed2 == false) {
-                if (gamepad2.dpad_down) {
-                    button_dpad_down_already_pressed2 = true;
-                    //mirror_event = true;
-                }
-            } else {
-                if (!gamepad2.dpad_down) {
-                    button_dpad_down_already_pressed2 = false;
-                }
-            }
+
 
             if (button_a_already_pressed2 == false) {
                 if (gamepad2.a) {
@@ -1281,7 +1256,7 @@ public class StateTeleopAllianceBlue extends LinearOpMode {
             // The arm control will automatically straighten the bucket to its zero position
             // Then release the left bumper to lower the rail
             // The arm and bucket motor encoders will be reset
-            if (button_right_trigger_already_pressed == false) {
+            if (button_right_trigger_already_pressed2 == false) {
 
                 if (gamepad1.right_trigger > 0) {
 
@@ -1290,11 +1265,11 @@ public class StateTeleopAllianceBlue extends LinearOpMode {
                     Rail.setPower(0.7);
                     ArmMotor.Override();
                     BucketMotor.Override();
-                    button_right_trigger_already_pressed = true;
+                    button_right_trigger_already_pressed2 = true;
                 }
             } else {
                 if (gamepad1.right_trigger == 0) {
-                    button_right_trigger_already_pressed = false;
+                    button_right_trigger_already_pressed2 = false;
                     Rail.setTargetPosition(0);
                     Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     Rail.setPower(0.5);
@@ -1503,7 +1478,7 @@ public class StateTeleopAllianceBlue extends LinearOpMode {
         }*/
 
         //if (S_Avg >= 0.30 && S_Avg <= 0.38) {
-        if (HSV[0] < 80) {
+        if (HSV[0] < 90) {
             telemetry.addData("Color:", "DeadZoneWhiteYellow");
             telemetry.update();
             WHITE1 = true;
