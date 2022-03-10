@@ -279,7 +279,7 @@ public class ColorSensorTest extends LinearOpMode {
             //telemetry.update();
             //WhiteColorDetector();
             DeadZoneColorDetector();
-            WhiteYellowDetector();
+            //WhiteYellowDetector();
             // THIS IS THE PART OF THE PROGRAM THAT IS REPETITIVE
             // THEY ARE CALLED 'BACKGROUND TASKS" BUT FOR SIMPLICITY, WE SHALL CALL THEM 'TASKS'
 
@@ -785,8 +785,8 @@ public class ColorSensorTest extends LinearOpMode {
     private int DeadZoneColorDetector() {
 
         float[] HSV = new float[3];
-        NormalizedRGBA RGBA = colorsensor.getNormalizedColors();
-        colorsensor.setGain(30);
+        NormalizedRGBA RGBA = deadzonesensor.getNormalizedColors();
+        deadzonesensor.setGain(30);
 
         Color.colorToHSV(RGBA.toColor(), HSV);
         telemetry.addData("DeadZoneH:", HSV[0]);
@@ -807,7 +807,7 @@ public class ColorSensorTest extends LinearOpMode {
 
 
         //if (S_Avg >= 0.30 && S_Avg <= 0.38) {
-        if (HSV[2] > 0.045 || HSV[0] < 100) {
+        if (HSV[0] < 90) {
             telemetry.addData("Color:", "DeadZoneWhiteYellow");
             telemetry.update();
             WHITE1 = true;

@@ -106,13 +106,13 @@ public class StateTeleopAllianceBlue extends LinearOpMode {
     static final double MirrorTopBucketPosition = -140;
     static final double MiddleBucketPosition = 130;
     static final double MirrorMiddleBucketPosition = -120;
-    static final double LowBucketPosition = 110;
-    static final double MirrorLowBucketPosition = -110;
+    static final double LowBucketPosition = 115;
+    static final double MirrorLowBucketPosition = -111;
 
     static final double OpenGatePosition = 0.5;
     static final double OpenIntakePosition = 0.5;
     static final double ClosingGatePosition = 0.2;
-    static final double ClosingIntakePosition = 0.7;
+    static final double ClosingIntakePosition = 0.72;
 
     int bucketposition;
 
@@ -223,14 +223,17 @@ public class StateTeleopAllianceBlue extends LinearOpMode {
 
             if (BucketIsEmpty) {
 
-                if (yellow || YELLOW1) {
+                if (yellow) {
                     //Intake.setPower(1);
                     ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
                     CarouselLeft.setPower(1);
                     IntakeServo.setPosition(ClosingIntakePosition);
-                    if (ET1.milliseconds() > 450 && Math.abs(FrontRight.getPower()) > 0.01) {
-                        Intake.setPower(1);
-                        BucketIsEmpty = false;
+                    if (YELLOW1) {
+                        //if (ET1.milliseconds() > 450 && Math.abs(FrontRight.getPower()) > 0.01) {
+                            if (Math.abs(FrontRight.getPower()) > 0.01) {
+                            Intake.setPower(1);
+                            BucketIsEmpty = false;
+                        }
                     }
                 }
                 else if (white) {
@@ -245,7 +248,7 @@ public class StateTeleopAllianceBlue extends LinearOpMode {
                         }
                     }
                 }
-                else if (unknown) {
+                else if (unknown && !gamepad1.dpad_right && !button_dpad_right_already_pressed) {
                     ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
                     ET1.reset();
                     CarouselLeft.setPower(0);
@@ -440,19 +443,21 @@ public class StateTeleopAllianceBlue extends LinearOpMode {
              ***************************************/
             if (!button_dpad_right_already_pressed) {
                 if (gamepad1.dpad_right) {
-                    CarouselRight.setPower(1.0);
+                    CarouselRight.setPower(1);
+                    CarouselLeft.setPower(-1);
                     button_dpad_right_already_pressed = true;
                 }
             } else {
                 if (!gamepad1.dpad_right) {
                     CarouselRight.setPower(0);
+                    CarouselLeft.setPower(0);
                     button_dpad_right_already_pressed = false;
                 }
             }
 
             if (!button_dpad_left_already_pressed) {
                 if (gamepad1.dpad_left) {
-                    CarouselLeft.setPower(-1.0);
+                    CarouselLeft.setPower(-1);
                     //CarouselRight.setPower(1.0);
                     button_dpad_left_already_pressed = true;
                 }
@@ -795,7 +800,7 @@ public class StateTeleopAllianceBlue extends LinearOpMode {
                     // Once the arm drops to a lower position, we will clip the motor command with a larger opposite force
                     // This will allow the motor to "brake" the arm as it continues to drop
                     // The idea here is to catch the arm to prevent it swinging wildly non-stop
-                    if (ArmMotor.GetTaskState() == Task_State.INIT ||
+                    /*if (ArmMotor.GetTaskState() == Task_State.INIT ||
                             ArmMotor.GetTaskState() == Task_State.READY) {
                         if (mirror_event) {
                             //ArmMotor.SetTargetPosition(-2, -0.105, 0.6);
@@ -808,9 +813,9 @@ public class StateTeleopAllianceBlue extends LinearOpMode {
                             ArmMotor.SetTargetPosition(-40, -0.22, -0.22);
                         }
                     }
-                    else if (ArmMotor.GetTaskState() == Task_State.DONE) {
+                    else if (ArmMotor.GetTaskState() == Task_State.DONE) {*/
                         bucketresetorder++;
-                    }
+                    //}
                     break;
 
                 case 5:
@@ -822,11 +827,11 @@ public class StateTeleopAllianceBlue extends LinearOpMode {
                             ArmMotor.GetTaskState() == Task_State.READY) {
                         if (mirror_event) {
                             //ArmMotor.SetTargetPosition(-2, -0.105, 0.6);
-                            ArmMotor.SetTargetPosition(30, -0.22, 0.22);
+                            ArmMotor.SetTargetPosition(25, -0.22, 0.22);
                         }
                         else {
                             //ArmMotor.SetTargetPosition(2, -0.6, 0.2);
-                            ArmMotor.SetTargetPosition(-30, -0.22, 0.22);
+                            ArmMotor.SetTargetPosition(-25, -0.22, 0.22);
                         }
                     }
                     else if (ArmMotor.GetTaskState() == Task_State.DONE) {
@@ -1478,7 +1483,7 @@ public class StateTeleopAllianceBlue extends LinearOpMode {
         }*/
 
         //if (S_Avg >= 0.30 && S_Avg <= 0.38) {
-        if (HSV[0] < 90) {
+        if (HSV[0] < 100) {
             telemetry.addData("Color:", "DeadZoneWhiteYellow");
             telemetry.update();
             WHITE1 = true;

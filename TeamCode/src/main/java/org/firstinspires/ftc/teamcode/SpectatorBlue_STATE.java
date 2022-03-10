@@ -14,7 +14,6 @@ import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.checkerframework.checker.units.qual.Current;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -33,8 +32,8 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-@Autonomous(name="SpectatorRed_STATE", group="MecanumDrive")
-public class SpectatorRed_STATE extends LinearOpMode {
+@Autonomous(name="SpectatorBlue_STATE", group="MecanumDrive")
+public class SpectatorBlue_STATE extends LinearOpMode {
 
     OpenCvWebcam webcam;
     BarcodeDeterminationPipeline pipeline;
@@ -270,13 +269,13 @@ public class SpectatorRed_STATE extends LinearOpMode {
                             MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.OVERRIDE) {
 
                         if (left) {
-                            MechDrive.SetTargets(135, 2300, 0.35, 0);
+                            MechDrive.SetTargets(-135, 2300, 0.35, 0);
                         }
                         else if (center) {
-                            MechDrive.SetTargets(135, 1850, 0.35, 0); // 1600
+                            MechDrive.SetTargets(-135, 1850, 0.35, 0); // 1600
                         }
                         else {
-                            MechDrive.SetTargets(135, 2100, 0.35, 0); // 1600
+                            MechDrive.SetTargets(-135, 2100, 0.35, 0); // 1600
                         }
 
                         programorder1++;
@@ -298,11 +297,11 @@ public class SpectatorRed_STATE extends LinearOpMode {
                     if (ET.milliseconds() > 500) { // Prev: 1000
 
                         if (left) {
-                            MechDrive.SetTargets(-45, 1900, 0.7, 0); // 2100
+                            MechDrive.SetTargets(45, 1900, 0.7, 0); // 2100
                         } else if (center) {
-                            MechDrive.SetTargets(-45, 1450, 0.7, 0); // 1750
+                            MechDrive.SetTargets(45, 1450, 0.7, 0); // 1750
                         } else {
-                            MechDrive.SetTargets(-45, 1700, 0.7, 0); // 2000
+                            MechDrive.SetTargets(45, 1700, 0.7, 0); // 2000
                         }
 
                         GateServo.setPosition(ClosingGatePosition);
@@ -312,7 +311,7 @@ public class SpectatorRed_STATE extends LinearOpMode {
                     break;
 
                 case 6:
-                    Sequences.SetSequence(4, true);
+                    Sequences.SetSequence(4, false);
                     programorder1++;
                     break;
 
@@ -371,12 +370,13 @@ public class SpectatorRed_STATE extends LinearOpMode {
                     break;
 
                 case 18:
-                    SetMotorPower(0.1);
-                    if (ET.milliseconds() > 500) {
-                        SetMotorPower(0);
-                        programorder1++;
 
-                    }
+                        SetMotorPower(0.1);
+                        if (ET.milliseconds() > 500) {
+                            SetMotorPower(0);
+                            programorder1++;
+                        }
+
                     break;
 
                 case 19:
@@ -398,7 +398,7 @@ public class SpectatorRed_STATE extends LinearOpMode {
 
                 case 22:
                     if (MechDrive.GetTaskState() == Task_State.READY) {
-                        MechDrive.SetTargets(75, 1150, 0.5, 0);
+                        MechDrive.SetTargets(-75, 1150, 0.5, 0);
                     }
                     else if (MechDrive.GetTaskState() == Task_State.DONE) {
                         programorder1++;
@@ -406,7 +406,7 @@ public class SpectatorRed_STATE extends LinearOpMode {
                     break;
 
                 case 23:
-                    GyroTurn(170, 0.4);
+                    GyroTurn(-170, 0.4);
                     //programorder1++;
                     break;
 
