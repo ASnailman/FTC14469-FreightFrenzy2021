@@ -78,6 +78,7 @@ public class FarBlue_STATEV3 extends LinearOpMode {
     ElapsedTime auto_timer = new ElapsedTime();
 
     int retrieve_seq = 0;
+    boolean out_of_time = false;
 
     byte AXIS_MAP_SIGN_BYTE = 0x6; //rotates control hub 180 degrees around z axis by negating x and y signs
     byte AXIS_MAP_CONFIG_BYTE = 0x6; //rotates control hub 90 degrees around y axis by swapping x and z axis
@@ -326,7 +327,7 @@ public class FarBlue_STATEV3 extends LinearOpMode {
                         Intake.setPower(0);
                         if (laps == 1) {
                             if (left) {
-                                MechDrive.SetTargets(115, 2150, 0.4, 0);
+                                MechDrive.SetTargets(115, 2200, 0.4, 0);
                             }
                             else if (center) {
                                 MechDrive.SetTargets(110, 1750, 0.4, 0); // 1600
@@ -360,7 +361,7 @@ public class FarBlue_STATEV3 extends LinearOpMode {
                     if (ET.milliseconds() > 500) { // Prev: 1000
                         if (laps == 1) {
                             if (left) {
-                                MechDrive.SetTargets(-60, 2250, 0.7, 0);
+                                MechDrive.SetTargets(-60, 2300, 0.7, 0);
                                 WallDetector_Enable(0);
                             }
                             else if (center) {
@@ -476,8 +477,9 @@ public class FarBlue_STATEV3 extends LinearOpMode {
                             BackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
                             //ET.reset();
-                            if (auto_timer.milliseconds() < 8000) {
+                            if (auto_timer.milliseconds() > 22000) {
                                 programorder1 = 17;
+                                out_of_time = true;
                             }
                             else {
                                 programorder1++;
@@ -582,11 +584,21 @@ public class FarBlue_STATEV3 extends LinearOpMode {
 
                                 // If E-stop fail safe is inactive, keep reversing slowly to look for the white line
                                 if (!E_Stop) {
-                                    MechDrive.Override();
-                                    FrontRight.setPower(-0.3);
-                                    FrontLeft.setPower(-0.3);
-                                    BackLeft.setPower(-0.3);
-                                    BackRight.setPower(-0.3);
+                                    if (auto_timer.milliseconds() > 25000) {
+                                        out_of_time = true;
+                                        programorder1 = 16;
+                                        FrontRight.setPower(0);
+                                        FrontLeft.setPower(0);
+                                        BackLeft.setPower(0);
+                                        BackRight.setPower(0);
+                                    }
+                                    else {
+                                        MechDrive.Override();
+                                        FrontRight.setPower(-0.3);
+                                        FrontLeft.setPower(-0.3);
+                                        BackLeft.setPower(-0.3);
+                                        BackRight.setPower(-0.3);
+                                    }
                                 }
 
                                 // If this condition is true, that means we have overshot the white line
@@ -611,8 +623,9 @@ public class FarBlue_STATEV3 extends LinearOpMode {
                     break;
 
                 case 16:
-                    if (E_Stop && laps == 3) {
+                    if ((E_Stop && laps == 3) || out_of_time) {
                         MechDrive.SetTargets(0, 700, 0.8, 0);
+                        Intake.setPower(0);
                     }
                     else {
                         MechDrive.SetTargets(0, 2300, 0.8, 0);

@@ -75,6 +75,8 @@ public class FarRed_STATEV3 extends LinearOpMode {
 
     ElapsedTime ET = new ElapsedTime();
     ElapsedTime wd_timer = new ElapsedTime();
+    ElapsedTime auto_timer = new ElapsedTime();
+    boolean out_of_time = false;
     int retrieve_seq = 0;
 
     byte AXIS_MAP_SIGN_BYTE = 0x6; //rotates control hub 180 degrees around z axis by negating x and y signs
@@ -247,6 +249,7 @@ public class FarRed_STATEV3 extends LinearOpMode {
             switch (programorder1) {
 
                 case 0:
+                    auto_timer.reset();
                     if (pipeline.position == FarRed_STATEV3.BarcodeDeterminationPipeline.ShippingElementPosition.LEFT) {
                         left = true;
                         center = false;
@@ -319,20 +322,20 @@ public class FarRed_STATEV3 extends LinearOpMode {
                         Intake.setPower(0);
                         if (laps == 1) {
                             if (left) {
-                                MechDrive.SetTargets(240, 2000, 0.35, 1);
+                                MechDrive.SetTargets(245, 2200, 0.35, 1);
                             }
                             else if (center) {
-                                MechDrive.SetTargets(240, 1550, 0.35, 1); // 1600
+                                MechDrive.SetTargets(240, 1850, 0.35, 1); // 1600
                             }
                             else {
                                 MechDrive.SetTargets(245, 1800, 0.35, 1); // 1600
                             }
                         }
                         else if (laps == 2) {
-                            MechDrive.SetTargets(245, 1800, 0.35, 1);
+                            MechDrive.SetTargets(245, 1900, 0.35, 1);
                         }
                         else {
-                            MechDrive.SetTargets(245, 1800, 0.35, 1);
+                            MechDrive.SetTargets(245, 1900, 0.35, 1);
                         }
                         programorder1++;
                     }
@@ -353,24 +356,24 @@ public class FarRed_STATEV3 extends LinearOpMode {
                     if (ET.milliseconds() > 500) { // Prev: 1000
                         if (laps == 1) {
                             if (left) {
-                                MechDrive.SetTargets(60, 2200, 0.7, 1); // 2100
+                                MechDrive.SetTargets(65, 2300, 0.7, 1); // 2100
                                 WallDetector_Enable(1);
                             }
                             else if (center) {
-                                MechDrive.SetTargets(60, 1750, 0.7, 1); // 1750
+                                MechDrive.SetTargets(60, 1900, 0.7, 1); // 1750
                                 WallDetector_Enable(1);
                             }
                             else {
-                                MechDrive.SetTargets(65, 2000, 0.7, 1); // 2000
+                                MechDrive.SetTargets(65, 2050, 0.7, 1); // 2000
                                 WallDetector_Enable(1);
                             }
                         }
                         else if (laps == 2) {
-                            MechDrive.SetTargets(65, 2000, 0.7, 1); // 1250
+                            MechDrive.SetTargets(65, 2050, 0.7, 1); // 1250
                             WallDetector_Enable(1);
                         }
                         else {
-                            MechDrive.SetTargets(65, 2000, 0.7, 1); // 1250
+                            MechDrive.SetTargets(65, 2050, 0.7, 1); // 1250
                             WallDetector_Enable(1);
                         }
                         GateServo.setPosition(ClosingGatePosition);
@@ -394,7 +397,7 @@ public class FarRed_STATEV3 extends LinearOpMode {
                         } else {
                             // Start driving toward the warehouse
                             //MechDrive.headingangle = 0;
-                            //MechDrive.SetTargets(15, 700, 0.8, 0);
+                            MechDrive.SetTargets(15, 700, 0.8, 0);
                             programorder1++;
                         }
                     }
@@ -436,9 +439,9 @@ public class FarRed_STATEV3 extends LinearOpMode {
                     //if (MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.READY) {
 
                     if (laps == 1) {
-                        MechDrive.SetTargets(0, 200, 0.4, 0);
+                        MechDrive.SetTargets(0, 550, 0.5, 0);
                     } else {
-                        MechDrive.SetTargets(0, 250, 0.4, 0);
+                        MechDrive.SetTargets(0, 600, 0.5, 0);
                     }
 
                     Intake.setPower(-1);
@@ -467,7 +470,13 @@ public class FarRed_STATEV3 extends LinearOpMode {
                             BackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
                             //ET.reset();
-                            programorder1++;
+                            if (auto_timer.milliseconds() > 22000) {
+                                programorder1 = 17;
+                                out_of_time = true;
+                            }
+                            else {
+                                programorder1++;
+                            }
                         } else if (unknown || UNKNOWN1) {
                             //MechDrive.Override();
                             FrontRight.setPower(0.2);
@@ -568,11 +577,21 @@ public class FarRed_STATEV3 extends LinearOpMode {
 
                                 // If E-stop fail safe is inactive, keep reversing slowly to look for the white line
                                 if (!E_Stop) {
-                                    MechDrive.Override();
-                                    FrontRight.setPower(-0.3);
-                                    FrontLeft.setPower(-0.3);
-                                    BackLeft.setPower(-0.3);
-                                    BackRight.setPower(-0.3);
+                                    if (auto_timer.milliseconds() > 25000) {
+                                        out_of_time = true;
+                                        programorder1 = 16;
+                                        FrontRight.setPower(0);
+                                        FrontLeft.setPower(0);
+                                        BackLeft.setPower(0);
+                                        BackRight.setPower(0);
+                                    }
+                                    else {
+                                        MechDrive.Override();
+                                        FrontRight.setPower(-0.3);
+                                        FrontLeft.setPower(-0.3);
+                                        BackLeft.setPower(-0.3);
+                                        BackRight.setPower(-0.3);
+                                    }
                                 }
 
                                 // If this condition is true, that means we have overshot the white line
@@ -597,8 +616,9 @@ public class FarRed_STATEV3 extends LinearOpMode {
                     break;
 
                 case 16:
-                    if (E_Stop && laps == 3) {
+                    if ((E_Stop && laps == 3) || out_of_time) {
                         MechDrive.SetTargets(0, 700, 0.8, 0);
+                        Intake.setPower(0);
                     }
                     else {
                         MechDrive.SetTargets(0, 2000, 0.8, 0);

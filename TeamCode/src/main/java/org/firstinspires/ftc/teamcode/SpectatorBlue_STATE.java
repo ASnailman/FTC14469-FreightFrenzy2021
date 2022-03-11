@@ -299,9 +299,9 @@ public class SpectatorBlue_STATE extends LinearOpMode {
                         if (left) {
                             MechDrive.SetTargets(45, 1700, 0.7, 1); // 2100
                         } else if (center) {
-                            MechDrive.SetTargets(45, 1250, 0.7, 1); // 1750
+                            MechDrive.SetTargets(45, 1370, 0.7, 1); // 1750
                         } else {
-                            MechDrive.SetTargets(45, 1500, 0.7, 1); // 2000
+                            MechDrive.SetTargets(45, 1570, 0.7, 1); // 2000
                         }
 
                         GateServo.setPosition(ClosingGatePosition);
@@ -371,8 +371,8 @@ public class SpectatorBlue_STATE extends LinearOpMode {
 
                 case 18:
 
-                        SetMotorPower(0.05);
-                        if (ET.milliseconds() > 1050) {
+                        SetMotorPower(0.1);
+                        if (ET.milliseconds() > 3000) {
                             SetMotorPower(0);
                             programorder1++;
                         }

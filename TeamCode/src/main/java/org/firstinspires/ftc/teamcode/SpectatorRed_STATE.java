@@ -270,10 +270,10 @@ public class SpectatorRed_STATE extends LinearOpMode {
                             MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.OVERRIDE) {
 
                         if (left) {
-                            MechDrive.SetTargets(135, 2300, 0.35, 0);
+                            MechDrive.SetTargets(135, 2350, 0.35, 0);
                         }
                         else if (center) {
-                            MechDrive.SetTargets(135, 1950, 0.35, 0); // 1600
+                            MechDrive.SetTargets(140, 2050, 0.35, 0); // 1600
                         }
                         else {
                             MechDrive.SetTargets(135, 2100, 0.35, 0); // 1600
@@ -298,9 +298,9 @@ public class SpectatorRed_STATE extends LinearOpMode {
                     if (ET.milliseconds() > 500) { // Prev: 1000
 
                         if (left) {
-                            MechDrive.SetTargets(-45, 1700, 0.7, 0); // 2100
+                            MechDrive.SetTargets(-45, 1750, 0.7, 0); // 2100
                         } else if (center) {
-                            MechDrive.SetTargets(-45, 1250, 0.7, 0); // 1750
+                            MechDrive.SetTargets(-50, 1390, 0.7, 0); // 1750
                         } else {
                             MechDrive.SetTargets(-45, 1500, 0.7, 0); // 2000
                         }
@@ -371,8 +371,8 @@ public class SpectatorRed_STATE extends LinearOpMode {
                     break;
 
                 case 18:
-                    SetMotorPower(0.05);
-                    if (ET.milliseconds() > 1000) {
+                    SetMotorPower(0.1);
+                    if (ET.milliseconds() > 3000) {
                         SetMotorPower(0);
                         programorder1++;
 
