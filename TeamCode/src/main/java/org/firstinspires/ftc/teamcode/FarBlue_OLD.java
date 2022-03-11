@@ -33,7 +33,7 @@ import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 @Autonomous(name="FarBlue_STATE", group="MecanumDrive")
-public class FarBlue_STATE extends LinearOpMode {
+public class FarBlue_OLD extends LinearOpMode {
 
     OpenCvWebcam webcam;
     BarcodeDeterminationPipeline pipeline;
@@ -252,17 +252,17 @@ public class FarBlue_STATE extends LinearOpMode {
             switch (programorder1) {
 
                 case 0:
-                    if (pipeline.position == FarBlue_STATE.BarcodeDeterminationPipeline.ShippingElementPosition.LEFT) {
+                    if (pipeline.position == FarBlue_OLD.BarcodeDeterminationPipeline.ShippingElementPosition.LEFT) {
                         left = true;
                         center = false;
                         right = false;
                     }
-                    else if (pipeline.position == FarBlue_STATE.BarcodeDeterminationPipeline.ShippingElementPosition.CENTER) {
+                    else if (pipeline.position == FarBlue_OLD.BarcodeDeterminationPipeline.ShippingElementPosition.CENTER) {
                         left = false;
                         center = true;
                         right = false;
                     }
-                    else if (pipeline.position == FarBlue_STATE.BarcodeDeterminationPipeline.ShippingElementPosition.RIGHT) {
+                    else if (pipeline.position == FarBlue_OLD.BarcodeDeterminationPipeline.ShippingElementPosition.RIGHT) {
                         left = false;
                         center = false;
                         right = true;
