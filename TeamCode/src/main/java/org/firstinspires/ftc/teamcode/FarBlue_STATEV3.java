@@ -75,6 +75,7 @@ public class FarBlue_STATEV3 extends LinearOpMode {
 
     ElapsedTime ET = new ElapsedTime();
     ElapsedTime wd_timer = new ElapsedTime();
+    ElapsedTime auto_timer = new ElapsedTime();
 
     int retrieve_seq = 0;
 
@@ -252,6 +253,7 @@ public class FarBlue_STATEV3 extends LinearOpMode {
             switch (programorder1) {
 
                 case 0:
+                    auto_timer.reset();
                     if (pipeline.position == FarBlue_STATEV3.BarcodeDeterminationPipeline.ShippingElementPosition.LEFT) {
                         left = true;
                         center = false;
@@ -301,10 +303,10 @@ public class FarBlue_STATEV3 extends LinearOpMode {
                             MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.OVERRIDE) {
 
                         if (laps == 3) {
-                            MechDrive.SetTargets(180, 950, 0.8, 1);
+                            MechDrive.SetTargets(180, 600, 0.8, 1);
                         }
                         else if (laps == 2) {
-                            MechDrive.SetTargets(180, 950, 0.8, 1);
+                            MechDrive.SetTargets(180, 600, 0.8, 1);
                         }
                         else {
                             if (left) {
@@ -324,20 +326,20 @@ public class FarBlue_STATEV3 extends LinearOpMode {
                         Intake.setPower(0);
                         if (laps == 1) {
                             if (left) {
-                                MechDrive.SetTargets(120, 2200, 0.35, 0);
+                                MechDrive.SetTargets(115, 2150, 0.4, 0);
                             }
                             else if (center) {
-                                MechDrive.SetTargets(120, 1700, 0.35, 0); // 1600
+                                MechDrive.SetTargets(110, 1750, 0.4, 0); // 1600
                             }
                             else {
-                                MechDrive.SetTargets(115, 1800, 0.35, 0); // 1600
+                                MechDrive.SetTargets(115, 1800, 0.5, 0); // 1600
                             }
                         }
                         else if (laps == 2) {
-                            MechDrive.SetTargets(115, 1800, 0.4, 0);
+                            MechDrive.SetTargets(135, 2100, 0.6, 0);
                         }
                         else {
-                            MechDrive.SetTargets(115, 1800, 0.4, 0);
+                            MechDrive.SetTargets(135, 2100, 0.6, 0);
                         }
                         programorder1++;
                     }
@@ -362,7 +364,7 @@ public class FarBlue_STATEV3 extends LinearOpMode {
                                 WallDetector_Enable(0);
                             }
                             else if (center) {
-                                MechDrive.SetTargets(-60, 1700, 0.7, 0); // 1600
+                                MechDrive.SetTargets(-60, 1750, 0.7, 0); // 1600
                                 WallDetector_Enable(0);
                             }
                             else {
@@ -398,7 +400,7 @@ public class FarBlue_STATEV3 extends LinearOpMode {
                             programorder1 = 16;
                         } else {
                             // Start driving toward the warehouse
-                            //MechDrive.SetTargets(-15, 700, 0.8, 0);
+                            MechDrive.SetTargets(-15, 800, 0.8, 0);
                             programorder1++;
                         }
                     }
@@ -441,9 +443,9 @@ public class FarBlue_STATEV3 extends LinearOpMode {
                     //if (MechDrive.GetTaskState() == Task_State.DONE || MechDrive.GetTaskState() == Task_State.READY) {
                     //if (Rail.getCurrentPosition() < 50) {
                         if (laps == 1) {
-                            MechDrive.SetTargets(0, 200, 0.4, 0);
+                            MechDrive.SetTargets(0, 550, 0.5, 0);
                         } else {
-                            MechDrive.SetTargets(0, 250, 0.4, 0);
+                            MechDrive.SetTargets(0, 600, 0.5, 0);
                         }
 
                         Intake.setPower(-1);
@@ -474,7 +476,12 @@ public class FarBlue_STATEV3 extends LinearOpMode {
                             BackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
                             //ET.reset();
-                            programorder1++;
+                            if (auto_timer.milliseconds() < 8000) {
+                                programorder1 = 17;
+                            }
+                            else {
+                                programorder1++;
+                            }
                         } else if (unknown || UNKNOWN1) {
                             //MechDrive.Override();
                             FrontRight.setPower(0.2);
@@ -608,7 +615,7 @@ public class FarBlue_STATEV3 extends LinearOpMode {
                         MechDrive.SetTargets(0, 700, 0.8, 0);
                     }
                     else {
-                        MechDrive.SetTargets(0, 2700, 0.8, 0);
+                        MechDrive.SetTargets(0, 2300, 0.8, 0);
                         BucketControl.SetTargetPosition(0.5);
                     }
                     programorder1++;
