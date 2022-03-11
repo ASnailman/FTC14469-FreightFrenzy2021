@@ -32,7 +32,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-@Autonomous(name="FarBlue_STATE", group="MecanumDrive")
+@Autonomous(name="FarBlue_OLD", group="MecanumDrive")
 public class FarBlue_OLD extends LinearOpMode {
 
     OpenCvWebcam webcam;

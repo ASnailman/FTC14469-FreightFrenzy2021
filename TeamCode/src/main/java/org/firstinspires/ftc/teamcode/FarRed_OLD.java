@@ -32,7 +32,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-@Autonomous(name="FarRed_STATEV2", group="MecanumDrive")
+@Autonomous(name="FarRed_OLD", group="MecanumDrive")
 public class FarRed_OLD extends LinearOpMode {
 
     OpenCvWebcam webcam;
