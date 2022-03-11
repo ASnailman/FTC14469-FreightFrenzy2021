@@ -104,9 +104,9 @@ public class StateTeleopAllianceBlue extends LinearOpMode {
     static final double OriginalBucketPosition = 0;
     static final double TopBucketPosition = 140;
     static final double MirrorTopBucketPosition = -140;
-    static final double MiddleBucketPosition = 130;
+    static final double MiddleBucketPosition = 146;
     static final double MirrorMiddleBucketPosition = -120;
-    static final double LowBucketPosition = 115;
+    static final double LowBucketPosition = 110;
     static final double MirrorLowBucketPosition = -111;
 
     static final double OpenGatePosition = 0.5;
@@ -228,37 +228,38 @@ public class StateTeleopAllianceBlue extends LinearOpMode {
                     ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
                     CarouselLeft.setPower(1);
                     IntakeServo.setPosition(ClosingIntakePosition);
-                    if (YELLOW1) {
-                        //if (ET1.milliseconds() > 450 && Math.abs(FrontRight.getPower()) > 0.01) {
-                            if (Math.abs(FrontRight.getPower()) > 0.01) {
+                    //if (YELLOW1) {
+                        if (ET1.milliseconds() > 500 && Math.abs(FrontRight.getPower()) > 0.01) {
                             Intake.setPower(1);
-                            BucketIsEmpty = false;
                         }
-                    }
+                    //}
+                    BucketIsEmpty = false;
                 }
                 else if (white) {
-                    if (white && FrontRight.getPower() > 0.1) {
+                    //if (white && FrontRight.getPower() > 0.1) {
                         //Intake.setPower(1);
                         ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.SKY_BLUE);
                         CarouselLeft.setPower(1);
                         IntakeServo.setPosition(ClosingIntakePosition);
-                        if (ET1.milliseconds() > 450 && Math.abs(FrontRight.getPower()) > 0.01) {
+                        if (ET1.milliseconds() > 200 && Math.abs(FrontRight.getPower()) > 0.01) {
                             Intake.setPower(1);
-                            BucketIsEmpty = false;
                         }
-                    }
+                    //}
+                    BucketIsEmpty = false;
                 }
                 else if (unknown && !gamepad1.dpad_right && !button_dpad_right_already_pressed) {
                     ColorStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
-                    ET1.reset();
                     CarouselLeft.setPower(0);
+                    ET1.reset();
                 }
             }
             else {
+                if (ET1.milliseconds() > 300 && Math.abs(FrontRight.getPower()) > 0.01) {
+                    Intake.setPower(1);
+                }
                 /* If intake is enabled, just assume bucket is empty */
                 if (Intake.getPower() >= -0.9) {
                     BucketIsEmpty = true;
-
                 }
             }
 
@@ -267,7 +268,7 @@ public class StateTeleopAllianceBlue extends LinearOpMode {
              *******************************/
 
             if (PowerMode) {
-                movement = 0.75;
+                movement = 0.7;
             } else {
                 movement = 0.45;
             }
@@ -672,11 +673,11 @@ public class StateTeleopAllianceBlue extends LinearOpMode {
 
                 case 2:
                     // Move the rail to its highest position
-                    Rail.setTargetPosition(900);
+                    Rail.setTargetPosition(800);
                     Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     Rail.setPower(0.5);
 
-                    if (Rail.getCurrentPosition() >= 850 && Rail.getCurrentPosition() <= 950) {
+                    if (Rail.getCurrentPosition() >= 750 && Rail.getCurrentPosition() <= 850) {
                         sharedhuborder++;
                     }
                     break;
@@ -685,7 +686,7 @@ public class StateTeleopAllianceBlue extends LinearOpMode {
                     // Move the arm to its highest position
                     if (ArmMotor.GetTaskState() == Task_State.INIT || ArmMotor.GetTaskState() == Task_State.READY) {
 
-                        ArmMotor.SetTargetPosition(-215, -0.55, 0.55);
+                        ArmMotor.SetTargetPosition(-230, -0.55, 0.55);
                     }
                     else if (ArmMotor.GetTaskState() == Task_State.DONE) {
                         sharedhuborder++;
@@ -800,22 +801,22 @@ public class StateTeleopAllianceBlue extends LinearOpMode {
                     // Once the arm drops to a lower position, we will clip the motor command with a larger opposite force
                     // This will allow the motor to "brake" the arm as it continues to drop
                     // The idea here is to catch the arm to prevent it swinging wildly non-stop
-                    /*if (ArmMotor.GetTaskState() == Task_State.INIT ||
+                    if (ArmMotor.GetTaskState() == Task_State.INIT ||
                             ArmMotor.GetTaskState() == Task_State.READY) {
                         if (mirror_event) {
                             //ArmMotor.SetTargetPosition(-2, -0.105, 0.6);
                             //ArmMotor.SetTargetPosition(-10, -0.5, 0.5);
-                            ArmMotor.SetTargetPosition(40, 0.22, 0.22);
+                            ArmMotor.SetTargetPosition(25, 0.22, 0.22);
                         }
                         else {
                             //ArmMotor.SetTargetPosition(2, -0.6, 0.2);
                             //ArmMotor.SetTargetPosition(10, -0.5, 0.5);
-                            ArmMotor.SetTargetPosition(-40, -0.22, -0.22);
+                            ArmMotor.SetTargetPosition(-25, -0.22, -0.22);
                         }
                     }
-                    else if (ArmMotor.GetTaskState() == Task_State.DONE) {*/
+                    else if (ArmMotor.GetTaskState() == Task_State.DONE) {
                         bucketresetorder++;
-                    //}
+                    }
                     break;
 
                 case 5:
@@ -827,11 +828,11 @@ public class StateTeleopAllianceBlue extends LinearOpMode {
                             ArmMotor.GetTaskState() == Task_State.READY) {
                         if (mirror_event) {
                             //ArmMotor.SetTargetPosition(-2, -0.105, 0.6);
-                            ArmMotor.SetTargetPosition(25, -0.22, 0.22);
+                            ArmMotor.SetTargetPosition(20, -0.2, 0.2);
                         }
                         else {
                             //ArmMotor.SetTargetPosition(2, -0.6, 0.2);
-                            ArmMotor.SetTargetPosition(-25, -0.22, 0.22);
+                            ArmMotor.SetTargetPosition(-20, -0.2, 0.2);
                         }
                     }
                     else if (ArmMotor.GetTaskState() == Task_State.DONE) {
@@ -1275,6 +1276,8 @@ public class StateTeleopAllianceBlue extends LinearOpMode {
             } else {
                 if (gamepad1.right_trigger == 0) {
                     button_right_trigger_already_pressed2 = false;
+                    BucketMotor.Calibrate();
+                    ArmMotor.Calibrate();
                     Rail.setTargetPosition(0);
                     Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     Rail.setPower(0.5);

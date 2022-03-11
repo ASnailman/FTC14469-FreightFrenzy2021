@@ -273,7 +273,7 @@ public class SpectatorRed_STATE extends LinearOpMode {
                             MechDrive.SetTargets(135, 2300, 0.35, 0);
                         }
                         else if (center) {
-                            MechDrive.SetTargets(135, 1850, 0.35, 0); // 1600
+                            MechDrive.SetTargets(135, 1950, 0.35, 0); // 1600
                         }
                         else {
                             MechDrive.SetTargets(135, 2100, 0.35, 0); // 1600
@@ -298,11 +298,11 @@ public class SpectatorRed_STATE extends LinearOpMode {
                     if (ET.milliseconds() > 500) { // Prev: 1000
 
                         if (left) {
-                            MechDrive.SetTargets(-45, 1900, 0.7, 0); // 2100
+                            MechDrive.SetTargets(-45, 1700, 0.7, 0); // 2100
                         } else if (center) {
-                            MechDrive.SetTargets(-45, 1450, 0.7, 0); // 1750
+                            MechDrive.SetTargets(-45, 1250, 0.7, 0); // 1750
                         } else {
-                            MechDrive.SetTargets(-45, 1700, 0.7, 0); // 2000
+                            MechDrive.SetTargets(-45, 1500, 0.7, 0); // 2000
                         }
 
                         GateServo.setPosition(ClosingGatePosition);
@@ -371,8 +371,8 @@ public class SpectatorRed_STATE extends LinearOpMode {
                     break;
 
                 case 18:
-                    SetMotorPower(0.1);
-                    if (ET.milliseconds() > 500) {
+                    SetMotorPower(0.05);
+                    if (ET.milliseconds() > 1000) {
                         SetMotorPower(0);
                         programorder1++;
 
@@ -398,7 +398,7 @@ public class SpectatorRed_STATE extends LinearOpMode {
 
                 case 22:
                     if (MechDrive.GetTaskState() == Task_State.READY) {
-                        MechDrive.SetTargets(75, 1150, 0.5, 0);
+                        MechDrive.SetTargets(75, 750, 0.5, 0);
                     }
                     else if (MechDrive.GetTaskState() == Task_State.DONE) {
                         programorder1++;
@@ -424,7 +424,7 @@ public class SpectatorRed_STATE extends LinearOpMode {
                     ArmControl.Calibrate();
                     Rail.setTargetPosition(0);
                     Rail.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    Rail.setPower(0.5);
+                    Rail.setPower(0.8);
                     programorder1++;
                     break;
 
